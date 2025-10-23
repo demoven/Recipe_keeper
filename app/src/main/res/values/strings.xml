@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">RecipeKeeper</string>
+    <string name="settings">Paramètres</string>
+    <string name="back_button">Back</string>
 </resources>
