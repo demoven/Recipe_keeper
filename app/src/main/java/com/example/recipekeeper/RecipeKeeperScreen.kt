@@ -42,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
+import com.example.recipekeeper.R.string.dossier
 import kotlinx.coroutines.launch
 
 enum class RecipeKeeperScreen(@StringRes val title: Int) {
@@ -59,8 +60,6 @@ fun RecipeKeeperApp(
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
-//    val currentScreen = RecipeKeeperScreen.entries.find { it.name == currentRoute }
-//        ?: RecipeKeeperScreen.Home
     val currentScreen = RecipeKeeperScreen.valueOf(
         backStackEntry?.destination?.route ?: RecipeKeeperScreen.Home.name
     )
@@ -75,7 +74,8 @@ fun RecipeKeeperApp(
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
-    var showSheet by remember { mutableStateOf(false) }
+    var showMainSheet by remember { mutableStateOf(false) }
+    var showAddFolderSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -91,7 +91,7 @@ fun RecipeKeeperApp(
                     currentScreen = currentScreen,
                     onNavigate = { screen ->
                         if (screen == RecipeKeeperScreen.CreateRecipe) {
-                            coroutineScope.launch { showSheet = true }
+                            coroutineScope.launch { showMainSheet = true }
                         } else {
                             navController.navigate(screen.name)
                         }
@@ -122,19 +122,35 @@ fun RecipeKeeperApp(
 
             composable(RecipeKeeperScreen.AddFolder.name) { Text("Écran : Ajouter un dossier") }
         }
-        if (showSheet) {
+        // --- Première Bottom Sheet : choix ---
+        if (showMainSheet) {
             ModalBottomSheet(
-                onDismissRequest = { showSheet = false },
+                onDismissRequest = { showMainSheet = false },
                 sheetState = sheetState
             ) {
                 BottomSheetContent(
                     onAddFolder = {
-                        showSheet = false
-                        navController.navigate(RecipeKeeperScreen.AddFolder.name)
+                        showMainSheet = false
+                        showAddFolderSheet = true
                     },
                     onAddRecipe = {
-                        showSheet = false
+                        showMainSheet = false
                         navController.navigate(RecipeKeeperScreen.CreateRecipe.name)
+                    }
+                )
+            }
+        }
+
+        // --- Deuxième Bottom Sheet : ajout dossier ---
+        if (showAddFolderSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showAddFolderSheet = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ) {
+                AddFolderBottomSheet(
+                    onAdd = { folderName ->
+                        showAddFolderSheet = false
+                        println("Dossier ajouté : $folderName")
                     }
                 )
             }
@@ -210,7 +226,7 @@ fun BottomSheetContent(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Button(onClick = onAddFolder) {
-                Text("DOSSIER 📁 ")
+                Text(stringResource(dossier))
             }
             Button(onClick = onAddRecipe) {
                 Text("RECETTE")
@@ -219,3 +235,34 @@ fun BottomSheetContent(
     }
 }
 
+@Composable
+fun AddFolderBottomSheet(
+    onAdd: (String) -> Unit
+) {
+    var folderName by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(text = "Ajouter un dossier", style = MaterialTheme.typography.titleMedium)
+
+        androidx.compose.material3.OutlinedTextField(
+            value = folderName,
+            onValueChange = { folderName = it },
+            label = { Text("Nom du dossier") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Button(
+            onClick = {
+                if (folderName.isNotBlank()) onAdd(folderName)
+            },
+            modifier = Modifier.align(androidx.compose.ui.Alignment.End)
+        ) {
+            Text("Ajouter")
+        }
+    }
+}

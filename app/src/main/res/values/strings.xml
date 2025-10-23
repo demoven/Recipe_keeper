@@ -5,4 +5,5 @@
     <string name="add_folder">Ajouter un dossier</string>
     <string name="account">Compte</string>
     <string name="create_recipe">Créer une recette</string>
+    <string name="dossier">"DOSSIER 📁 "</string>
 </resources>
