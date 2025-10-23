@@ -2,4 +2,7 @@
     <string name="app_name">RecipeKeeper</string>
     <string name="settings">Paramètres</string>
     <string name="back_button">Back</string>
+    <string name="add_folder">Ajouter un dossier</string>
+    <string name="account">Compte</string>
+    <string name="create_recipe">Créer une recette</string>
 </resources>

@@ -46,9 +46,10 @@ import kotlinx.coroutines.launch
 
 enum class RecipeKeeperScreen(@StringRes val title: Int) {
     Home(title = R.string.app_name),
-    Account(title = R.string.app_name),
-    CreateRecipe(title = R.string.app_name),
-    Settings(title = R.string.app_name)
+    Account(title = R.string.account),
+    CreateRecipe(title = R.string.create_recipe),
+    AddFolder(title = R.string.add_folder),
+    Settings(title = R.string.settings)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,8 +59,19 @@ fun RecipeKeeperApp(
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
-    val currentScreen = RecipeKeeperScreen.entries.find { it.name == currentRoute }
-        ?: RecipeKeeperScreen.Home
+//    val currentScreen = RecipeKeeperScreen.entries.find { it.name == currentRoute }
+//        ?: RecipeKeeperScreen.Home
+    val currentScreen = RecipeKeeperScreen.valueOf(
+        backStackEntry?.destination?.route ?: RecipeKeeperScreen.Home.name
+    )
+
+    val showBottomBar = when (currentScreen) {
+            RecipeKeeperScreen.AddFolder,
+            RecipeKeeperScreen.CreateRecipe,
+            RecipeKeeperScreen.Account,
+            RecipeKeeperScreen.Settings -> false
+        else -> true
+    }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
@@ -74,16 +86,18 @@ fun RecipeKeeperApp(
             )
         },
         bottomBar = {
-            BottomNavigationBar(
-                currentScreen = currentScreen,
-                onNavigate = {  screen ->
-                    if (screen == RecipeKeeperScreen.CreateRecipe) {
-                        coroutineScope.launch { showSheet = true }
-                    } else {
-                        navController.navigate(screen.name)
+            if (showBottomBar) {
+                BottomNavigationBar(
+                    currentScreen = currentScreen,
+                    onNavigate = { screen ->
+                        if (screen == RecipeKeeperScreen.CreateRecipe) {
+                            coroutineScope.launch { showSheet = true }
+                        } else {
+                            navController.navigate(screen.name)
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     ) { innerPadding ->
         NavHost(
@@ -106,10 +120,7 @@ fun RecipeKeeperApp(
                 SettingsScreen(onNavigateToAccount = { navController.navigate(RecipeKeeperScreen.Account.name) })
             }
 
-            composable("addFolder") { Text("Écran : Ajouter un dossier") }
-            composable("addRecipe") {
-                CreateRecipeScreen()
-            }
+            composable(RecipeKeeperScreen.AddFolder.name) { Text("Écran : Ajouter un dossier") }
         }
         if (showSheet) {
             ModalBottomSheet(
@@ -119,11 +130,11 @@ fun RecipeKeeperApp(
                 BottomSheetContent(
                     onAddFolder = {
                         showSheet = false
-                        navController.navigate("addFolder")
+                        navController.navigate(RecipeKeeperScreen.AddFolder.name)
                     },
                     onAddRecipe = {
                         showSheet = false
-                        navController.navigate("addRecipe")
+                        navController.navigate(RecipeKeeperScreen.CreateRecipe.name)
                     }
                 )
             }
