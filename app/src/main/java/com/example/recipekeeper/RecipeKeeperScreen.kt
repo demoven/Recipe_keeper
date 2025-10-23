@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
@@ -33,10 +31,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.recipekeeper.ui.theme.HomeScreen
-import com.example.recipekeeper.ui.theme.AccountScreen
-import com.example.recipekeeper.ui.theme.CreateRecipeScreen
-import com.example.recipekeeper.ui.theme.SettingsScreen
+import com.example.recipekeeper.ui.screens.HomeScreen
+import com.example.recipekeeper.ui.screens.AccountScreen
+import com.example.recipekeeper.ui.screens.CreateRecipeScreen
+import com.example.recipekeeper.ui.screens.SettingsScreen
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.mutableStateOf
