@@ -39,6 +39,10 @@ class AuthViewModel : ViewModel() {
         confirmPassword = ""
     }
 
+    private fun checkPasswordsMatch(): Boolean {
+        return password == confirmPassword
+    }
+
     fun setLoading(isLoading: Boolean) {
         _uiState.value = _uiState.value.copy(isLoading = isLoading)
     }
