@@ -179,6 +179,7 @@ fun RecipeKeeperApp(
                             launchSingleTop = true
                             popUpTo(RecipeKeeperScreen.Login.name) { inclusive = true}
                         }
+                        authViewModel.resetPassword()
                     },
                     modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
                 )
@@ -203,6 +204,7 @@ fun RecipeKeeperApp(
                             launchSingleTop = true
                             popUpTo(RecipeKeeperScreen.Register.name) { inclusive = true}
                         }
+                        authViewModel.resetPassword()
                     },
                     modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
                 )

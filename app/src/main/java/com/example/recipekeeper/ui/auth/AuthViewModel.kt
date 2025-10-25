@@ -29,6 +29,15 @@ class AuthViewModel : ViewModel() {
     fun updateConfirmPassword(updatedConfirmPassword: String) {
         confirmPassword = updatedConfirmPassword
     }
+    fun resetPassword() {
+        password = ""
+        confirmPassword = ""
+    }
+    fun resetFields() {
+        email = ""
+        password = ""
+        confirmPassword = ""
+    }
 
     fun setLoading(isLoading: Boolean) {
         _uiState.value = _uiState.value.copy(isLoading = isLoading)
