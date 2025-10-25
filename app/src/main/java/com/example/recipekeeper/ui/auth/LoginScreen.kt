@@ -75,8 +75,7 @@ fun LoginScreen(
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     val icon = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
-                    val desc = if (passwordVisible) "Masquer le mot de passe" else "Afficher le mot de passe"
-                    Icon(imageVector = icon, contentDescription = desc)
+                    Icon(imageVector = icon, contentDescription = null)
                 }
             },
             modifier = Modifier.fillMaxWidth()
