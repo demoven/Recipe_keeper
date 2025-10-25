@@ -6,4 +6,12 @@
     <string name="account">Compte</string>
     <string name="create_recipe">Créer une recette</string>
     <string name="dossier">"DOSSIER 📁 "</string>
+    <string name="login">Connexion</string>
+    <string name="register">S\'inscrire</string>
+    <string name="create_account">Créer un compte</string>
+    <string name="password">Mot de passe</string>
+    <string name="email">Email</string>
+    <string name="confirm_password">Confirmer le mot de passe</string>
+    <string name="already_have_account">Vous avez déjà un compte?</string>
+    <string name="forgot_password">Mot de passe oublié ?</string>
 </resources>
