@@ -101,6 +101,11 @@ fun RecipeKeeperApp(
         RecipeKeeperScreen.Login,
         RecipeKeeperScreen.Register
     )
+    val screensWithoutTopBar = setOf(
+        RecipeKeeperScreen.Login,
+        RecipeKeeperScreen.Register
+    )
+    val showTopBar = currentScreen !in screensWithoutTopBar
     val showBottomBar = currentScreen !in screensWithoutBottomBar
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
@@ -109,11 +114,13 @@ fun RecipeKeeperApp(
 
     Scaffold(
         topBar = {
-            RecipeKeeperTopBar(
-                currentScreen = currentScreen,
-                canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() }
-            )
+            if (showTopBar) {
+                RecipeKeeperTopBar(
+                    currentScreen = currentScreen,
+                    canNavigateBack = navController.previousBackStackEntry != null,
+                    navigateUp = { navController.navigateUp() }
+                )
+            }
         },
         bottomBar = {
             if (showBottomBar) {
