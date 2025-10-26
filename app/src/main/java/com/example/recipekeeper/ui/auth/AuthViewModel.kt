@@ -1,9 +1,11 @@
 package com.example.recipekeeper.ui.auth
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,15 +14,27 @@ class AuthViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
-    var email by mutableStateOf("")
-        private set
+//    var email by mutableStateOf("")
+//        private set
     var password by mutableStateOf("")
         private set
     var confirmPassword by mutableStateOf("")
         private set
 
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val authStateListener = FirebaseAuth.AuthStateListener { auth ->
+        val user = auth.currentUser
+        _uiState.value = _uiState.value.copy(
+            isLoggedIn = user != null,
+            email = user?.email ?: ""
+        )
+    }
+    init {
+        firebaseAuth.addAuthStateListener(authStateListener)
+    }
+
     fun updateEmail(updatedEmail: String) {
-        email = updatedEmail
+        _uiState.value = _uiState.value.copy(email = updatedEmail)
     }
 
     fun updatePassword(updatedPassword: String) {
@@ -34,7 +48,7 @@ class AuthViewModel : ViewModel() {
         confirmPassword = ""
     }
     fun resetFields() {
-        email = ""
+        _uiState.value = _uiState.value.copy(email = "")
         password = ""
         confirmPassword = ""
     }
@@ -53,6 +67,26 @@ class AuthViewModel : ViewModel() {
 
     fun setLoggedIn(isLoggedIn: Boolean) {
         _uiState.value = _uiState.value.copy(isLoggedIn = isLoggedIn)
+    }
+
+    fun register(onSuccess: () -> Unit) {
+        if (_uiState.value.email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+            setErrorMessage("Please fill in all fields.")
+            return
+        }
+        if (!checkPasswordsMatch()) {
+            setErrorMessage("Passwords do not match.")
+            return
+        }
+        firebaseAuth.createUserWithEmailAndPassword(_uiState.value.email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful){
+                    resetFields()
+                    onSuccess()
+                } else {
+                    Log.d("AuthViewModel", "Registration failed: ${task.exception?.message}" )
+                }
+            }
     }
 
 
