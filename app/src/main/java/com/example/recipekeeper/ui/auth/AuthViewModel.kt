@@ -30,6 +30,11 @@ class AuthViewModel : ViewModel() {
         )
     }
     init {
+        val user = firebaseAuth.currentUser
+        _uiState.value = _uiState.value.copy(
+            isLoggedIn = user != null,
+            email = user?.email ?: ""
+        )
         firebaseAuth.addAuthStateListener(authStateListener)
     }
 
@@ -81,12 +86,36 @@ class AuthViewModel : ViewModel() {
         firebaseAuth.createUserWithEmailAndPassword(_uiState.value.email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful){
+                    setLoggedIn(true)
                     resetFields()
                     onSuccess()
                 } else {
                     Log.d("AuthViewModel", "Registration failed: ${task.exception?.message}" )
                 }
             }
+    }
+
+    fun login(onSuccess: () -> Unit) {
+        if (_uiState.value.email.isBlank() || password.isBlank()) {
+            setErrorMessage("Please fill in all fields.")
+            return
+        }
+        firebaseAuth.signInWithEmailAndPassword(_uiState.value.email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    setLoggedIn(true)
+                    resetFields()
+                    onSuccess()
+                } else {
+                    Log.d("AuthViewModel", "Login failed: ${task.exception?.message}" )
+                }
+            }
+    }
+
+    fun logout() {
+        firebaseAuth.signOut()
+        setLoggedIn(false)
+        resetFields()
     }
 
 

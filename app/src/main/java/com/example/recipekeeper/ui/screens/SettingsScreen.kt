@@ -7,12 +7,16 @@ import androidx.compose.material3.Button
 
 @Composable
 fun SettingsScreen(
-    onNavigateToAccount: () -> Unit
+    onNavigateToAccount: () -> Unit,
+    onLogout: () -> Unit
 ) {
     Column {
         Text("Paramètres")
         Button(onClick = onNavigateToAccount) {
             Text("Mon compte")
+        }
+        Button(onClick = onLogout) {
+            Text("Se déconnecter")
         }
     }
 }

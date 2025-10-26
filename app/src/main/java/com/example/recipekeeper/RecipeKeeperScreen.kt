@@ -163,7 +163,16 @@ fun RecipeKeeperApp(
                 CreateRecipeScreen()
             }
             composable(RecipeKeeperScreen.Settings.name) {
-                SettingsScreen(onNavigateToAccount = { navController.navigate(RecipeKeeperScreen.Account.name) })
+                SettingsScreen(
+                    onNavigateToAccount = { navController.navigate(RecipeKeeperScreen.Account.name) },
+                    onLogout = {
+                        authViewModel.logout()
+                        navController.navigate(RecipeKeeperScreen.Login.name) {
+                            launchSingleTop = true
+                            popUpTo(RecipeKeeperScreen.Settings.name) { inclusive = true }
+                        }
+                    }
+                )
             }
             composable(RecipeKeeperScreen.AddFolder.name) {
                 Text("Écran : Ajouter un dossier")
@@ -175,10 +184,11 @@ fun RecipeKeeperApp(
                     onEmailChanged = { authViewModel.updateEmail(it)},
                     onPasswordChanged = { authViewModel.updatePassword(it)},
                     onLogin = {
-                        authViewModel.setLoggedIn(true)
-                        navController.navigate(RecipeKeeperScreen.Home.name) {
-                            launchSingleTop = true
-                            popUpTo(RecipeKeeperScreen.Login.name) { inclusive = true }
+                        authViewModel.login() {
+                            navController.navigate(RecipeKeeperScreen.Home.name) {
+                                launchSingleTop = true
+                                popUpTo(RecipeKeeperScreen.Login.name) { inclusive = true }
+                            }
                         }
                     },
                     onNavigateToRegister = {
@@ -197,7 +207,6 @@ fun RecipeKeeperApp(
                     onPasswordChanged = { authViewModel.updatePassword(it)},
                     onConfirmedPasswordChanged = { authViewModel.updateConfirmPassword(it)},
                     onRegister = {
-//                        authViewModel.setLoggedIn(true)
                         authViewModel.register() {
                             navController.navigate(RecipeKeeperScreen.Home.name) {
                                 launchSingleTop = true
