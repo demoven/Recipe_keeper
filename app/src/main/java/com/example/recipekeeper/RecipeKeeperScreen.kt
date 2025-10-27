@@ -203,6 +203,7 @@ fun RecipeKeeperApp(
                     email = authUiState.email,
                     password = authViewModel.password,
                     confirmedPassword = authViewModel.confirmPassword,
+                    emailError = authUiState.emailError,
                     onEmailChanged = { authViewModel.updateEmail(it)},
                     onPasswordChanged = { authViewModel.updatePassword(it)},
                     onConfirmedPasswordChanged = { authViewModel.updateConfirmPassword(it)},

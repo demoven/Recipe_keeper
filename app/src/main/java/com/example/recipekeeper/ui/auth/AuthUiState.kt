@@ -5,4 +5,8 @@ data class AuthUiState(
     val errorMessage: String? = null,
     val isLoggedIn: Boolean = false,
     val email: String = "",
+    // Fields errors
+    val emailError: String? = null,
+    val passwordError: String? = null,
+    val confirmPasswordError: String? = null
 )

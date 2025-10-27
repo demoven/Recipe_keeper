@@ -1,6 +1,7 @@
 package com.example.recipekeeper.ui.auth
 
 import android.util.Log
+import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -74,8 +75,17 @@ class AuthViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(isLoggedIn = isLoggedIn)
     }
 
+    fun validateEmail(email: String): String? {
+        if (email.isBlank())
+            return "Email requis"
+        else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches())
+            return "Email invalide"
+        else return null
+    }
     fun register(onSuccess: () -> Unit) {
-        if (_uiState.value.email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+        val emailErr = validateEmail(_uiState.value.email)
+        _uiState.value = _uiState.value.copy(emailError = emailErr)
+        if (password.isBlank() || confirmPassword.isBlank()) {
             setErrorMessage("Please fill in all fields.")
             return
         }
@@ -111,7 +121,6 @@ class AuthViewModel : ViewModel() {
                 }
             }
     }
-
     fun logout() {
         firebaseAuth.signOut()
         setLoggedIn(false)
