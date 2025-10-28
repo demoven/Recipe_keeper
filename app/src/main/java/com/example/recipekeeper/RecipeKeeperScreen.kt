@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -36,6 +38,8 @@ import com.example.recipekeeper.ui.screens.AccountScreen
 import com.example.recipekeeper.ui.screens.CreateRecipeScreen
 import com.example.recipekeeper.ui.screens.SettingsScreen
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -77,6 +81,7 @@ fun RecipeKeeperApp(
     } else {
         RecipeKeeperScreen.Login.name
     }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // si l'état d'auth change après le démarrage, naviguer vers la bonne destination
     LaunchedEffect(authUiState.isLoggedIn) {
@@ -87,6 +92,12 @@ fun RecipeKeeperApp(
                 // optionnel : vider la pile jusqu'à la racine pour éviter l'historique indésirable
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
             }
+        }
+    }
+    LaunchedEffect(authUiState.errorMessage) {
+        authUiState.errorMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            authViewModel.setErrorMessage(null) // clear after showing
         }
     }
     val currentRoute = backStackEntry?.destination?.route
@@ -113,6 +124,13 @@ fun RecipeKeeperApp(
     var showAddFolderSheet by remember { mutableStateOf(false) }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .imePadding()
+                    .navigationBarsPadding()
+            ) },
         topBar = {
             if (showTopBar) {
                 RecipeKeeperTopBar(
@@ -194,7 +212,10 @@ fun RecipeKeeperApp(
                     onNavigateToRegister = {
                         navController.navigate(RecipeKeeperScreen.Register.name)
                         authViewModel.resetPassword()
+                        authViewModel.resetErrors()
                     },
+                    emailError = authUiState.emailError,
+                    passwordError = authUiState.passwordError,
                     modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
                 )
             }
@@ -204,6 +225,8 @@ fun RecipeKeeperApp(
                     password = authViewModel.password,
                     confirmedPassword = authViewModel.confirmPassword,
                     emailError = authUiState.emailError,
+                    passwordError = authUiState.passwordError,
+                    confirmedPasswordError = authUiState.confirmPasswordError,
                     onEmailChanged = { authViewModel.updateEmail(it)},
                     onPasswordChanged = { authViewModel.updatePassword(it)},
                     onConfirmedPasswordChanged = { authViewModel.updateConfirmPassword(it)},
@@ -221,6 +244,7 @@ fun RecipeKeeperApp(
                             popUpTo(RecipeKeeperScreen.Register.name) { inclusive = true}
                         }
                         authViewModel.resetPassword()
+                        authViewModel.resetErrors()
                     },
                     modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
                 )

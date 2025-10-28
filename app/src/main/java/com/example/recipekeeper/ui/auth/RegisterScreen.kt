@@ -6,10 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,6 +25,8 @@ fun RegisterScreen(
     password: String,
     confirmedPassword: String,
     emailError: String?,
+    passwordError: String?,
+    confirmedPasswordError: String?,
     onEmailChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
     onConfirmedPasswordChanged: (String) -> Unit,
@@ -50,16 +51,28 @@ fun RegisterScreen(
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_extra_small)))
         PasswordTextField(
+            label = stringResource(R.string.password),
             password = password,
             onPasswordChanged = onPasswordChanged,
-            imeAction = ImeAction.Next,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = null,
+            passwordError = passwordError,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_extra_small)))
         PasswordTextField(
+            label = stringResource(R.string.confirm_password),
             password = confirmedPassword,
             onPasswordChanged = onConfirmedPasswordChanged,
-            imeAction = ImeAction.Done,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { onRegister() }
+            ),
+            passwordError = confirmedPasswordError,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_small)))

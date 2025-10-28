@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -25,7 +27,9 @@ fun LoginScreen(
     onPasswordChanged: (String) -> Unit,
     onLogin: () -> Unit,
     onNavigateToRegister: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    emailError: String? = null,
+    passwordError: String? = null
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -39,13 +43,21 @@ fun LoginScreen(
         EmailTextField(
             email = email,
             onEmailChanged = onEmailChanged,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            emailError = emailError
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_extra_small)))
         PasswordTextField(
+            label = stringResource(R.string.password),
             password = password,
             onPasswordChanged = onPasswordChanged,
-            imeAction = ImeAction.Done,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { onLogin() }
+            ),
+            passwordError = passwordError,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_small)))

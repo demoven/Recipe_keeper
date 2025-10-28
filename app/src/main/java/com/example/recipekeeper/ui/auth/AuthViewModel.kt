@@ -40,13 +40,16 @@ class AuthViewModel : ViewModel() {
     }
 
     fun updateEmail(updatedEmail: String) {
+        _uiState.value = _uiState.value.copy(emailError = null)
         _uiState.value = _uiState.value.copy(email = updatedEmail)
     }
 
     fun updatePassword(updatedPassword: String) {
+        _uiState.value = _uiState.value.copy(passwordError = null)
         password = updatedPassword
     }
     fun updateConfirmPassword(updatedConfirmPassword: String) {
+        _uiState.value = _uiState.value.copy(confirmPasswordError = null)
         confirmPassword = updatedConfirmPassword
     }
     fun resetPassword() {
@@ -59,8 +62,13 @@ class AuthViewModel : ViewModel() {
         confirmPassword = ""
     }
 
-    private fun checkPasswordsMatch(): Boolean {
-        return password == confirmPassword
+    fun resetErrors() {
+        _uiState.value = _uiState.value.copy(
+            emailError = null,
+            passwordError = null,
+            confirmPasswordError = null,
+            errorMessage = null
+        )
     }
 
     fun setLoading(isLoading: Boolean) {
@@ -71,26 +79,62 @@ class AuthViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(errorMessage = message)
     }
 
+    fun setEmailError(message: String?) {
+        _uiState.value = _uiState.value.copy(emailError = message)
+    }
+
+    fun setPasswordError(message: String?) {
+        _uiState.value = _uiState.value.copy(passwordError = message)
+    }
+
+    fun setConfirmPasswordError(message: String?) {
+        _uiState.value = _uiState.value.copy(confirmPasswordError = message)
+    }
+
     fun setLoggedIn(isLoggedIn: Boolean) {
         _uiState.value = _uiState.value.copy(isLoggedIn = isLoggedIn)
     }
 
-    fun validateEmail(email: String): String? {
-        if (email.isBlank())
-            return "Email requis"
+    private fun validateEmail(email: String): String? {
+        return if (email.isBlank())
+            "Email requis"
         else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches())
-            return "Email invalide"
-        else return null
+            "Email invalide"
+        else null
     }
+
+    private fun isPasswordValid(password: String): Boolean {
+        val lengthOk = password.length >= 12
+        val upperOk = password.any { it.isUpperCase() }
+        val lowerOk = password.any { it.isLowerCase() }
+        val specialOk = password.any { !it.isLetterOrDigit() && !it.isWhitespace() } // exclut les espaces
+        return lengthOk && upperOk && lowerOk && specialOk
+    }
+
+    private fun validatePassword(password: String): String? {
+        return if (password.isBlank())
+            "Mot de passe requis"
+        else if (!isPasswordValid(password))
+            "Le mot de passe doit contenir au moins 12 caractères dont une majuscule, une minuscule et un caractère spécial."
+        else null
+    }
+
+    private fun validateConfirmPassword(confirmPassword: String): String? {
+        return if (confirmPassword.isBlank())
+            "Veuillez confirmer le mot de passe"
+        else if (confirmPassword != password)
+            "Les mots de passe ne correspondent pas"
+        else null
+    }
+
     fun register(onSuccess: () -> Unit) {
         val emailErr = validateEmail(_uiState.value.email)
-        _uiState.value = _uiState.value.copy(emailError = emailErr)
-        if (password.isBlank() || confirmPassword.isBlank()) {
-            setErrorMessage("Please fill in all fields.")
-            return
-        }
-        if (!checkPasswordsMatch()) {
-            setErrorMessage("Passwords do not match.")
+        setEmailError(emailErr)
+        val passwordErr = validatePassword(password)
+        setPasswordError(passwordErr)
+        val confirmPasswordErr = validateConfirmPassword(confirmPassword)
+        setConfirmPasswordError(confirmPasswordErr)
+        if (emailErr != null || passwordErr != null || confirmPasswordErr != null) {
             return
         }
         firebaseAuth.createUserWithEmailAndPassword(_uiState.value.email, password)
@@ -101,13 +145,19 @@ class AuthViewModel : ViewModel() {
                     onSuccess()
                 } else {
                     Log.d("AuthViewModel", "Registration failed: ${task.exception?.message}" )
+                    setErrorMessage("Echec de l'inscription")
                 }
             }
     }
 
     fun login(onSuccess: () -> Unit) {
-        if (_uiState.value.email.isBlank() || password.isBlank()) {
-            setErrorMessage("Please fill in all fields.")
+        val emailErr = validateEmail(_uiState.value.email)
+        setEmailError(emailErr)
+        if (password.isBlank()) {
+            setPasswordError("Mot de passe requis")
+            return
+        }
+        if (emailErr != null) {
             return
         }
         firebaseAuth.signInWithEmailAndPassword(_uiState.value.email, password)
@@ -118,6 +168,7 @@ class AuthViewModel : ViewModel() {
                     onSuccess()
                 } else {
                     Log.d("AuthViewModel", "Login failed: ${task.exception?.message}" )
+                    setErrorMessage("Echec de la connexion")
                 }
             }
     }
@@ -126,6 +177,4 @@ class AuthViewModel : ViewModel() {
         setLoggedIn(false)
         resetFields()
     }
-
-
 }

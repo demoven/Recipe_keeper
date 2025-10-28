@@ -1,5 +1,6 @@
 package com.example.recipekeeper.ui.auth
 
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -23,20 +24,21 @@ import com.example.recipekeeper.R
 
 @Composable
 fun PasswordTextField(
+    label: String,
     password: String,
     onPasswordChanged: (String) -> Unit,
-    imeAction: ImeAction,
+    keyboardOptions: KeyboardOptions,
     modifier: Modifier = Modifier,
+    keyboardActions: KeyboardActions? = null,
     passwordError: String? = null
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
     OutlinedTextField(
         value = password,
         onValueChange = onPasswordChanged,
-        label = { Text(stringResource(R.string.password)) },
-        keyboardOptions = KeyboardOptions.Default.copy(
-            imeAction = imeAction
-        ),
+        label = { Text(label) },
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions ?: KeyboardActions.Default,
         singleLine = true,
         shape = MaterialTheme.shapes.medium,
         isError = passwordError != null,
