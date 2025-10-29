@@ -38,8 +38,7 @@ class AuthViewModel : ViewModel() {
     }
 
     fun updateEmail(updatedEmail: String) {
-        _uiState.value = _uiState.value.copy(emailError = false)
-        _uiState.value = _uiState.value.copy(email = updatedEmail)
+        _uiState.value = _uiState.value.copy(emailError = false, email = updatedEmail)
     }
 
     fun updatePassword(updatedPassword: String) {
