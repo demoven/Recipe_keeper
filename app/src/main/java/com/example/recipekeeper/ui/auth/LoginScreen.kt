@@ -23,13 +23,13 @@ import androidx.compose.ui.res.painterResource
 fun LoginScreen(
     email: String,
     password: String,
+    passwordError: Boolean,
+    emailError: Boolean,
     onEmailChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
     onLogin: () -> Unit,
     onNavigateToRegister: () -> Unit,
     modifier: Modifier = Modifier,
-    emailError: String? = null,
-    passwordError: String? = null
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -58,6 +58,7 @@ fun LoginScreen(
                 onDone = { onLogin() }
             ),
             passwordError = passwordError,
+            passwordErrorMessage = "",
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_small)))

@@ -75,15 +75,14 @@ fun RecipeKeeperApp(
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val authUiState by authViewModel.uiState.collectAsState()
-    // startDestination selon l'auth
     val startDestination = if (authUiState.isLoggedIn) {
         RecipeKeeperScreen.Home.name
     } else {
         RecipeKeeperScreen.Login.name
     }
     val snackbarHostState = remember { SnackbarHostState() }
-
-    // si l'état d'auth change après le démarrage, naviguer vers la bonne destination
+    val signinError = stringResource(R.string.signin_failed)
+    val registerError = stringResource(R.string.register_failed)
     LaunchedEffect(authUiState.isLoggedIn) {
         val target = if (authUiState.isLoggedIn) RecipeKeeperScreen.Home.name else RecipeKeeperScreen.Login.name
         if (navController.currentBackStackEntry?.destination?.route != target) {
@@ -94,10 +93,14 @@ fun RecipeKeeperApp(
             }
         }
     }
-    LaunchedEffect(authUiState.errorMessage) {
-        authUiState.errorMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
-            authViewModel.setErrorMessage(null) // clear after showing
+    LaunchedEffect(authUiState.loginError, authUiState.registerError) {
+        if (authUiState.loginError) {
+            snackbarHostState.showSnackbar(signinError)
+            authViewModel.resetErrors()
+        }
+        if (authUiState.registerError) {
+            snackbarHostState.showSnackbar(registerError)
+            authViewModel.resetErrors()
         }
     }
     val currentRoute = backStackEntry?.destination?.route

@@ -24,9 +24,9 @@ fun RegisterScreen(
     email: String,
     password: String,
     confirmedPassword: String,
-    emailError: String?,
-    passwordError: String?,
-    confirmedPasswordError: String?,
+    emailError: Boolean,
+    passwordError: Boolean,
+    confirmedPasswordError: Boolean ,
     onEmailChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
     onConfirmedPasswordChanged: (String) -> Unit,
@@ -59,6 +59,7 @@ fun RegisterScreen(
             ),
             keyboardActions = null,
             passwordError = passwordError,
+            passwordErrorMessage = stringResource(R.string.password_invalid_error),
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_extra_small)))
@@ -73,6 +74,7 @@ fun RegisterScreen(
                 onDone = { onRegister() }
             ),
             passwordError = confirmedPasswordError,
+            passwordErrorMessage = stringResource(R.string.passwords_do_not_match),
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_small)))

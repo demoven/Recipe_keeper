@@ -26,11 +26,12 @@ import com.example.recipekeeper.R
 fun PasswordTextField(
     label: String,
     password: String,
+    passwordError: Boolean,
+    passwordErrorMessage: String,
     onPasswordChanged: (String) -> Unit,
     keyboardOptions: KeyboardOptions,
     modifier: Modifier = Modifier,
-    keyboardActions: KeyboardActions? = null,
-    passwordError: String? = null
+    keyboardActions: KeyboardActions? = null
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
     OutlinedTextField(
@@ -41,11 +42,14 @@ fun PasswordTextField(
         keyboardActions = keyboardActions ?: KeyboardActions.Default,
         singleLine = true,
         shape = MaterialTheme.shapes.medium,
-        isError = passwordError != null,
-        supportingText = if (passwordError != null) {
-            { Text(passwordError, color = MaterialTheme.colorScheme.error) }
-        }
-        else null,
+        isError = passwordError,
+        supportingText =  if (passwordError) {
+            if(password.isBlank()) {
+                { Text(stringResource(R.string.required_field)) }
+            } else {
+                { Text(passwordErrorMessage)}
+            }
+        } else null,
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
             IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -61,9 +65,9 @@ fun PasswordTextField(
 @Composable
 fun EmailTextField(
     email: String,
+    emailError: Boolean,
     onEmailChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
-    emailError: String? = null
 ) {
     OutlinedTextField(
         value = email,
@@ -74,9 +78,13 @@ fun EmailTextField(
         ),
         singleLine = true,
         shape = MaterialTheme.shapes.medium,
-        isError = emailError != null,
-        supportingText = if (emailError != null) {
-            { Text(emailError, color = MaterialTheme.colorScheme.error) }
+        isError = emailError,
+        supportingText = if (emailError) {
+            if (email.isBlank()) {
+                { Text(stringResource(R.string.required_field))}
+            } else{
+                { Text(stringResource(R.string.invalid_email)) }
+            }
         } else null,
         modifier = modifier
     )
