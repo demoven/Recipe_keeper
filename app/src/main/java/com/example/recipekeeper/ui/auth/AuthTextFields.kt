@@ -47,7 +47,7 @@ fun PasswordTextField(
             if(password.isBlank()) {
                 { Text(stringResource(R.string.required_field)) }
             } else {
-                { Text(passwordErrorMessage)}
+                { Text(passwordErrorMessage) }
             }
         } else null,
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
