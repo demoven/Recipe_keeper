@@ -188,10 +188,6 @@ fun RecipeKeeperApp(
                     onNavigateToAccount = { navController.navigate(RecipeKeeperScreen.Account.name) },
                     onLogout = {
                         authViewModel.logout()
-                        navController.navigate(RecipeKeeperScreen.Login.name) {
-                            launchSingleTop = true
-                            popUpTo(RecipeKeeperScreen.Settings.name) { inclusive = true }
-                        }
                     }
                 )
             }
