@@ -43,7 +43,7 @@ fun PasswordTextField(
         singleLine = true,
         shape = MaterialTheme.shapes.medium,
         isError = passwordError,
-        supportingText =  if (passwordError) {
+        supportingText = if (passwordError) {
             if(password.isBlank()) {
                 { Text(stringResource(R.string.required_field)) }
             } else {
