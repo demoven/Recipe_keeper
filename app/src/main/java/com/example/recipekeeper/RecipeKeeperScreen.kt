@@ -211,7 +211,9 @@ fun RecipeKeeperApp(
                     },
                     emailError = authUiState.emailError,
                     passwordError = authUiState.passwordError,
-                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
+                    modifier = Modifier
+                        .padding(dimensionResource(R.dimen.padding_large))
+                        .fillMaxSize()
                 )
             }
             composable(RecipeKeeperScreen.Register.name) {
@@ -236,7 +238,9 @@ fun RecipeKeeperApp(
                         authViewModel.resetPassword()
                         authViewModel.resetErrors()
                     },
-                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
+                    modifier = Modifier
+                        .padding(dimensionResource(R.dimen.padding_large))
+                        .fillMaxSize()
                 )
             }
         }
