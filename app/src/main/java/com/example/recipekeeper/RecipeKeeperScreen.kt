@@ -88,7 +88,7 @@ fun RecipeKeeperApp(
         if (navController.currentBackStackEntry?.destination?.route != target) {
             navController.navigate(target) {
                 launchSingleTop = true
-                // optionnel : vider la pile jusqu'à la racine pour éviter l'historique indésirable
+                //optional: clear the stack to the root to avoid unwanted history
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
             }
         }
