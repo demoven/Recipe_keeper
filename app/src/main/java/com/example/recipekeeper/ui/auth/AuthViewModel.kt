@@ -136,7 +136,7 @@ class AuthViewModel : ViewModel() {
         }
         firebaseAuth.createUserWithEmailAndPassword(_uiState.value.email, password)
             .addOnCompleteListener { task ->
-                if (task.isSuccessful){
+                if (task.isSuccessful) {
                     setLoggedIn(true)
                     resetFields()
                     onSuccess()
