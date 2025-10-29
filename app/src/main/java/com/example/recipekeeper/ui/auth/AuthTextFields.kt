@@ -81,7 +81,7 @@ fun EmailTextField(
         isError = emailError,
         supportingText = if (emailError) {
             if (email.isBlank()) {
-                { Text(stringResource(R.string.required_field))}
+                { Text(stringResource(R.string.required_field)) }
             } else {
                 { Text(stringResource(R.string.invalid_email)) }
             }

@@ -229,9 +229,9 @@ fun RecipeKeeperApp(
                         authViewModel.register()
                     },
                     onNavigateToLogin = {
-                        navController.navigate(RecipeKeeperScreen.Login.name){
+                        navController.navigate(RecipeKeeperScreen.Login.name) {
                             launchSingleTop = true
-                            popUpTo(RecipeKeeperScreen.Register.name) { inclusive = true}
+                            popUpTo(RecipeKeeperScreen.Register.name) { inclusive = true }
                         }
                         authViewModel.resetPassword()
                         authViewModel.resetErrors()

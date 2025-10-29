@@ -138,7 +138,7 @@ class AuthViewModel : ViewModel() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     setLoggedIn(true)
-                    resetFields()
+                    resetPassword()
                 } else {
                     Log.d("AuthViewModel", "Registration failed: ${task.exception?.message}" )
                     setRegisterError(true)
@@ -158,7 +158,7 @@ class AuthViewModel : ViewModel() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     setLoggedIn(true)
-                    resetFields()
+                    resetPassword()
                 } else {
                     Log.d("AuthViewModel", "Login failed: ${task.exception?.message}" )
                     setLoginError(true)
