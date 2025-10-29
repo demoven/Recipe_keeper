@@ -83,6 +83,7 @@ fun RecipeKeeperApp(
     val snackbarHostState = remember { SnackbarHostState() }
     val signinError = stringResource(R.string.signin_failed)
     val registerError = stringResource(R.string.register_failed)
+
     LaunchedEffect(authUiState.isLoggedIn) {
         val target = if (authUiState.isLoggedIn) RecipeKeeperScreen.Home.name else RecipeKeeperScreen.Login.name
         if (navController.currentBackStackEntry?.destination?.route != target) {
@@ -201,12 +202,7 @@ fun RecipeKeeperApp(
                     onEmailChanged = { authViewModel.updateEmail(it)},
                     onPasswordChanged = { authViewModel.updatePassword(it)},
                     onLogin = {
-                        authViewModel.login() {
-                            navController.navigate(RecipeKeeperScreen.Home.name) {
-                                launchSingleTop = true
-                                popUpTo(RecipeKeeperScreen.Login.name) { inclusive = true }
-                            }
-                        }
+                        authViewModel.login()
                     },
                     onNavigateToRegister = {
                         navController.navigate(RecipeKeeperScreen.Register.name)
@@ -230,12 +226,7 @@ fun RecipeKeeperApp(
                     onPasswordChanged = { authViewModel.updatePassword(it)},
                     onConfirmedPasswordChanged = { authViewModel.updateConfirmPassword(it)},
                     onRegister = {
-                        authViewModel.register() {
-                            navController.navigate(RecipeKeeperScreen.Home.name) {
-                                launchSingleTop = true
-                                popUpTo(RecipeKeeperScreen.Register.name) { inclusive = true }
-                            }
-                        }
+                        authViewModel.register()
                     },
                     onNavigateToLogin = {
                         navController.navigate(RecipeKeeperScreen.Login.name){

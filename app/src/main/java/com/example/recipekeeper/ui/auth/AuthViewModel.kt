@@ -122,7 +122,7 @@ class AuthViewModel : ViewModel() {
         } else false
     }
 
-    fun register(onSuccess: () -> Unit) {
+    fun register() {
         val emailErr = validateEmail(_uiState.value.email)
         setEmailError(emailErr)
         val confirmPasswordErr = validateConfirmPassword(confirmPassword)
@@ -139,7 +139,6 @@ class AuthViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     setLoggedIn(true)
                     resetFields()
-                    onSuccess()
                 } else {
                     Log.d("AuthViewModel", "Registration failed: ${task.exception?.message}" )
                     setRegisterError(true)
@@ -147,7 +146,7 @@ class AuthViewModel : ViewModel() {
             }
     }
 
-    fun login(onSuccess: () -> Unit) {
+    fun login() {
         val emailErr = validateEmail(_uiState.value.email)
         setEmailError(emailErr)
         val passwordErr = password.isBlank()
@@ -160,7 +159,6 @@ class AuthViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     setLoggedIn(true)
                     resetFields()
-                    onSuccess()
                 } else {
                     Log.d("AuthViewModel", "Login failed: ${task.exception?.message}" )
                     setLoginError(true)
