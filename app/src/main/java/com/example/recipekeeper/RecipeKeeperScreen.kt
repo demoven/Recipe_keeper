@@ -150,14 +150,14 @@ fun RecipeKeeperApp(
                     onNavigate = { screen ->
                         if (screen == RecipeKeeperScreen.CreateRecipe) {
                             coroutineScope.launch { showMainSheet = true }
-                        } else if (currentScreen != screen) { // évite de renaviguer sur la même route
+                        } else if (currentScreen != screen) { // avoids navigating to the same route
                             navController.navigate(screen.name) {
-                                // évite les doublons et restaure l'état des destinations de bas de nav
+                                // avoids duplicates and restores bottom nav destination state
                                 launchSingleTop = true
-                                // restoreState permet de restaurer l'état sauvegardé d'une destination
+                                // restoreState allows restoring saved destination state
                                 restoreState = true
                                 popUpTo(navController.graph.findStartDestination().id) {
-                                    // sauvegarde l'état des destinations de bas de nav
+                                    // saves bottom nav destination state
                                     saveState = true
                                 }
                             }
