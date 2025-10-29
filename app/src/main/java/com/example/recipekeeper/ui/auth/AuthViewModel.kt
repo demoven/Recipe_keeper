@@ -70,10 +70,6 @@ class AuthViewModel : ViewModel() {
         )
     }
 
-    fun setLoading(isLoading: Boolean) {
-        _uiState.value = _uiState.value.copy(isLoading = isLoading)
-    }
-
     fun setPasswordError(isError: Boolean) {
         _uiState.value = _uiState.value.copy(passwordError = isError)
     }

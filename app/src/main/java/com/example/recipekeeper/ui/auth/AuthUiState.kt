@@ -1,7 +1,6 @@
 package com.example.recipekeeper.ui.auth
 
 data class AuthUiState(
-    val isLoading: Boolean = false,
     val isLoggedIn: Boolean = false,
     val email: String = "",
     // Fields errors
