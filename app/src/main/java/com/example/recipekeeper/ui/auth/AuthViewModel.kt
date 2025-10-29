@@ -126,7 +126,8 @@ class AuthViewModel : ViewModel() {
         val passwordErr = isPasswordValid(password)
         setPasswordError(!passwordErr)
 
-        if (emailErr || confirmPasswordErr || passwordErr) {
+        Log.d("AuthViewModel", "Registering with email: ${_uiState.value.email}")
+        if (emailErr || confirmPasswordErr || !passwordErr) {
             return
         }
         firebaseAuth.createUserWithEmailAndPassword(_uiState.value.email, password)
