@@ -37,6 +37,11 @@ class AuthViewModel : ViewModel() {
         firebaseAuth.addAuthStateListener(authStateListener)
     }
 
+    override fun onCleared() {
+        firebaseAuth.removeAuthStateListener(authStateListener)
+        super.onCleared()
+    }
+
     fun updateEmail(updatedEmail: String) {
         _uiState.value = _uiState.value.copy(emailError = false, email = updatedEmail)
     }
