@@ -36,7 +36,7 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(R.drawable.logo_no_background),
+            painter = painterResource(R.drawable.logo_open_no_bg),
             contentDescription = null,
             modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large))
         )
