@@ -6,4 +6,19 @@
     <string name="account">Compte</string>
     <string name="create_recipe">Créer une recette</string>
     <string name="dossier">"DOSSIER 📁 "</string>
+    <string name="login">Connexion</string>
+    <string name="register">S\'inscrire</string>
+    <string name="create_account">Créer un compte</string>
+    <string name="password">Mot de passe</string>
+    <string name="email">Email</string>
+    <string name="confirm_password">Confirmer le mot de passe</string>
+    <string name="already_have_account">Vous avez déjà un compte?</string>
+    <string name="forgot_password">Mot de passe oublié ?</string>
+    <string name="invalid_password">Mot de passe invalide</string>
+    <string name="invalid_email">Email invalide</string>
+    <string name="passwords_do_not_match">Les mots de passe ne correspondent pas</string>
+    <string name="required_field">Champ requis</string>
+    <string name="password_invalid_error">Le mot de passe doit contenir minimum 12 caractères dont 1 majuscule, 1 minuscule et 1 caractère spécial</string>
+    <string name="signin_failed">Échec de la connexion. Veuillez vérifier vos informations d\'identification et réessayer.</string>
+    <string name="register_failed">Échec de l\'inscription. Veuillez réessayer</string>
 </resources>

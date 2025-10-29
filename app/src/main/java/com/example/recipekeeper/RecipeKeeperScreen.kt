@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -36,13 +38,23 @@ import com.example.recipekeeper.ui.screens.AccountScreen
 import com.example.recipekeeper.ui.screens.CreateRecipeScreen
 import com.example.recipekeeper.ui.screens.SettingsScreen
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.recipekeeper.R.string.dossier
+import com.example.recipekeeper.ui.auth.AuthViewModel
+import com.example.recipekeeper.ui.auth.LoginScreen
+import com.example.recipekeeper.ui.auth.RegisterScreen
 import kotlinx.coroutines.launch
 
 enum class RecipeKeeperScreen(@StringRes val title: Int) {
@@ -50,40 +62,87 @@ enum class RecipeKeeperScreen(@StringRes val title: Int) {
     Account(title = R.string.account),
     CreateRecipe(title = R.string.create_recipe),
     AddFolder(title = R.string.add_folder),
-    Settings(title = R.string.settings)
+    Settings(title = R.string.settings),
+    Login(title = R.string.login),
+    Register(title = R.string.register)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeKeeperApp(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    authViewModel: AuthViewModel = viewModel()
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
+    val authUiState by authViewModel.uiState.collectAsState()
+    val startDestination = if (authUiState.isLoggedIn) {
+        RecipeKeeperScreen.Home.name
+    } else {
+        RecipeKeeperScreen.Login.name
+    }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val signinError = stringResource(R.string.signin_failed)
+    val registerError = stringResource(R.string.register_failed)
+
+    LaunchedEffect(authUiState.isLoggedIn) {
+        val target = if (authUiState.isLoggedIn) RecipeKeeperScreen.Home.name else RecipeKeeperScreen.Login.name
+        if (navController.currentBackStackEntry?.destination?.route != target) {
+            navController.navigate(target) {
+                launchSingleTop = true
+                //optional: clear the stack to the root to avoid unwanted history
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+        }
+    }
+    LaunchedEffect(authUiState.loginError, authUiState.registerError) {
+        if (authUiState.loginError) {
+            snackbarHostState.showSnackbar(signinError)
+            authViewModel.resetErrors()
+        }
+        if (authUiState.registerError) {
+            snackbarHostState.showSnackbar(registerError)
+            authViewModel.resetErrors()
+        }
+    }
     val currentRoute = backStackEntry?.destination?.route
     val currentScreen = RecipeKeeperScreen.valueOf(
-        backStackEntry?.destination?.route ?: RecipeKeeperScreen.Home.name
+        currentRoute ?: RecipeKeeperScreen.Home.name
     )
-
-    val showBottomBar = when (currentScreen) {
-            RecipeKeeperScreen.AddFolder,
-            RecipeKeeperScreen.CreateRecipe,
-            RecipeKeeperScreen.Account,
-            RecipeKeeperScreen.Settings -> false
-        else -> true
-    }
-
+    val screensWithoutBottomBar = setOf(
+        RecipeKeeperScreen.AddFolder,
+        RecipeKeeperScreen.CreateRecipe,
+        RecipeKeeperScreen.Account,
+        RecipeKeeperScreen.Settings,
+        RecipeKeeperScreen.Login,
+        RecipeKeeperScreen.Register
+    )
+    val screensWithoutTopBar = setOf(
+        RecipeKeeperScreen.Login,
+        RecipeKeeperScreen.Register
+    )
+    val showTopBar = currentScreen !in screensWithoutTopBar
+    val showBottomBar = currentScreen !in screensWithoutBottomBar
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
     var showMainSheet by remember { mutableStateOf(false) }
     var showAddFolderSheet by remember { mutableStateOf(false) }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .imePadding()
+                    .navigationBarsPadding()
+            ) },
         topBar = {
-            RecipeKeeperTopBar(
-                currentScreen = currentScreen,
-                canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() }
-            )
+            if (showTopBar) {
+                RecipeKeeperTopBar(
+                    currentScreen = currentScreen,
+                    canNavigateBack = navController.previousBackStackEntry != null,
+                    navigateUp = { navController.navigateUp() }
+                )
+            }
         },
         bottomBar = {
             if (showBottomBar) {
@@ -92,8 +151,17 @@ fun RecipeKeeperApp(
                     onNavigate = { screen ->
                         if (screen == RecipeKeeperScreen.CreateRecipe) {
                             coroutineScope.launch { showMainSheet = true }
-                        } else {
-                            navController.navigate(screen.name)
+                        } else if (currentScreen != screen) { // avoids navigating to the same route
+                            navController.navigate(screen.name) {
+                                // avoids duplicates and restores bottom nav destination state
+                                launchSingleTop = true
+                                // restoreState allows restoring saved destination state
+                                restoreState = true
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    // saves bottom nav destination state
+                                    saveState = true
+                                }
+                            }
                         }
                     }
                 )
@@ -102,7 +170,7 @@ fun RecipeKeeperApp(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = RecipeKeeperScreen.Home.name,
+            startDestination = startDestination,
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
@@ -117,10 +185,60 @@ fun RecipeKeeperApp(
                 CreateRecipeScreen()
             }
             composable(RecipeKeeperScreen.Settings.name) {
-                SettingsScreen(onNavigateToAccount = { navController.navigate(RecipeKeeperScreen.Account.name) })
+                SettingsScreen(
+                    onNavigateToAccount = { navController.navigate(RecipeKeeperScreen.Account.name) },
+                    onLogout = {
+                        authViewModel.logout()
+                    }
+                )
             }
-
-            composable(RecipeKeeperScreen.AddFolder.name) { Text("Écran : Ajouter un dossier") }
+            composable(RecipeKeeperScreen.AddFolder.name) {
+                Text("Écran : Ajouter un dossier")
+            }
+            composable(RecipeKeeperScreen.Login.name) {
+                LoginScreen(
+                    email = authUiState.email,
+                    password = authViewModel.password,
+                    onEmailChanged = { authViewModel.updateEmail(it)},
+                    onPasswordChanged = { authViewModel.updatePassword(it)},
+                    onLogin = {
+                        authViewModel.login()
+                    },
+                    onNavigateToRegister = {
+                        navController.navigate(RecipeKeeperScreen.Register.name)
+                        authViewModel.resetPassword()
+                        authViewModel.resetErrors()
+                    },
+                    emailError = authUiState.emailError,
+                    passwordError = authUiState.passwordError,
+                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
+                )
+            }
+            composable(RecipeKeeperScreen.Register.name) {
+                RegisterScreen(
+                    email = authUiState.email,
+                    password = authViewModel.password,
+                    confirmedPassword = authViewModel.confirmPassword,
+                    emailError = authUiState.emailError,
+                    passwordError = authUiState.passwordError,
+                    confirmedPasswordError = authUiState.confirmPasswordError,
+                    onEmailChanged = { authViewModel.updateEmail(it)},
+                    onPasswordChanged = { authViewModel.updatePassword(it)},
+                    onConfirmedPasswordChanged = { authViewModel.updateConfirmPassword(it)},
+                    onRegister = {
+                        authViewModel.register()
+                    },
+                    onNavigateToLogin = {
+                        navController.navigate(RecipeKeeperScreen.Login.name) {
+                            launchSingleTop = true
+                            popUpTo(RecipeKeeperScreen.Register.name) { inclusive = true }
+                        }
+                        authViewModel.resetPassword()
+                        authViewModel.resetErrors()
+                    },
+                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
+                )
+            }
         }
         // --- Première Bottom Sheet : choix ---
         if (showMainSheet) {
@@ -145,7 +263,7 @@ fun RecipeKeeperApp(
         if (showAddFolderSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showAddFolderSheet = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                sheetState = sheetState
             ) {
                 AddFolderBottomSheet(
                     onAdd = { folderName ->
