@@ -26,7 +26,7 @@ fun RegisterScreen(
     confirmedPassword: String,
     emailError: Boolean,
     passwordError: Boolean,
-    confirmedPasswordError: Boolean ,
+    confirmedPasswordError: Boolean,
     onEmailChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
     onConfirmedPasswordChanged: (String) -> Unit,
