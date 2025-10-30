@@ -2,6 +2,7 @@ package com.example.recipekeeper.ui.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,11 +39,57 @@ fun RegisterScreen(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = painterResource(R.drawable.logo_no_background),
-            contentDescription = null,
-            modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.6f, fill = true),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(R.drawable.logo_open_no_bg),
+                contentDescription = null,
+                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large))
+            )
+        }
+        RegisterLayout(
+            email = email,
+            password = password,
+            confirmedPassword = confirmedPassword,
+            emailError = emailError,
+            passwordError = passwordError,
+            confirmedPasswordError = confirmedPasswordError,
+            onEmailChanged = onEmailChanged,
+            onPasswordChanged = onPasswordChanged,
+            onConfirmedPasswordChanged = onConfirmedPasswordChanged,
+            onRegister = onRegister,
+            onNavigateToLogin = onNavigateToLogin,
+            modifier = Modifier
+                .fillMaxWidth()
         )
+        // Bottom spacer to push the register button to the bottom
+        Spacer(modifier = Modifier.weight(0.4f, fill = true))
+    }
+}
+
+@Composable
+fun RegisterLayout(
+    email: String,
+    password: String,
+    confirmedPassword: String,
+    emailError: Boolean,
+    passwordError: Boolean,
+    confirmedPasswordError: Boolean,
+    onEmailChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onConfirmedPasswordChanged: (String) -> Unit,
+    onRegister: () -> Unit,
+    onNavigateToLogin: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         EmailTextField(
             email = email,
             onEmailChanged = onEmailChanged,

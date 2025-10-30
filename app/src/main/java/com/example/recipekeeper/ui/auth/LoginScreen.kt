@@ -1,6 +1,7 @@
 package com.example.recipekeeper.ui.auth
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,14 +33,61 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = painterResource(R.drawable.logo_no_background),
-            contentDescription = null,
-            modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large))
+        // Top spacer to push the logo and login form upwards
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.6f, fill = true),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(R.drawable.logo_open_no_bg),
+                contentDescription = null,
+                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large))
+            )
+        }
+
+        LoginLayout(
+            email = email,
+            password = password,
+            passwordError = passwordError,
+            emailError = emailError,
+            onEmailChanged = onEmailChanged,
+            onPasswordChanged = onPasswordChanged,
+            onLogin = onLogin,
+            modifier = Modifier.fillMaxWidth()
         )
+
+        // Bottom spacer to push the register button to the bottom
+        Spacer(modifier = Modifier.weight(0.4f, fill = true))
+
+        OutlinedButton(
+            onClick = onNavigateToRegister,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(stringResource(R.string.create_account))
+        }
+    }
+}
+
+@Composable
+fun LoginLayout(
+    email: String,
+    password: String,
+    passwordError: Boolean,
+    emailError: Boolean,
+    onEmailChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onLogin: () -> Unit,
+    modifier: Modifier = Modifier
+){
+    Column (
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         EmailTextField(
             email = email,
             onEmailChanged = onEmailChanged,
@@ -71,12 +119,5 @@ fun LoginScreen(
         Text(
             text = stringResource(R.string.forgot_password)
         )
-        Spacer(modifier = Modifier.weight(1f))
-        OutlinedButton(
-            onClick = onNavigateToRegister,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.create_account))
-        }
     }
 }
