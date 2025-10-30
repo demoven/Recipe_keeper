@@ -87,7 +87,7 @@ fun LoginLayout(
     Column (
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
+    ) {
         EmailTextField(
             email = email,
             onEmailChanged = onEmailChanged,

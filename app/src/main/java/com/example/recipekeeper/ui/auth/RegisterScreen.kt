@@ -86,7 +86,7 @@ fun RegisterLayout(
     onNavigateToLogin: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column (
+    Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
