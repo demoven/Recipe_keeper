@@ -33,10 +33,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.recipekeeper.R
 import kotlinx.coroutines.CoroutineScope
@@ -106,6 +108,7 @@ fun DescriptionLayout(
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next
             ),
+            singleLine = false,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp)
@@ -127,12 +130,14 @@ fun StepsLayout(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
                 Text(
                     text = "${index + 1}.",
-                    modifier = Modifier.width(28.dp),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.End
+                    modifier = Modifier
+                        .width(28.dp)
+                        .alignBy(FirstBaseline),
+                    textAlign = TextAlign.End
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 TextFieldTransparent(
@@ -140,7 +145,10 @@ fun StepsLayout(
                     onValueChange = { newStep -> steps[index] = newStep },
                     placeholder = "Décrire l'étape",
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    modifier = Modifier.weight(1f)
+                    singleLine = false,
+                    modifier = Modifier
+                        .weight(1f)
+                        .alignBy(FirstBaseline)
                 )
             }
         }
