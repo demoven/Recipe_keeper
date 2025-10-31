@@ -1,15 +1,22 @@
 package com.example.recipekeeper.ui.screens
 
+import android.widget.Space
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -20,7 +27,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -30,28 +39,43 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.recipekeeper.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlin.text.set
 
 @Composable
 fun CreateRecipeScreen() {
     var recipeName by remember { mutableStateOf("") }
     var recipeDescription by remember { mutableStateOf("") }
+    val scrollState =  rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
-        Image(
-            painter = painterResource(R.drawable.logo_open_no_bg),
-            contentDescription = null,
-            modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large))
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painterResource(R.drawable.logo_open_no_bg),
+                contentDescription = null,
+                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large))
+            )
+        }
 
         DescriptionLayout(
             recipeName = recipeName,
             recipeDescription = recipeDescription,
             onRecipeNameChange = { recipeName = it },
-            onRecipeDescriptionChange = { recipeDescription = it }
+            onRecipeDescriptionChange = { recipeDescription = it },
         )
+        Spacer(modifier = Modifier.padding(8.dp))
+        IngredientsLayout()
+        Spacer(modifier = Modifier.padding(8.dp))
+        StepsLayout()
     }
 }
 
@@ -63,6 +87,7 @@ fun DescriptionLayout(
     onRecipeDescriptionChange: (String) -> Unit
 ) {
     Column {
+        Text ("Description")
         TextFieldTransparent(
             value = recipeName,
             onValueChange = onRecipeNameChange,
@@ -85,7 +110,53 @@ fun DescriptionLayout(
                 .fillMaxWidth()
                 .padding(top = 16.dp)
         )
-        IngredientsLayout()
+    }
+}
+
+@Composable
+fun StepsLayout(
+    modifier : Modifier = Modifier
+){
+    val steps = remember { mutableStateListOf("") }
+    Column(
+        modifier = modifier
+    ){
+        Text("Étapes")
+        steps.forEachIndexed { index, step ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${index + 1}.",
+                    modifier = Modifier.width(28.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.End
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                TextFieldTransparent(
+                    value = step,
+                    onValueChange = { newStep -> steps[index] = newStep },
+                    placeholder = "Décrire l'étape",
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                onClick = {
+                    steps.add("")
+                          },
+                modifier = Modifier.padding(top = 16.dp)
+            ) {
+                Text("+")
+            }
+        }
     }
 }
 
@@ -97,14 +168,15 @@ data class IngredientUiState(
 )
 
 @Composable
-fun IngredientsLayout() {
+fun IngredientsLayout(
+    modifier : Modifier = Modifier
+) {
     val ingredients = remember { mutableStateListOf(IngredientUiState()) }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp)
+        modifier = modifier
     ) {
+        Text("Ingrédients")
         ingredients.forEachIndexed { index, ing ->
             IngredientField(
                 quantity = ing.quantity,
@@ -129,7 +201,9 @@ fun IngredientsLayout() {
             horizontalArrangement = Arrangement.Center
         ) {
             Button(
-                onClick = { ingredients.add(IngredientUiState()) },
+                onClick = {
+                    ingredients.add(IngredientUiState())
+                          },
                 modifier = Modifier.padding(top = 16.dp)
             ) {
                 Text("+")
@@ -188,7 +262,8 @@ fun TextFieldTransparent(
     modifier : Modifier = Modifier,
     label : String? = null,
     placeholder: String? = null,
-    keyboardActions: KeyboardActions? = null
+    keyboardActions: KeyboardActions? = null,
+    singleLine : Boolean = true
 ) {
     TextField(
         value = value,
@@ -211,7 +286,7 @@ fun TextFieldTransparent(
         ),
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions ?: KeyboardActions.Default,
-        singleLine = true, //TODO changer pour les descriptions
+        singleLine = singleLine,
         modifier = modifier
     )
 }
