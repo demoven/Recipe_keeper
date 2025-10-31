@@ -1,6 +1,7 @@
 package com.example.recipekeeper.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -123,12 +124,16 @@ fun IngredientsLayout() {
                     .padding(top = 8.dp)
             )
         }
-
-        Button(
-            onClick = { ingredients.add(IngredientUiState()) },
-            modifier = Modifier.padding(top = 16.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
-            Text("Ajouter un ingrédient")
+            Button(
+                onClick = { ingredients.add(IngredientUiState()) },
+                modifier = Modifier.padding(top = 16.dp)
+            ) {
+                Text("+")
+            }
         }
     }
 }
