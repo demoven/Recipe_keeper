@@ -1,8 +1,6 @@
 package com.example.recipekeeper.ui.screens
 
-import android.widget.Space
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,15 +21,12 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.res.dimensionResource
@@ -41,8 +36,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.recipekeeper.R
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlin.text.set
 
 @Composable
@@ -54,6 +47,7 @@ fun CreateRecipeScreen() {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
+            .imePadding()
             .padding(16.dp)
     ) {
         Row(
@@ -152,6 +146,8 @@ fun StepsLayout(
                 )
             }
         }
+
+        val canAdd = steps.isEmpty() || steps.last().isNotBlank()
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -160,6 +156,7 @@ fun StepsLayout(
                 onClick = {
                     steps.add("")
                           },
+                enabled = canAdd,
                 modifier = Modifier.padding(top = 16.dp)
             ) {
                 Text("+")
@@ -168,7 +165,6 @@ fun StepsLayout(
     }
 }
 
-// Ajoutez ce data class (en haut du fichier par exemple)
 data class IngredientUiState(
     val quantity: String = "",
     val unit: String = "",
@@ -181,37 +177,32 @@ fun IngredientsLayout(
 ) {
     val ingredients = remember { mutableStateListOf(IngredientUiState()) }
 
-    Column(
-        modifier = modifier
-    ) {
+    Column(modifier = modifier) {
         Text("Ingrédients")
         ingredients.forEachIndexed { index, ing ->
             IngredientField(
                 quantity = ing.quantity,
-                onQuantityChange = { q ->
-                    ingredients[index] = ing.copy(quantity = q)
-                },
+                onQuantityChange = { q -> ingredients[index] = ing.copy(quantity = q) },
                 unit = ing.unit,
-                onUnitChange = { u ->
-                    ingredients[index] = ing.copy(unit = u)
-                },
+                onUnitChange = { u -> ingredients[index] = ing.copy(unit = u) },
                 ingredientName = ing.name,
-                onIngredientNameChange = { n ->
-                    ingredients[index] = ing.copy(name = n)
-                },
+                onIngredientNameChange = { n -> ingredients[index] = ing.copy(name = n) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)
             )
         }
+
+        val canAdd = ingredients.isEmpty() || ingredients.last().name.isNotBlank()
+
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
             Button(
-                onClick = {
-                    ingredients.add(IngredientUiState())
-                          },
+                onClick = { ingredients.add(IngredientUiState()) },
+                enabled = canAdd, // visible en permanence, mais désactivé si le dernier est vide
                 modifier = Modifier.padding(top = 16.dp)
             ) {
                 Text("+")
@@ -233,7 +224,7 @@ fun IngredientField(
         modifier = modifier
     ) {
         TextFieldTransparent(
-            value = quantity.toString(),
+            value = quantity,
             onValueChange = onQuantityChange,
             placeholder = "Quantité",
             keyboardOptions = KeyboardOptions(
@@ -279,13 +270,9 @@ fun TextFieldTransparent(
         label = if(label != null) {
             { Text(text =label) }
         } else null,
-        placeholder = {
-            if (placeholder != null) Text(
-                text = placeholder,
-                maxLines = 1,
-                softWrap = false
-            )
-        },
+        placeholder = if (placeholder != null) {
+            { Text(text = placeholder, maxLines = 1, softWrap = false) }
+        } else null,
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent,
