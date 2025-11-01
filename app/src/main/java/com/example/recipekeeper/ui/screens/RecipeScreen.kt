@@ -15,11 +15,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +32,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.res.dimensionResource
@@ -36,13 +43,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.recipekeeper.R
-import kotlin.text.set
+import kotlin.comparisons.then
 
 @Composable
 fun CreateRecipeScreen() {
     var recipeName by remember { mutableStateOf("") }
     var recipeDescription by remember { mutableStateOf("") }
     val scrollState =  rememberScrollState()
+    val ingredients = remember { mutableStateListOf<String>("") }
+    val steps = remember { mutableStateListOf<String>("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -61,7 +71,6 @@ fun CreateRecipeScreen() {
                 modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large))
             )
         }
-
         DescriptionLayout(
             recipeName = recipeName,
             recipeDescription = recipeDescription,
@@ -69,9 +78,22 @@ fun CreateRecipeScreen() {
             onRecipeDescriptionChange = { recipeDescription = it },
         )
         Spacer(modifier = Modifier.padding(8.dp))
-        IngredientsLayout()
+        ListLayout(
+            elements = ingredients,
+            placeholder = "ex: 200g de farine",
+            title = "Ingrédients",
+            modifier = Modifier.fillMaxWidth()
+        )
         Spacer(modifier = Modifier.padding(8.dp))
-        StepsLayout()
+        ListLayout(
+            elements = steps,
+            placeholder = "Décrire l'étape",
+            title = "Étapes",
+            numbered = true,
+            singleLineTextField = false,
+            modifier = Modifier.fillMaxWidth()
+
+        )
     }
 }
 
@@ -109,53 +131,83 @@ fun DescriptionLayout(
         )
     }
 }
-
 @Composable
-fun StepsLayout(
-    modifier : Modifier = Modifier
-){
-    val steps = remember { mutableStateListOf("") }
-    Column(
-        modifier = modifier
-    ){
-        Text("Étapes")
-        steps.forEachIndexed { index, step ->
+fun ListLayout(
+    elements: MutableList<String>,
+    placeholder: String,
+    title: String,
+    modifier : Modifier = Modifier,
+    numbered: Boolean = false,
+    singleLineTextField : Boolean = true,
+) {
+    val elementsFocus = remember { mutableStateListOf(FocusRequester()) }
+    var shouldFocusLast by remember { mutableStateOf(false) }
+
+    LaunchedEffect(elements.size, shouldFocusLast) {
+        if (shouldFocusLast && elements.isNotEmpty()) {
+            elementsFocus.lastOrNull()?.requestFocus()
+            shouldFocusLast = false
+        }
+    }
+
+    Column(modifier = modifier) {
+        Text(title)
+        elements.forEachIndexed { index, ing ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
-                verticalAlignment = Alignment.Top
+                verticalAlignment = if(numbered) Alignment.Top else Alignment.CenterVertically
             ) {
-                Text(
-                    text = "${index + 1}.",
-                    modifier = Modifier
-                        .width(28.dp)
-                        .alignBy(FirstBaseline),
-                    textAlign = TextAlign.End
-                )
-                Spacer(modifier = Modifier.size(8.dp))
+                if(numbered) {
+                    Text(
+                        text = "${index + 1}.",
+                        modifier =  Modifier
+                            .width(28.dp)
+                            .alignBy(FirstBaseline),
+                        textAlign = TextAlign.End
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                }
                 TextFieldTransparent(
-                    value = step,
-                    onValueChange = { newStep -> steps[index] = newStep },
-                    placeholder = "Décrire l'étape",
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    singleLine = false,
+                    value = ing,
+                    onValueChange = { newIng -> elements[index] = newIng },
+                    placeholder = placeholder,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    singleLine = singleLineTextField,
                     modifier = Modifier
                         .weight(1f)
-                        .alignBy(FirstBaseline)
+                        .then(if (numbered) Modifier.alignBy(FirstBaseline) else Modifier)
+                        .focusRequester(elementsFocus[index])
                 )
+                Spacer(modifier = Modifier.size(8.dp))
+                IconButton(
+                    onClick = {
+                        elements.removeAt(index)
+                        elementsFocus.removeAt(index)
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "Supprimer l’ingrédient"
+                    )
+                }
             }
         }
-
-        val canAdd = steps.isEmpty() || steps.last().isNotBlank()
+        val canAdd = elements.isEmpty() || elements.last().isNotBlank()
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
             Button(
                 onClick = {
-                    steps.add("")
-                          },
+                    elements.add("")
+                    elementsFocus.add(FocusRequester())
+                    shouldFocusLast = true
+                },
                 enabled = canAdd,
                 modifier = Modifier.padding(top = 16.dp)
             ) {
@@ -165,94 +217,6 @@ fun StepsLayout(
     }
 }
 
-data class IngredientUiState(
-    val quantity: String = "",
-    val unit: String = "",
-    val name: String = ""
-)
-
-@Composable
-fun IngredientsLayout(
-    modifier : Modifier = Modifier
-) {
-    val ingredients = remember { mutableStateListOf(IngredientUiState()) }
-
-    Column(modifier = modifier) {
-        Text("Ingrédients")
-        ingredients.forEachIndexed { index, ing ->
-            IngredientField(
-                quantity = ing.quantity,
-                onQuantityChange = { q -> ingredients[index] = ing.copy(quantity = q) },
-                unit = ing.unit,
-                onUnitChange = { u -> ingredients[index] = ing.copy(unit = u) },
-                ingredientName = ing.name,
-                onIngredientNameChange = { n -> ingredients[index] = ing.copy(name = n) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-            )
-        }
-
-        val canAdd = ingredients.isEmpty() || ingredients.last().name.isNotBlank()
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Button(
-                onClick = { ingredients.add(IngredientUiState()) },
-                enabled = canAdd, // visible en permanence, mais désactivé si le dernier est vide
-                modifier = Modifier.padding(top = 16.dp)
-            ) {
-                Text("+")
-            }
-        }
-    }
-}
-@Composable
-fun IngredientField(
-    quantity: String,
-    onQuantityChange: (String) -> Unit,
-    unit: String,
-    onUnitChange: (String) -> Unit,
-    ingredientName: String,
-    onIngredientNameChange: (String) -> Unit,
-    modifier : Modifier = Modifier
-) {
-    Row (
-        modifier = modifier
-    ) {
-        TextFieldTransparent(
-            value = quantity,
-            onValueChange = onQuantityChange,
-            placeholder = "Quantité",
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Next
-            ),
-            modifier = Modifier.weight(1f)
-        )
-        TextFieldTransparent(
-            value = unit,
-            onValueChange = onUnitChange,
-            placeholder = "Unité",
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Next
-            ),
-            modifier = Modifier.weight(1f)
-        )
-        TextFieldTransparent(
-            value = ingredientName,
-            onValueChange = onIngredientNameChange,
-            placeholder = "Ingrédient",
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done
-            ),
-            modifier = Modifier.weight(2f)
-        )
-    }
-}
 @Composable
 fun TextFieldTransparent(
     value: String,
@@ -285,4 +249,3 @@ fun TextFieldTransparent(
         modifier = modifier
     )
 }
-
