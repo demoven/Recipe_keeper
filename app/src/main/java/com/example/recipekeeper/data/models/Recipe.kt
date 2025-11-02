@@ -1,0 +1,18 @@
+package com.example.recipekeeper.data.models
+
+import android.annotation.SuppressLint
+import android.os.Parcel
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class Recipe(
+    val id: String = "",
+    val title: String = "",
+    val ingredients: List<String> = emptyList(),
+    val instructions: List<String> = emptyList(),
+    val prepTime: Int = 0, // in minutes
+    val cookTime: Int = 0, // in minutes
+    val servings: Int = 0,
+    val imageUrl: String = ""
+): Parcelable

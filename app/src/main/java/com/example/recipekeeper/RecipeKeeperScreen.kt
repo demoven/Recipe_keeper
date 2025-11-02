@@ -1,5 +1,6 @@
 package com.example.recipekeeper
 
+import android.R.attr.type
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -51,10 +52,15 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.example.recipekeeper.R.string.dossier
+import com.example.recipekeeper.data.models.Folder
+import com.example.recipekeeper.data.viewmodels.recipedata.RecipeViewModel
 import com.example.recipekeeper.ui.auth.AuthViewModel
 import com.example.recipekeeper.ui.auth.LoginScreen
 import com.example.recipekeeper.ui.auth.RegisterScreen
+import com.example.recipekeeper.ui.screens.FolderScreen
 import kotlinx.coroutines.launch
 
 enum class RecipeKeeperScreen(@StringRes val title: Int) {
@@ -64,14 +70,16 @@ enum class RecipeKeeperScreen(@StringRes val title: Int) {
     AddFolder(title = R.string.add_folder),
     Settings(title = R.string.settings),
     Login(title = R.string.login),
-    Register(title = R.string.register)
+    Register(title = R.string.register),
+    Folder(title = R.string.folder)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeKeeperApp(
     navController: NavHostController = rememberNavController(),
-    authViewModel: AuthViewModel = viewModel()
+    authViewModel: AuthViewModel = viewModel(),
+    recipeViewModel: RecipeViewModel = viewModel()
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val authUiState by authViewModel.uiState.collectAsState()
@@ -176,7 +184,26 @@ fun RecipeKeeperApp(
                 .fillMaxSize()
         ) {
             composable(RecipeKeeperScreen.Home.name) {
-                HomeScreen(onNavigate = { navController.navigate(it.name) })
+
+                HomeScreen(
+                    userRecipes = recipeViewModel.getFakeUserRecipesData(),
+                    onNavigateToSubFolder = { subFolder ->
+                        navController.currentBackStackEntry?.savedStateHandle?.set("folder", subFolder)
+                        navController.navigate(RecipeKeeperScreen.Folder.name)
+                    },
+                    onNavigateToRecipeDetails = {}
+
+                )
+            }
+            composable(RecipeKeeperScreen.Folder.name) { backStackEntry ->
+                val folder = backStackEntry.savedStateHandle.get<Folder>("folder") ?: Folder(name = "Dossier")
+                FolderScreen(
+                    folder = folder,
+                    onNavigateToSubFolder = { subFolder ->
+                        navController.currentBackStackEntry?.savedStateHandle?.set("folder", subFolder)
+                        navController.navigate(RecipeKeeperScreen.Folder.name)
+                    }
+                )
             }
             composable(RecipeKeeperScreen.Account.name) {
                 AccountScreen()
