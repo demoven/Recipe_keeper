@@ -26,21 +26,28 @@ fun HomeScreen(onNavigate: (RecipeKeeperScreen) -> Unit) {
         modifier = Modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Première ligne : deux cartes
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            CardField(modifier = Modifier.weight(1f))
-            CardField(modifier = Modifier.weight(1f))
+            CardField(
+                title = "Desserts",
+                modifier = Modifier.weight(1f)
+            )
+            CardField(
+                title = "Plats principaux",
+                modifier = Modifier.weight(1f)
+            )
         }
 
-        // Deuxième ligne : une carte à gauche, colonne de droite vide
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            CardField(modifier = Modifier.weight(1f))
+            CardField(
+                title = "Entrées",
+                modifier = Modifier.weight(1f)
+            )
             Spacer(modifier = Modifier.weight(1f)) // colonne vide à droite
         }
     }
@@ -48,6 +55,7 @@ fun HomeScreen(onNavigate: (RecipeKeeperScreen) -> Unit) {
 
 @Composable
 fun CardField(
+    title: String,
     modifier: Modifier = Modifier
 ) {
     val cardShape = RoundedCornerShape(8.dp)
@@ -68,7 +76,7 @@ fun CardField(
             )
 
             Text(
-                text = "Titre de la recette",
+                text = title,
                 modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 12.dp)
             )
         }
