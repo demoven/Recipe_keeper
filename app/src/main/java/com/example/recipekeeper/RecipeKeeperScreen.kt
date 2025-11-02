@@ -1,6 +1,5 @@
 package com.example.recipekeeper
 
-import android.R.attr.type
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -52,8 +51,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import com.example.recipekeeper.R.string.dossier
 import com.example.recipekeeper.data.models.Folder
 import com.example.recipekeeper.data.viewmodels.recipedata.RecipeViewModel
@@ -97,7 +94,6 @@ fun RecipeKeeperApp(
         if (navController.currentBackStackEntry?.destination?.route != target) {
             navController.navigate(target) {
                 launchSingleTop = true
-                //optional: clear the stack to the root to avoid unwanted history
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
             }
         }
@@ -159,14 +155,11 @@ fun RecipeKeeperApp(
                     onNavigate = { screen ->
                         if (screen == RecipeKeeperScreen.CreateRecipe) {
                             coroutineScope.launch { showMainSheet = true }
-                        } else if (currentScreen != screen) { // avoids navigating to the same route
+                        } else if (currentScreen != screen) {
                             navController.navigate(screen.name) {
-                                // avoids duplicates and restores bottom nav destination state
                                 launchSingleTop = true
-                                // restoreState allows restoring saved destination state
                                 restoreState = true
                                 popUpTo(navController.graph.findStartDestination().id) {
-                                    // saves bottom nav destination state
                                     saveState = true
                                 }
                             }
@@ -184,7 +177,6 @@ fun RecipeKeeperApp(
                 .fillMaxSize()
         ) {
             composable(RecipeKeeperScreen.Home.name) {
-
                 HomeScreen(
                     userRecipes = recipeViewModel.getFakeUserRecipesData(),
                     onNavigateToSubFolder = { subFolder ->
@@ -192,17 +184,24 @@ fun RecipeKeeperApp(
                         navController.navigate(RecipeKeeperScreen.Folder.name)
                     },
                     onNavigateToRecipeDetails = {}
-
                 )
             }
             composable(RecipeKeeperScreen.Folder.name) { backStackEntry ->
-                val folder = backStackEntry.savedStateHandle.get<Folder>("folder") ?: Folder(name = "Dossier")
+                val folder = navController.previousBackStackEntry?.savedStateHandle?.get<Folder>("folder")
+                    ?: backStackEntry.savedStateHandle.get<Folder>("folder")
+                    ?: Folder(name = "Dossier")
+
+                LaunchedEffect(folder.id) {
+                    backStackEntry.savedStateHandle["folder"] = folder
+                }
+
                 FolderScreen(
                     folder = folder,
                     onNavigateToSubFolder = { subFolder ->
                         navController.currentBackStackEntry?.savedStateHandle?.set("folder", subFolder)
                         navController.navigate(RecipeKeeperScreen.Folder.name)
-                    }
+                    },
+                    onNavigateToRecipeDetails = {}
                 )
             }
             composable(RecipeKeeperScreen.Account.name) {
@@ -271,7 +270,7 @@ fun RecipeKeeperApp(
                 )
             }
         }
-        // --- Première Bottom Sheet : choix ---
+
         if (showMainSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showMainSheet = false },
@@ -290,7 +289,6 @@ fun RecipeKeeperApp(
             }
         }
 
-        // --- Deuxième Bottom Sheet : ajout dossier ---
         if (showAddFolderSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showAddFolderSheet = false },
@@ -330,6 +328,7 @@ fun RecipeKeeperTopBar(
         }
     )
 }
+
 @Composable
 fun BottomNavigationBar(
     currentScreen: RecipeKeeperScreen,
@@ -356,6 +355,7 @@ fun BottomNavigationBar(
         )
     }
 }
+
 @Composable
 fun BottomSheetContent(
     onAddFolder: () -> Unit,

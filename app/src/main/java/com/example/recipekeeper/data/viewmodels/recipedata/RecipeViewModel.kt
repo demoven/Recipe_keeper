@@ -56,7 +56,19 @@ class RecipeViewModel: ViewModel() {
                 id = "f3",
                 name = "Quick Meals",
                 recipes = listOf(),
-                subFolders = emptyList()
+                subFolders = listOf(
+                    Folder(
+                        id = "f3a",
+                        name = "15-Minute Recipes",
+                        recipes = getFakeRecipeDataSet1(),
+                        subFolders = emptyList()
+                    ),
+                    Folder(
+                        id = "f3b",
+                        name = "30-Minute Recipes",
+                        recipes = getFakeRecipeDataSet2(),
+                        subFolders = emptyList()
+                    ))
             )
         )
     }
