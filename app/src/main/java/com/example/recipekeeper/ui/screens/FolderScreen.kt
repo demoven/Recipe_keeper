@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import com.example.recipekeeper.data.models.Folder
 import com.example.recipekeeper.data.models.Recipe
 import com.example.recipekeeper.R
+import com.example.recipekeeper.ui.sharedcomposable.CardField
+import com.example.recipekeeper.ui.sharedcomposable.SectionTitle
 
 @Composable
 fun FolderScreen(
@@ -66,11 +68,4 @@ fun FolderScreen(
             }
         }
     }
-}
-@Composable
-private fun SectionTitle(title: String) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleMedium
-    )
 }
