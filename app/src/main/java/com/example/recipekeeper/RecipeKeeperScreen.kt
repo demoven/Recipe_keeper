@@ -189,7 +189,7 @@ fun RecipeKeeperApp(
             composable(RecipeKeeperScreen.Folder.name) { backStackEntry ->
                 val folder = navController.previousBackStackEntry?.savedStateHandle?.get<Folder>("folder")
                     ?: backStackEntry.savedStateHandle.get<Folder>("folder")
-                    ?: Folder(name = "Dossier")
+                    ?: Folder(name = stringResource(R.string.folder))
 
                 LaunchedEffect(folder.id) {
                     backStackEntry.savedStateHandle["folder"] = folder
