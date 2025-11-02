@@ -22,7 +22,7 @@ class RecipeViewModel: ViewModel() {
             )
         )
     }
-    fun getFakeRecipeDataSet2 (): List<Recipe> {
+    fun getFakeRecipeDataSet2(): List<Recipe> {
         return listOf(
             Recipe(
                 id = "3",
