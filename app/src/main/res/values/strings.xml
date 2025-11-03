@@ -21,4 +21,8 @@
     <string name="password_invalid_error">Le mot de passe doit contenir minimum 12 caractères dont 1 majuscule, 1 minuscule et 1 caractère spécial</string>
     <string name="signin_failed">Échec de la connexion. Veuillez vérifier vos informations d\'identification et réessayer.</string>
     <string name="register_failed">Échec de l\'inscription. Veuillez réessayer</string>
+    <string name="folder">Dossier</string>
+    <string name="folders">Dossiers</string>
+    <string name="recipe">Recette</string>
+    <string name="recipes">Recettes</string>
 </resources>

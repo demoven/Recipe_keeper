@@ -52,9 +52,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.recipekeeper.R.string.dossier
+import com.example.recipekeeper.data.models.Folder
+import com.example.recipekeeper.data.viewmodels.recipedata.RecipeViewModel
 import com.example.recipekeeper.ui.auth.AuthViewModel
 import com.example.recipekeeper.ui.auth.LoginScreen
 import com.example.recipekeeper.ui.auth.RegisterScreen
+import com.example.recipekeeper.ui.screens.FolderScreen
 import kotlinx.coroutines.launch
 
 enum class RecipeKeeperScreen(@StringRes val title: Int) {
@@ -64,14 +67,16 @@ enum class RecipeKeeperScreen(@StringRes val title: Int) {
     AddFolder(title = R.string.add_folder),
     Settings(title = R.string.settings),
     Login(title = R.string.login),
-    Register(title = R.string.register)
+    Register(title = R.string.register),
+    Folder(title = R.string.folder)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeKeeperApp(
     navController: NavHostController = rememberNavController(),
-    authViewModel: AuthViewModel = viewModel()
+    authViewModel: AuthViewModel = viewModel(),
+    recipeViewModel: RecipeViewModel = viewModel()
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val authUiState by authViewModel.uiState.collectAsState()
@@ -89,7 +94,6 @@ fun RecipeKeeperApp(
         if (navController.currentBackStackEntry?.destination?.route != target) {
             navController.navigate(target) {
                 launchSingleTop = true
-                //optional: clear the stack to the root to avoid unwanted history
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
             }
         }
@@ -151,14 +155,11 @@ fun RecipeKeeperApp(
                     onNavigate = { screen ->
                         if (screen == RecipeKeeperScreen.CreateRecipe) {
                             coroutineScope.launch { showMainSheet = true }
-                        } else if (currentScreen != screen) { // avoids navigating to the same route
+                        } else if (currentScreen != screen) {
                             navController.navigate(screen.name) {
-                                // avoids duplicates and restores bottom nav destination state
                                 launchSingleTop = true
-                                // restoreState allows restoring saved destination state
                                 restoreState = true
                                 popUpTo(navController.graph.findStartDestination().id) {
-                                    // saves bottom nav destination state
                                     saveState = true
                                 }
                             }
@@ -176,7 +177,32 @@ fun RecipeKeeperApp(
                 .fillMaxSize()
         ) {
             composable(RecipeKeeperScreen.Home.name) {
-                HomeScreen(onNavigate = { navController.navigate(it.name) })
+                HomeScreen(
+                    userRecipes = recipeViewModel.getFakeUserRecipesData(),
+                    onNavigateToSubFolder = { subFolder ->
+                        navController.currentBackStackEntry?.savedStateHandle?.set("folder", subFolder)
+                        navController.navigate(RecipeKeeperScreen.Folder.name)
+                    },
+                    onNavigateToRecipeDetails = {}
+                )
+            }
+            composable(RecipeKeeperScreen.Folder.name) { backStackEntry ->
+                val folder = navController.previousBackStackEntry?.savedStateHandle?.get<Folder>("folder")
+                    ?: backStackEntry.savedStateHandle.get<Folder>("folder")
+                    ?: Folder(name = stringResource(R.string.folder))
+
+                LaunchedEffect(folder.id) {
+                    backStackEntry.savedStateHandle["folder"] = folder
+                }
+
+                FolderScreen(
+                    folder = folder,
+                    onNavigateToSubFolder = { subFolder ->
+                        navController.currentBackStackEntry?.savedStateHandle?.set("folder", subFolder)
+                        navController.navigate(RecipeKeeperScreen.Folder.name)
+                    },
+                    onNavigateToRecipeDetails = {}
+                )
             }
             composable(RecipeKeeperScreen.Account.name) {
                 AccountScreen()
@@ -244,7 +270,7 @@ fun RecipeKeeperApp(
                 )
             }
         }
-        // --- Première Bottom Sheet : choix ---
+
         if (showMainSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showMainSheet = false },
@@ -263,7 +289,6 @@ fun RecipeKeeperApp(
             }
         }
 
-        // --- Deuxième Bottom Sheet : ajout dossier ---
         if (showAddFolderSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showAddFolderSheet = false },
@@ -303,6 +328,7 @@ fun RecipeKeeperTopBar(
         }
     )
 }
+
 @Composable
 fun BottomNavigationBar(
     currentScreen: RecipeKeeperScreen,
@@ -329,6 +355,7 @@ fun BottomNavigationBar(
         )
     }
 }
+
 @Composable
 fun BottomSheetContent(
     onAddFolder: () -> Unit,
