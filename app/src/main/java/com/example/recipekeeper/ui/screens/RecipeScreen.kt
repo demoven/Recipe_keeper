@@ -1,9 +1,251 @@
 package com.example.recipekeeper.ui.screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.example.recipekeeper.R
+import kotlin.comparisons.then
 
 @Composable
 fun CreateRecipeScreen() {
-    Text("Page Création de recette")
+    var recipeName by remember { mutableStateOf("") }
+    var recipeDescription by remember { mutableStateOf("") }
+    val scrollState =  rememberScrollState()
+    val ingredients = remember { mutableStateListOf<String>("") }
+    val steps = remember { mutableStateListOf<String>("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .imePadding()
+            .padding(16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painterResource(R.drawable.logo_open_no_bg),
+                contentDescription = null,
+                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large))
+            )
+        }
+        DescriptionLayout(
+            recipeName = recipeName,
+            recipeDescription = recipeDescription,
+            onRecipeNameChange = { recipeName = it },
+            onRecipeDescriptionChange = { recipeDescription = it },
+        )
+        Spacer(modifier = Modifier.padding(8.dp))
+        ListLayout(
+            elements = ingredients,
+            placeholder = "ex: 200g de farine",
+            title = "Ingrédients",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.padding(8.dp))
+        ListLayout(
+            elements = steps,
+            placeholder = "Décrire l'étape",
+            title = "Étapes",
+            numbered = true,
+            singleLineTextField = false,
+            modifier = Modifier.fillMaxWidth()
+
+        )
+    }
+}
+
+@Composable
+fun DescriptionLayout(
+    recipeName: String,
+    recipeDescription: String,
+    onRecipeNameChange: (String) -> Unit,
+    onRecipeDescriptionChange: (String) -> Unit
+) {
+    Column {
+        Text ("Description")
+        TextFieldTransparent(
+            value = recipeName,
+            onValueChange = onRecipeNameChange,
+            label = "Titre",
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+        )
+        TextFieldTransparent(
+            value = recipeDescription,
+            onValueChange = onRecipeDescriptionChange,
+            label = "Description",
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next
+            ),
+            singleLine = false,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+        )
+    }
+}
+@Composable
+fun ListLayout(
+    elements: MutableList<String>,
+    placeholder: String,
+    title: String,
+    modifier : Modifier = Modifier,
+    numbered: Boolean = false,
+    singleLineTextField : Boolean = true,
+) {
+    val elementsFocus = remember { mutableStateListOf(FocusRequester()) }
+    var shouldFocusLast by remember { mutableStateOf(false) }
+
+    LaunchedEffect(elements.size, shouldFocusLast) {
+        if (shouldFocusLast && elements.isNotEmpty()) {
+            elementsFocus.lastOrNull()?.requestFocus()
+            shouldFocusLast = false
+        }
+    }
+
+    Column(modifier = modifier) {
+        Text(title)
+        elements.forEachIndexed { index, ing ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                verticalAlignment = if(numbered) Alignment.Top else Alignment.CenterVertically
+            ) {
+                if(numbered) {
+                    Text(
+                        text = "${index + 1}.",
+                        modifier =  Modifier
+                            .width(28.dp)
+                            .alignBy(FirstBaseline),
+                        textAlign = TextAlign.End
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                }
+                TextFieldTransparent(
+                    value = ing,
+                    onValueChange = { newIng -> elements[index] = newIng },
+                    placeholder = placeholder,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    singleLine = singleLineTextField,
+                    modifier = Modifier
+                        .weight(1f)
+                        .then(if (numbered) Modifier.alignBy(FirstBaseline) else Modifier)
+                        .focusRequester(elementsFocus[index])
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                IconButton(
+                    onClick = {
+                        elements.removeAt(index)
+                        elementsFocus.removeAt(index)
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "Supprimer l’ingrédient"
+                    )
+                }
+            }
+        }
+        val canAdd = elements.isEmpty() || elements.last().isNotBlank()
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                onClick = {
+                    elements.add("")
+                    elementsFocus.add(FocusRequester())
+                    shouldFocusLast = true
+                },
+                enabled = canAdd,
+                modifier = Modifier.padding(top = 16.dp)
+            ) {
+                Text("+")
+            }
+        }
+    }
+}
+
+@Composable
+fun TextFieldTransparent(
+    value: String,
+    onValueChange: (String) -> Unit,
+    keyboardOptions: KeyboardOptions,
+    modifier : Modifier = Modifier,
+    label : String? = null,
+    placeholder: String? = null,
+    keyboardActions: KeyboardActions? = null,
+    singleLine : Boolean = true
+) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = if(label != null) {
+            { Text(text =label) }
+        } else null,
+        placeholder = if (placeholder != null) {
+            { Text(text = placeholder, maxLines = 1, softWrap = false) }
+        } else null,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            errorContainerColor = Color.Transparent
+        ),
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions ?: KeyboardActions.Default,
+        singleLine = singleLine,
+        modifier = modifier
+    )
 }
