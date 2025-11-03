@@ -126,7 +126,10 @@ fun RecipeKeeperApp(
     )
     val showTopBar = currentScreen !in screensWithoutTopBar
     val showBottomBar = currentScreen !in screensWithoutBottomBar
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val mainSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val addFolderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     val coroutineScope = rememberCoroutineScope()
     var showMainSheet by remember { mutableStateOf(false) }
     var showAddFolderSheet by remember { mutableStateOf(false) }
@@ -274,7 +277,7 @@ fun RecipeKeeperApp(
         if (showMainSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showMainSheet = false },
-                sheetState = sheetState
+                sheetState = mainSheetState
             ) {
                 BottomSheetContent(
                     onAddFolder = {
@@ -283,7 +286,9 @@ fun RecipeKeeperApp(
                     },
                     onAddRecipe = {
                         showMainSheet = false
-                        navController.navigate(RecipeKeeperScreen.CreateRecipe.name)
+                        navController.navigate(RecipeKeeperScreen.CreateRecipe.name) {
+                            launchSingleTop = true
+                        }
                     }
                 )
             }
@@ -292,7 +297,7 @@ fun RecipeKeeperApp(
         if (showAddFolderSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showAddFolderSheet = false },
-                sheetState = sheetState
+                sheetState = addFolderSheetState
             ) {
                 AddFolderBottomSheet(
                     onAdd = { folderName ->
