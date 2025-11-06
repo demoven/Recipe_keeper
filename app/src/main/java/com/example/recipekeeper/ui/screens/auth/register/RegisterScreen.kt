@@ -1,4 +1,4 @@
-package com.example.recipekeeper.ui.auth
+package com.example.recipekeeper.ui.screens.auth.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -12,29 +12,35 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
+import com.example.recipekeeper.ui.screens.auth.EmailTextField
+import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 
 @Composable
 fun RegisterScreen(
-    email: String,
-    password: String,
-    confirmedPassword: String,
-    emailError: Boolean,
-    passwordError: Boolean,
-    confirmedPasswordError: Boolean,
-    onEmailChanged: (String) -> Unit,
-    onPasswordChanged: (String) -> Unit,
-    onConfirmedPasswordChanged: (String) -> Unit,
-    onRegister: () -> Unit,
     onNavigateToLogin: () -> Unit,
-    modifier: Modifier = Modifier
+    onShowErrorMessage: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    registerViewModel: RegisterViewModel = viewModel()
 ) {
+    val uiState by registerViewModel.uiState.collectAsState()
+    val registerError = stringResource(R.string.register_failed)
+    LaunchedEffect(uiState.registerError) {
+        if (uiState.registerError) {
+            onShowErrorMessage(registerError)
+            registerViewModel.updateRegisterError(false)
+        }
+    }
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -52,21 +58,31 @@ fun RegisterScreen(
             )
         }
         RegisterLayout(
-            email = email,
-            password = password,
-            confirmedPassword = confirmedPassword,
-            emailError = emailError,
-            passwordError = passwordError,
-            confirmedPasswordError = confirmedPasswordError,
-            onEmailChanged = onEmailChanged,
-            onPasswordChanged = onPasswordChanged,
-            onConfirmedPasswordChanged = onConfirmedPasswordChanged,
-            onRegister = onRegister,
-            onNavigateToLogin = onNavigateToLogin,
+            email = uiState.email,
+            password = uiState.password,
+            confirmedPassword = uiState.confirmPassword,
+            emailError = uiState.emailError,
+            passwordError = uiState.passwordError,
+            confirmedPasswordError = uiState.confirmPasswordError,
+            onEmailChanged = {
+                registerViewModel.updateEmail(it)
+            },
+            onPasswordChanged = {
+                registerViewModel.updatePassword(it)
+            },
+            onConfirmedPasswordChanged = {
+                registerViewModel.updateConfirmPassword(it)
+            },
+            onRegister = {
+                registerViewModel.register()
+            },
+            onNavigateToLogin = {
+                onNavigateToLogin()
+                registerViewModel.resetAllFields()
+            },
             modifier = Modifier
                 .fillMaxWidth()
         )
-        // Bottom spacer to push the register button to the bottom
         Spacer(modifier = Modifier.weight(0.4f, fill = true))
     }
 }
