@@ -112,6 +112,18 @@ fun RecipeKeeperApp(
     var showMainSheet by remember { mutableStateOf(false) }
     var showAddFolderSheet by remember { mutableStateOf(false) }
 
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn) {
+            navController.navigate(RecipeKeeperScreen.Home.name) {
+                popUpTo(RecipeKeeperScreen.Login.name) { inclusive = true }
+            }
+        } else {
+            navController.navigate(RecipeKeeperScreen.Login.name) {
+                popUpTo(RecipeKeeperScreen.Home.name) { inclusive = true }
+            }
+        }
+    }
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(
