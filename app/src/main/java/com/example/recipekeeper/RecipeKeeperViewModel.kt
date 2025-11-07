@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class RecipeKeeperViewModel: ViewModel() {
+class RecipeKeeperViewModel : ViewModel() {
     private val _isUserLoggedIn = MutableStateFlow(FirebaseAuth.getInstance().currentUser != null)
     val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn.asStateFlow()
 
