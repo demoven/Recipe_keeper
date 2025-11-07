@@ -54,9 +54,8 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.recipekeeper.R.string.dossier
 import com.example.recipekeeper.data.models.Folder
 import com.example.recipekeeper.data.viewmodels.recipedata.RecipeViewModel
-import com.example.recipekeeper.ui.auth.AuthViewModel
-import com.example.recipekeeper.ui.auth.LoginScreen
-import com.example.recipekeeper.ui.auth.RegisterScreen
+import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
+import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
 import com.example.recipekeeper.ui.screens.FolderScreen
 import kotlinx.coroutines.launch
 
@@ -75,39 +74,18 @@ enum class RecipeKeeperScreen(@StringRes val title: Int) {
 @Composable
 fun RecipeKeeperApp(
     navController: NavHostController = rememberNavController(),
-    authViewModel: AuthViewModel = viewModel(),
-    recipeViewModel: RecipeViewModel = viewModel()
+    recipeViewModel: RecipeViewModel = viewModel(),
+    recipeKeeperViewModel: RecipeKeeperViewModel = viewModel()
 ) {
+    val isLoggedIn by recipeKeeperViewModel.isUserLoggedIn.collectAsState()
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val authUiState by authViewModel.uiState.collectAsState()
-    val startDestination = if (authUiState.isLoggedIn) {
+    val startDestination = if (isLoggedIn) {
         RecipeKeeperScreen.Home.name
     } else {
         RecipeKeeperScreen.Login.name
     }
     val snackbarHostState = remember { SnackbarHostState() }
-    val signinError = stringResource(R.string.signin_failed)
-    val registerError = stringResource(R.string.register_failed)
 
-    LaunchedEffect(authUiState.isLoggedIn) {
-        val target = if (authUiState.isLoggedIn) RecipeKeeperScreen.Home.name else RecipeKeeperScreen.Login.name
-        if (navController.currentBackStackEntry?.destination?.route != target) {
-            navController.navigate(target) {
-                launchSingleTop = true
-                popUpTo(navController.graph.startDestinationId) { inclusive = true }
-            }
-        }
-    }
-    LaunchedEffect(authUiState.loginError, authUiState.registerError) {
-        if (authUiState.loginError) {
-            snackbarHostState.showSnackbar(signinError)
-            authViewModel.resetErrors()
-        }
-        if (authUiState.registerError) {
-            snackbarHostState.showSnackbar(registerError)
-            authViewModel.resetErrors()
-        }
-    }
     val currentRoute = backStackEntry?.destination?.route
     val currentScreen = RecipeKeeperScreen.valueOf(
         currentRoute ?: RecipeKeeperScreen.Home.name
@@ -133,6 +111,18 @@ fun RecipeKeeperApp(
     val coroutineScope = rememberCoroutineScope()
     var showMainSheet by remember { mutableStateOf(false) }
     var showAddFolderSheet by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn) {
+            navController.navigate(RecipeKeeperScreen.Home.name) {
+                popUpTo(RecipeKeeperScreen.Login.name) { inclusive = true }
+            }
+        } else {
+            navController.navigate(RecipeKeeperScreen.Login.name) {
+                popUpTo(RecipeKeeperScreen.Home.name) { inclusive = true }
+            }
+        }
+    }
 
     Scaffold(
         snackbarHost = {
@@ -217,7 +207,7 @@ fun RecipeKeeperApp(
                 SettingsScreen(
                     onNavigateToAccount = { navController.navigate(RecipeKeeperScreen.Account.name) },
                     onLogout = {
-                        authViewModel.logout()
+                        recipeKeeperViewModel.logout()
                     }
                 )
             }
@@ -226,20 +216,14 @@ fun RecipeKeeperApp(
             }
             composable(RecipeKeeperScreen.Login.name) {
                 LoginScreen(
-                    email = authUiState.email,
-                    password = authViewModel.password,
-                    onEmailChanged = { authViewModel.updateEmail(it)},
-                    onPasswordChanged = { authViewModel.updatePassword(it)},
-                    onLogin = {
-                        authViewModel.login()
-                    },
                     onNavigateToRegister = {
                         navController.navigate(RecipeKeeperScreen.Register.name)
-                        authViewModel.resetPassword()
-                        authViewModel.resetErrors()
                     },
-                    emailError = authUiState.emailError,
-                    passwordError = authUiState.passwordError,
+                    onShowErrorMessage = { message ->
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(message)
+                        }
+                    },
                     modifier = Modifier
                         .padding(dimensionResource(R.dimen.padding_large))
                         .fillMaxSize()
@@ -247,25 +231,16 @@ fun RecipeKeeperApp(
             }
             composable(RecipeKeeperScreen.Register.name) {
                 RegisterScreen(
-                    email = authUiState.email,
-                    password = authViewModel.password,
-                    confirmedPassword = authViewModel.confirmPassword,
-                    emailError = authUiState.emailError,
-                    passwordError = authUiState.passwordError,
-                    confirmedPasswordError = authUiState.confirmPasswordError,
-                    onEmailChanged = { authViewModel.updateEmail(it)},
-                    onPasswordChanged = { authViewModel.updatePassword(it)},
-                    onConfirmedPasswordChanged = { authViewModel.updateConfirmPassword(it)},
-                    onRegister = {
-                        authViewModel.register()
-                    },
                     onNavigateToLogin = {
                         navController.navigate(RecipeKeeperScreen.Login.name) {
                             launchSingleTop = true
                             popUpTo(RecipeKeeperScreen.Register.name) { inclusive = true }
                         }
-                        authViewModel.resetPassword()
-                        authViewModel.resetErrors()
+                    },
+                    onShowErrorMessage = { message ->
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(message)
+                        }
                     },
                     modifier = Modifier
                         .padding(dimensionResource(R.dimen.padding_large))

@@ -1,4 +1,4 @@
-package com.example.recipekeeper.ui.auth
+package com.example.recipekeeper.ui.screens.auth.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -12,6 +12,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -19,24 +22,30 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import com.example.recipekeeper.R
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.recipekeeper.ui.screens.auth.EmailTextField
+import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 
 @Composable
 fun LoginScreen(
-    email: String,
-    password: String,
-    passwordError: Boolean,
-    emailError: Boolean,
-    onEmailChanged: (String) -> Unit,
-    onPasswordChanged: (String) -> Unit,
-    onLogin: () -> Unit,
     onNavigateToRegister: () -> Unit,
+    onShowErrorMessage: (String) -> Unit,
     modifier: Modifier = Modifier,
+    loginViewModel: LoginViewModel = viewModel()
 ) {
+    val uiState by loginViewModel.uiState.collectAsState()
+    val loginError = stringResource(R.string.signin_failed)
+    LaunchedEffect(uiState.loginError) {
+        if (uiState.loginError) {
+            onShowErrorMessage(loginError)
+            loginViewModel.updateLoginError(false)
+        }
+    }
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top spacer to push the logo and login form upwards
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -51,21 +60,29 @@ fun LoginScreen(
         }
 
         LoginLayout(
-            email = email,
-            password = password,
-            passwordError = passwordError,
-            emailError = emailError,
-            onEmailChanged = onEmailChanged,
-            onPasswordChanged = onPasswordChanged,
-            onLogin = onLogin,
+            email = uiState.email,
+            password = uiState.password,
+            passwordError = false,
+            emailError = uiState.emailError,
+            onEmailChanged = {
+                loginViewModel.updateEmail(it)
+            },
+            onPasswordChanged = {
+                loginViewModel.updatePassword(it)
+            },
+            onLogin = {
+                loginViewModel.login()
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Bottom spacer to push the register button to the bottom
         Spacer(modifier = Modifier.weight(0.4f, fill = true))
 
         OutlinedButton(
-            onClick = onNavigateToRegister,
+            onClick = {
+                onNavigateToRegister()
+                loginViewModel.resetAllFields()
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(stringResource(R.string.create_account))

@@ -1,10 +1,10 @@
-package com.example.recipekeeper.ui.auth
+package com.example.recipekeeper.ui.screens.auth.register
 
-data class AuthUiState(
-    val isLoggedIn: Boolean = false,
+data class RegisterUiState (
     val email: String = "",
-    // Fields errors
-    val loginError: Boolean = false,
+    val password: String ="",
+    val confirmPassword: String = "",
+    // Error fields
     val registerError: Boolean = false,
     val emailError: Boolean = false,
     val passwordError: Boolean = false,

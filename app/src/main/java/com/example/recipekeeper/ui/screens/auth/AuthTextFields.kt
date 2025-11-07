@@ -1,4 +1,4 @@
-package com.example.recipekeeper.ui.auth
+package com.example.recipekeeper.ui.screens.auth
 
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
