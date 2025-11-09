@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -20,8 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.data.factory.HomeViewModelFactory
-import com.example.recipekeeper.data.models.Folder
-import com.example.recipekeeper.data.models.Recipe
 import com.example.recipekeeper.data.repository.RecipeRepository
 import com.example.recipekeeper.ui.sharedcomposable.CardField
 import com.example.recipekeeper.ui.sharedcomposable.SectionTitle
@@ -33,7 +30,6 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     folderId: String? = null
 ) {
-    // Charger les données avec le folderId
     val factory = HomeViewModelFactory(RecipeRepository())
     val homeViewModel: HomeViewModel = viewModel(factory = factory)
     val uiState by homeViewModel.uiState.collectAsState()

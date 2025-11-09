@@ -41,7 +41,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +49,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.recipekeeper.R.string.dossier
@@ -88,7 +86,6 @@ fun RecipeKeeperApp(
     val currentScreen = try {
         RecipeKeeperScreen.valueOf(currentRouteBase ?: RecipeKeeperScreen.Home.name)
     } catch (e: Exception) {
-        // fallback si la route est non reconnue
         if (currentRoute?.startsWith(RecipeKeeperScreen.Home.name) == true) {
             RecipeKeeperScreen.Home
         } else {

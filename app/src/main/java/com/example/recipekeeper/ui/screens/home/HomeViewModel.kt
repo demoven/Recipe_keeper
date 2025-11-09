@@ -1,7 +1,6 @@
 package com.example.recipekeeper.ui.screens.home
 
 import androidx.lifecycle.ViewModel
-import com.example.recipekeeper.data.models.Recipe
 import com.example.recipekeeper.data.repository.RecipeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
