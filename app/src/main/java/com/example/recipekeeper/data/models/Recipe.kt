@@ -12,5 +12,5 @@ data class Recipe(
     val prepTime: Int = 0, // in minutes
     val cookTime: Int = 0, // in minutes
     val servings: Int = 0,
-    val imageUrl: String = ""
+    val imageUrl: String? = null
 ): Parcelable
