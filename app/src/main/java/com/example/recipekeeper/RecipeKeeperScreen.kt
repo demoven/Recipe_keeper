@@ -118,17 +118,17 @@ fun RecipeKeeperApp(
     var showMainSheet by remember { mutableStateOf(false) }
     var showAddFolderSheet by remember { mutableStateOf(false) }
 
-    LaunchedEffect(isLoggedIn) {
-        if (isLoggedIn) {
-            navController.navigate(RecipeKeeperScreen.Home.name) {
-                popUpTo(RecipeKeeperScreen.Login.name) { inclusive = true }
-            }
-        } else {
-            navController.navigate(RecipeKeeperScreen.Login.name) {
-                popUpTo(RecipeKeeperScreen.Home.name) { inclusive = true }
-            }
-        }
-    }
+//    LaunchedEffect(isLoggedIn) {
+//        if (isLoggedIn) {
+//            navController.navigate(RecipeKeeperScreen.Home.name) {
+//                popUpTo(RecipeKeeperScreen.Login.name) { inclusive = true }
+//            }
+//        } else {
+//            navController.navigate(RecipeKeeperScreen.Login.name) {
+//                popUpTo(RecipeKeeperScreen.Home.name) { inclusive = true }
+//            }
+//        }
+//    }
 
     Scaffold(
         snackbarHost = {
@@ -157,10 +157,6 @@ fun RecipeKeeperApp(
                         } else if (currentScreen != screen) {
                             navController.navigate(screen.name) {
                                 launchSingleTop = true
-                                restoreState = true
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
                             }
                         }
                     }
@@ -188,10 +184,7 @@ fun RecipeKeeperApp(
                 HomeScreen(
                     folderId = folderId,
                     onNavigateToSubFolder = { subFolderId ->
-                        navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId") {
-                            launchSingleTop = true
-                        }
-                    },
+                        navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId")                     },
                     onNavigateToRecipeDetails = {},
                     modifier = Modifier.fillMaxSize()
                 )

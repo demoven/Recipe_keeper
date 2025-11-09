@@ -13,7 +13,10 @@ class HomeViewModel(private val repository: RecipeRepository) : ViewModel() {
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     fun getRecipes(folderId: String?) {
-        return repository.getRecipesInFolder(folderId)
+        repository.getRecipesInFolder(folderId){
+            recipes ->
+            _uiState.value = _uiState.value.copy(recipes = recipes)
+        }
     }
 
     fun getFolders(parentId: String?) {

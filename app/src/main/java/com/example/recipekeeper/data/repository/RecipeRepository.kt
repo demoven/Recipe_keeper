@@ -2,6 +2,7 @@ package com.example.recipekeeper.data.repository
 
 import android.util.Log
 import com.example.recipekeeper.data.models.Folder
+import com.example.recipekeeper.data.models.Recipe
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -26,15 +27,14 @@ class RecipeRepository {
             }
     }
 
-    fun getRecipesInFolder(folderId: String?) {
+    fun getRecipesInFolder(folderId: String?, onResult:(List<Recipe>) -> Unit) {
         Log.d(TAG, "Fetching recipes in folder: $folderId")
         recipesCollection
             .whereEqualTo("folderId", folderId)
             .get()
             .addOnSuccessListener { result ->
-                for (document in result) {
-                    Log.d(TAG, "Recipe data: ${document.data}")
-                }
+                val recipes = result.map { it.toObject(Recipe::class.java) }
+                onResult(recipes)
             }
             .addOnFailureListener { exception ->
                 Log.d(TAG, "getRecipesWithoutFolder failed: ", exception)

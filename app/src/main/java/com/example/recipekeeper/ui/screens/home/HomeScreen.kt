@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -27,8 +28,8 @@ import com.example.recipekeeper.ui.sharedcomposable.SectionTitle
 
 @Composable
 fun HomeScreen(
-    onNavigateToSubFolder: (Folder) -> Unit,
-    onNavigateToRecipeDetails: (Recipe) -> Unit,
+    onNavigateToSubFolder: (String) -> Unit,
+    onNavigateToRecipeDetails: (String) -> Unit,
     modifier: Modifier = Modifier,
     folderId: String? = null
 ) {
@@ -36,9 +37,14 @@ fun HomeScreen(
     val factory = HomeViewModelFactory(RecipeRepository())
     val homeViewModel: HomeViewModel = viewModel(factory = factory)
     val uiState by homeViewModel.uiState.collectAsState()
-    homeViewModel.getFolders(folderId)
+
+    LaunchedEffect(folderId) {
+        homeViewModel.getFolders(folderId)
+        homeViewModel.getRecipes(folderId)
+    }
+
     Log.d("HomeScreen", "UI State folders: ${uiState.folders}")
-    val userFolders = homeViewModel.getFolders(folderId)
+    Log.d("HomeScreen", "UI State recipes: ${uiState.recipes}")
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = modifier,
@@ -46,38 +52,38 @@ fun HomeScreen(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-//        if (userRecipes.folders.isNotEmpty()) {
-//            item(span = { GridItemSpan(maxLineSpan) }) {
-//                SectionTitle(title = stringResource(R.string.folders))
-//            }
-//            items(
-//                items = userRecipes.folders,
-//                key = { it.id }
-//            ) { folder ->
-//                CardField(
-//                    title = folder.name,
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .clickable { onNavigateToSubFolder(folder) }
-//                )
-//            }
-//        }
-//
-//        if (userRecipes.recipes.isNotEmpty()) {
-//            item(span = { GridItemSpan(maxLineSpan) }) {
-//                SectionTitle(title = stringResource(R.string.recipes))
-//            }
-//            items(
-//                items = userRecipes.recipes,
-//                key = { it.id }
-//            ) { recipe ->
-//                CardField(
-//                    title = recipe.title,
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .clickable { onNavigateToRecipeDetails(recipe) }
-//                )
-//            }
-//        }
+        if (uiState.folders.isNotEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                SectionTitle(title = stringResource(R.string.folders))
+            }
+            items(
+                items = uiState.folders,
+                key = { it.id }
+            ) { folder ->
+                CardField(
+                    title = folder.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToSubFolder(folder.id) }
+                )
+            }
+        }
+
+        if (uiState.recipes.isNotEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                SectionTitle(title = stringResource(R.string.recipes))
+            }
+            items(
+                items = uiState.recipes,
+                key = { it.id }
+            ) { recipe ->
+                CardField(
+                    title = recipe.title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToRecipeDetails(recipe.id) }
+                )
+            }
+        }
     }
 }

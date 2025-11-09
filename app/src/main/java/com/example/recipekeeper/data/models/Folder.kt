@@ -6,5 +6,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Folder(
     val id: String = "",
-    val name: String = ""
+    val name: String = "",
+    val parentId: String? = null
 ): Parcelable
