@@ -1,5 +1,6 @@
 package com.example.recipekeeper.ui.screens.home
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,6 +11,8 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -32,8 +35,10 @@ fun HomeScreen(
     // Charger les données avec le folderId
     val factory = HomeViewModelFactory(RecipeRepository())
     val homeViewModel: HomeViewModel = viewModel(factory = factory)
-
-    val userRecipes = homeViewModel.getRecipes(folderId)
+    val uiState by homeViewModel.uiState.collectAsState()
+    homeViewModel.getFolders(folderId)
+    Log.d("HomeScreen", "UI State folders: ${uiState.folders}")
+    val userFolders = homeViewModel.getFolders(folderId)
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = modifier,

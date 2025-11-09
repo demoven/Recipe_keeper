@@ -1,6 +1,7 @@
 package com.example.recipekeeper.data.repository
 
 import android.util.Log
+import com.example.recipekeeper.data.models.Folder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -11,14 +12,14 @@ class RecipeRepository {
     private val recipesCollection = db.collection("users").document(userId ?: "").collection("recipes")
     private val foldersCollection = db.collection("users").document(userId ?: "").collection("folders")
 
-    fun getFolder(folderId: String?) {
+    fun getFolders(parentId: String?, onResult:(List<Folder>) -> Unit) {
+        Log.d(TAG, "Fetching folders with parentId: $parentId")
         foldersCollection
-            .whereEqualTo("parentId", folderId)
+            .whereEqualTo("parentId", parentId)
             .get()
             .addOnSuccessListener { result ->
-                for (document in result) {
-                    Log.d(TAG, "Folder data: ${document.data}")
-                }
+                val folders = result.map { it.toObject(Folder::class.java) }
+                onResult(folders)
             }
             .addOnFailureListener { exception ->
                 Log.d(TAG, "getInitialFolders failed: ", exception)
