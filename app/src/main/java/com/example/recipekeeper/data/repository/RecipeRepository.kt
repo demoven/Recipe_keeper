@@ -5,6 +5,7 @@ import com.example.recipekeeper.data.models.Folder
 import com.example.recipekeeper.data.models.Recipe
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 class RecipeRepository {
     private val TAG = "RecipeRepository"
@@ -12,32 +13,30 @@ class RecipeRepository {
     private val userId = FirebaseAuth.getInstance().currentUser?.uid
     private val recipesCollection = db.collection("users").document(userId ?: "").collection("recipes")
     private val foldersCollection = db.collection("users").document(userId ?: "").collection("folders")
-
-    fun getFolders(parentId: String?, onResult:(List<Folder>) -> Unit) {
-        Log.d(TAG, "Fetching folders with parentId: $parentId")
-        foldersCollection
+    
+    fun watchFolders(parentId: String?, onResult: (List<Folder>) -> Unit): ListenerRegistration {
+        return foldersCollection
             .whereEqualTo("parentId", parentId)
-            .get()
-            .addOnSuccessListener { result ->
-                val folders = result.map { it.toObject(Folder::class.java) }
+            .addSnapshotListener { snapshot, exception ->
+                if (exception != null) {
+                    Log.d(TAG, "watchFolders failed: ", exception)
+                    return@addSnapshotListener
+                }
+                val folders = snapshot?.map { it.toObject(Folder::class.java) } ?: emptyList()
                 onResult(folders)
-            }
-            .addOnFailureListener { exception ->
-                Log.d(TAG, "getFolders failed: ", exception)
             }
     }
 
-    fun getRecipesInFolder(folderId: String?, onResult:(List<Recipe>) -> Unit) {
-        Log.d(TAG, "Fetching recipes in folder: $folderId")
-        recipesCollection
+    fun watchRecipesInFolder(folderId: String?, onResult: (List<Recipe>) -> Unit): ListenerRegistration {
+        return recipesCollection
             .whereEqualTo("folderId", folderId)
-            .get()
-            .addOnSuccessListener { result ->
-                val recipes = result.map { it.toObject(Recipe::class.java) }
+            .addSnapshotListener { snapshot, exception ->
+                if (exception != null) {
+                    Log.d(TAG, "watchRecipesInFolder failed: ", exception)
+                    return@addSnapshotListener
+                }
+                val recipes = snapshot?.map { it.toObject(Recipe::class.java) } ?: emptyList()
                 onResult(recipes)
-            }
-            .addOnFailureListener { exception ->
-                Log.d(TAG, "getRecipesInFolder failed: ", exception)
             }
     }
 }

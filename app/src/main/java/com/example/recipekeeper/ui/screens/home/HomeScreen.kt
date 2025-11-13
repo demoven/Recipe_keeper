@@ -34,8 +34,8 @@ fun HomeScreen(
     val uiState by homeViewModel.uiState.collectAsState()
 
     LaunchedEffect(folderId) {
-        homeViewModel.getFolders(folderId)
-        homeViewModel.getRecipes(folderId)
+        homeViewModel.watchFolders(folderId)
+        homeViewModel.watchRecipes(folderId)
     }
 
     LazyVerticalGrid(
