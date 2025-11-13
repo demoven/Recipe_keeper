@@ -38,9 +38,7 @@ fun HomeScreen(
         homeViewModel.getFolders(folderId)
         homeViewModel.getRecipes(folderId)
     }
-
-    Log.d("HomeScreen", "UI State folders: ${uiState.folders}")
-    Log.d("HomeScreen", "UI State recipes: ${uiState.recipes}")
+    
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = modifier,
