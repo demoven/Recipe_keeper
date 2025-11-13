@@ -1,5 +1,6 @@
 package com.example.recipekeeper
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -86,6 +87,7 @@ fun RecipeKeeperApp(
     val currentScreen = try {
         RecipeKeeperScreen.valueOf(currentRouteBase ?: RecipeKeeperScreen.Home.name)
     } catch (e: Exception) {
+        Log.d("RecipeKeeperApp", "Erreur : $e")
         if (currentRoute?.startsWith(RecipeKeeperScreen.Home.name) == true) {
             RecipeKeeperScreen.Home
         } else {
@@ -115,6 +117,7 @@ fun RecipeKeeperApp(
     var showMainSheet by remember { mutableStateOf(false) }
     var showAddFolderSheet by remember { mutableStateOf(false) }
 
+    // Changer la navigation en fonction de l'état de connexion de l'utilisateur
 //    LaunchedEffect(isLoggedIn) {
 //        if (isLoggedIn) {
 //            navController.navigate(RecipeKeeperScreen.Home.name) {

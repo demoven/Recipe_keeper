@@ -23,7 +23,7 @@ class RecipeRepository {
                 onResult(folders)
             }
             .addOnFailureListener { exception ->
-                Log.d(TAG, "getInitialFolders failed: ", exception)
+                Log.d(TAG, "getFolders failed: ", exception)
             }
     }
 
@@ -37,7 +37,7 @@ class RecipeRepository {
                 onResult(recipes)
             }
             .addOnFailureListener { exception ->
-                Log.d(TAG, "getRecipesWithoutFolder failed: ", exception)
+                Log.d(TAG, "getRecipesInFolder failed: ", exception)
             }
     }
 }
