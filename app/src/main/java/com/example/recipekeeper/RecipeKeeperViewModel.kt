@@ -1,12 +1,14 @@
 package com.example.recipekeeper
 
 import androidx.lifecycle.ViewModel
+import com.example.recipekeeper.data.models.Folder
+import com.example.recipekeeper.data.repository.RecipeRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class RecipeKeeperViewModel : ViewModel() {
+class RecipeKeeperViewModel(private val repository: RecipeRepository) : ViewModel() {
     private val _isUserLoggedIn = MutableStateFlow(FirebaseAuth.getInstance().currentUser != null)
     val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn.asStateFlow()
 
@@ -25,5 +27,9 @@ class RecipeKeeperViewModel : ViewModel() {
 
     fun logout(){
         FirebaseAuth.getInstance().signOut()
+    }
+
+    fun addFolder(folderName: String, parentId: String?) {
+        repository.addFolder(Folder(name = folderName, parentId = parentId))
     }
 }

@@ -53,6 +53,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.recipekeeper.R.string.dossier
+import com.example.recipekeeper.data.factory.RecipeKeeperViewModelFactory
+import com.example.recipekeeper.data.repository.RecipeRepository
 import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
 import kotlinx.coroutines.launch
@@ -70,9 +72,10 @@ enum class RecipeKeeperScreen(@StringRes val title: Int) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeKeeperApp(
-    navController: NavHostController = rememberNavController(),
-    recipeKeeperViewModel: RecipeKeeperViewModel = viewModel()
+    navController: NavHostController = rememberNavController()
 ) {
+    val factory = RecipeKeeperViewModelFactory(RecipeRepository())
+    val recipeKeeperViewModel: RecipeKeeperViewModel = viewModel(factory = factory)
     val isLoggedIn by recipeKeeperViewModel.isUserLoggedIn.collectAsState()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val startDestination = if (isLoggedIn) {
@@ -117,18 +120,9 @@ fun RecipeKeeperApp(
     var showMainSheet by remember { mutableStateOf(false) }
     var showAddFolderSheet by remember { mutableStateOf(false) }
 
-    // Changer la navigation en fonction de l'état de connexion de l'utilisateur
-//    LaunchedEffect(isLoggedIn) {
-//        if (isLoggedIn) {
-//            navController.navigate(RecipeKeeperScreen.Home.name) {
-//                popUpTo(RecipeKeeperScreen.Login.name) { inclusive = true }
-//            }
-//        } else {
-//            navController.navigate(RecipeKeeperScreen.Login.name) {
-//                popUpTo(RecipeKeeperScreen.Home.name) { inclusive = true }
-//            }
-//        }
-//    }
+    val currentFolderId = if (currentRouteBase == RecipeKeeperScreen.Home.name) {
+        backStackEntry?.arguments?.getString("folderId")
+    } else null
 
     Scaffold(
         snackbarHost = {
@@ -269,7 +263,10 @@ fun RecipeKeeperApp(
                 AddFolderBottomSheet(
                     onAdd = { folderName ->
                         showAddFolderSheet = false
-                        println("Dossier ajouté : $folderName")
+                        recipeKeeperViewModel.addFolder(
+                            folderName = folderName,
+                            parentId = currentFolderId
+                        )
                     }
                 )
             }
