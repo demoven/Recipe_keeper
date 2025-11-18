@@ -45,6 +45,7 @@ class RecipeRepository {
             }
     }
 
+    //TODO ajouter un retour de succès/échec
     fun addFolder(folder: Folder) {
         foldersCollection.add(folder)
             .addOnSuccessListener { docRef ->
