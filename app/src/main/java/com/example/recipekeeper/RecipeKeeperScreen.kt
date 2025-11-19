@@ -24,6 +24,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,6 +60,12 @@ fun RecipeKeeperApp(
     val authRepository = remember { AuthRepositoryImpl() }
 
     val authFactory = remember { AuthViewModelFactory(authRepository = authRepository) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            (authRepository as? AutoCloseable)?.close()
+        }
+    }
 
     val recipeKeeperViewModelFactory = remember {
         RecipeKeeperViewModelFactory(
