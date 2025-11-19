@@ -26,7 +26,7 @@ class FolderRepositoryImpl: IFolderRepository {
     }
 
     override fun watchFolder(parentId: String?, onResult: (List<Folder>) -> Unit): ListenerRegistration {
-        if(!::foldersCollection.isInitialized){
+        if (!::foldersCollection.isInitialized) {
             throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
         }
         return foldersCollection
@@ -42,7 +42,7 @@ class FolderRepositoryImpl: IFolderRepository {
     }
 
     override fun addFolder(folder: Folder, onSuccess: () -> Unit, onFailure: () -> Unit) {
-        if(!::foldersCollection.isInitialized){
+        if (!::foldersCollection.isInitialized) {
             throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
         }
         foldersCollection.add(folder)
