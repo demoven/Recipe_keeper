@@ -54,20 +54,26 @@ import kotlinx.coroutines.launch
 fun RecipeKeeperApp(
     navController: NavHostController = rememberNavController()
 ) {
-    val folderRepository = FolderRepositoryImpl()
-    val recipeRepository = RecipeRepositoryImpl()
-    val authRepository = AuthRepositoryImpl()
-    val authFactory = AuthViewModelFactory(authRepository)
+    val folderRepository = remember { FolderRepositoryImpl() }
+    val recipeRepository = remember { RecipeRepositoryImpl() }
+    val authRepository = remember { AuthRepositoryImpl() }
 
-    val recipeKeeperViewModelFactory = RecipeKeeperViewModelFactory(
-        folderRepository = folderRepository,
-        authRepository = authRepository
-    )
-    val homeViewModelFactory = HomeViewModelFactory(
-        folderRepository = folderRepository,
-        recipeRepository = recipeRepository,
-        authRepository = authRepository
-    )
+    val authFactory = remember { AuthViewModelFactory(authRepository = authRepository) }
+
+    val recipeKeeperViewModelFactory = remember {
+        RecipeKeeperViewModelFactory(
+            folderRepository = folderRepository,
+            authRepository = authRepository
+        )
+    }
+
+    val homeViewModelFactory = remember {
+        HomeViewModelFactory(
+            folderRepository = folderRepository,
+            recipeRepository = recipeRepository,
+            authRepository = authRepository
+        )
+    }
 
     val recipeKeeperViewModel: RecipeKeeperViewModel = viewModel(factory = recipeKeeperViewModelFactory)
 
