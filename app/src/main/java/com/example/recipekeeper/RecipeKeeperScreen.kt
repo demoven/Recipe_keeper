@@ -260,7 +260,7 @@ fun RecipeKeeperApp(
                 onDismissRequest = { showAddFolderSheet = false },
                 sheetState = addFolderSheetState
             ) {
-                AddFolderBottomSheet(
+                BottomSheetAddFolder(
                     onAdd = { folderName ->
                         showAddFolderSheet = false
                         recipeKeeperViewModel.addFolder(
@@ -270,117 +270,6 @@ fun RecipeKeeperApp(
                     }
                 )
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RecipeKeeperTopBar(
-    currentScreen: RecipeKeeperScreen,
-    canNavigateBack: Boolean,
-    navigateUp: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TopAppBar(
-        title = { Text(stringResource(currentScreen.title)) },
-        modifier = modifier,
-        navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            }
-        }
-    )
-}
-
-@Composable
-fun BottomNavigationBar(
-    currentScreen: RecipeKeeperScreen,
-    onNavigate: (RecipeKeeperScreen) -> Unit
-) {
-    NavigationBar {
-        NavigationBarItem(
-            selected = currentScreen == RecipeKeeperScreen.Home,
-            onClick = { onNavigate(RecipeKeeperScreen.Home) },
-            icon = { Icon(Icons.Default.Home, contentDescription = "Accueil") },
-            label = { Text("Accueil") }
-        )
-        NavigationBarItem(
-            selected = currentScreen == RecipeKeeperScreen.CreateRecipe,
-            onClick = { onNavigate(RecipeKeeperScreen.CreateRecipe) },
-            icon = { Icon(Icons.Default.AddCircle, contentDescription = "Créer") },
-            label = { Text("Créer") }
-        )
-        NavigationBarItem(
-            selected = currentScreen == RecipeKeeperScreen.Settings,
-            onClick = { onNavigate(RecipeKeeperScreen.Settings) },
-            icon = { Icon(Icons.Default.Settings, contentDescription = "Paramètres") },
-            label = { Text("Paramètres") }
-        )
-    }
-}
-
-@Composable
-fun BottomSheetContent(
-    onAddFolder: () -> Unit,
-    onAddRecipe: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text(text = "AJOUTER :", style = MaterialTheme.typography.titleMedium)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Button(onClick = onAddFolder) {
-                Text(stringResource(dossier))
-            }
-            Button(onClick = onAddRecipe) {
-                Text("RECETTE")
-            }
-        }
-    }
-}
-
-@Composable
-fun AddFolderBottomSheet(
-    onAdd: (String) -> Unit
-) {
-    var folderName by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text(text = "Ajouter un dossier", style = MaterialTheme.typography.titleMedium)
-
-        androidx.compose.material3.OutlinedTextField(
-            value = folderName,
-            onValueChange = { folderName = it },
-            label = { Text("Nom du dossier") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Button(
-            onClick = {
-                if (folderName.isNotBlank()) onAdd(folderName)
-            },
-            modifier = Modifier.align(androidx.compose.ui.Alignment.End)
-        ) {
-            Text("Ajouter")
         }
     }
 }

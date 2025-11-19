@@ -1,4 +1,4 @@
-package com.example.recipekeeper.ui.sharedcomposable
+package com.example.recipekeeper.ui.components
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
