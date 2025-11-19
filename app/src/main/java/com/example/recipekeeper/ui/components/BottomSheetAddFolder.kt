@@ -13,7 +13,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.recipekeeper.R
 
 @Composable
 fun BottomSheetAddFolder(
@@ -27,12 +29,12 @@ fun BottomSheetAddFolder(
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(text = "Ajouter un dossier", style = MaterialTheme.typography.titleMedium)
+        Text(text = stringResource(R.string.add_folder), style = MaterialTheme.typography.titleMedium)
 
         androidx.compose.material3.OutlinedTextField(
             value = folderName,
             onValueChange = { folderName = it },
-            label = { Text("Nom du dossier") },
+            label = { Text(stringResource(R.string.folder_name)) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -42,7 +44,7 @@ fun BottomSheetAddFolder(
             },
             modifier = Modifier.align(androidx.compose.ui.Alignment.End)
         ) {
-            Text("Ajouter")
+            Text(stringResource(R.string.add) )
         }
     }
 }
