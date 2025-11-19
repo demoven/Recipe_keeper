@@ -1,36 +1,36 @@
 package com.example.recipekeeper.ui.screens.home
 
 import androidx.lifecycle.ViewModel
-import com.example.recipekeeper.data.repository.RecipeRepository
-import com.google.firebase.firestore.ListenerRegistration
+import com.example.recipekeeper.data.repository.IAuthRepository
+import com.example.recipekeeper.data.repository.IFolderRepository
+import com.example.recipekeeper.data.repository.IRecipeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class HomeViewModel(private val repository: RecipeRepository) : ViewModel() {
+class HomeViewModel(
+    private val folderRepository: IFolderRepository,
+    private val recipeRepository: IRecipeRepository,
+    authRepository: IAuthRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
-    private var recipesListener: ListenerRegistration? = null
-    private var foldersListener: ListenerRegistration? = null
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    fun watchRecipes(folderId: String?) {
-        recipesListener?.remove()
-        recipesListener = repository.watchRecipesInFolder(folderId) { recipes ->
-            _uiState.value = _uiState.value.copy(recipes = recipes)
+    init {
+        val currentUserId = authRepository.getCurrentUserId()
+        if (currentUserId != null) {
+            folderRepository.initialize(currentUserId)
+            recipeRepository.initialize(currentUserId)
+            loadData(null)
         }
     }
-
-    fun watchFolders(parentId: String?) {
-        foldersListener?.remove()
-        foldersListener = repository.watchFolders(parentId) { folders ->
+    fun loadData(folderId: String?) {
+        folderRepository.watchFolder(folderId) { folders ->
             _uiState.value = _uiState.value.copy(folders = folders)
         }
-    }
-
-    override fun onCleared() {
-        recipesListener?.remove()
-        foldersListener?.remove()
-        super.onCleared()
+        recipeRepository.watchRecipesInFolder(folderId) { recipes ->
+            _uiState.value = _uiState.value.copy(recipes = recipes)
+        }
     }
 }

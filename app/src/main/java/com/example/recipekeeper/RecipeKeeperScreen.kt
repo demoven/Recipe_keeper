@@ -1,34 +1,16 @@
 package com.example.recipekeeper
 
 import android.util.Log
-import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,35 +30,49 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.example.recipekeeper.R.string.dossier
-import com.example.recipekeeper.data.factory.RecipeKeeperViewModelFactory
-import com.example.recipekeeper.data.repository.RecipeRepository
+import com.example.recipekeeper.di.factory.RecipeKeeperViewModelFactory
+import com.example.recipekeeper.data.repository.impl.AuthRepositoryImpl
+import com.example.recipekeeper.data.repository.impl.FolderRepositoryImpl
+import com.example.recipekeeper.data.repository.impl.RecipeRepositoryImpl
+import com.example.recipekeeper.di.factory.AuthViewModelFactory
+import com.example.recipekeeper.di.factory.HomeViewModelFactory
+import com.example.recipekeeper.ui.components.BottomNavigationBar
+import com.example.recipekeeper.ui.components.BottomSheetAddFolder
+import com.example.recipekeeper.ui.components.BottomSheetContent
+import com.example.recipekeeper.ui.components.RecipeKeeperTopBar
+import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
 import kotlinx.coroutines.launch
 
-enum class RecipeKeeperScreen(@StringRes val title: Int) {
-    Home(title = R.string.app_name),
-    Account(title = R.string.account),
-    CreateRecipe(title = R.string.create_recipe),
-    AddFolder(title = R.string.add_folder),
-    Settings(title = R.string.settings),
-    Login(title = R.string.login),
-    Register(title = R.string.register),
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeKeeperApp(
     navController: NavHostController = rememberNavController()
 ) {
-    val factory = RecipeKeeperViewModelFactory(RecipeRepository())
-    val recipeKeeperViewModel: RecipeKeeperViewModel = viewModel(factory = factory)
+    val folderRepository = FolderRepositoryImpl()
+    val recipeRepository = RecipeRepositoryImpl()
+    val authRepository = AuthRepositoryImpl()
+    val authFactory = AuthViewModelFactory(authRepository)
+
+    val recipeKeeperViewModelFactory = RecipeKeeperViewModelFactory(
+        folderRepository = folderRepository,
+        authRepository = authRepository
+    )
+    val homeViewModelFactory = HomeViewModelFactory(
+        folderRepository = folderRepository,
+        recipeRepository = recipeRepository,
+        authRepository = authRepository
+    )
+
+    val recipeKeeperViewModel: RecipeKeeperViewModel = viewModel(factory = recipeKeeperViewModelFactory)
+
     val isLoggedIn by recipeKeeperViewModel.isUserLoggedIn.collectAsState()
+
     val backStackEntry by navController.currentBackStackEntryAsState()
     val startDestination = if (isLoggedIn) {
         RecipeKeeperScreen.Home.name
@@ -145,7 +141,7 @@ fun RecipeKeeperApp(
             if (showBottomBar) {
                 BottomNavigationBar(
                     currentScreen = currentScreen,
-                    onNavigate = { screen ->
+                    onNavigate = { screen: RecipeKeeperScreen ->
                         if (screen == RecipeKeeperScreen.CreateRecipe) {
                             coroutineScope.launch { showMainSheet = true }
                         } else if (currentScreen != screen) {
@@ -180,6 +176,7 @@ fun RecipeKeeperApp(
                     onNavigateToSubFolder = { subFolderId ->
                         navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId")                     },
                     onNavigateToRecipeDetails = {},
+                    homeFactory = homeViewModelFactory,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -210,6 +207,7 @@ fun RecipeKeeperApp(
                             snackbarHostState.showSnackbar(message)
                         }
                     },
+                    authFactory = authFactory,
                     modifier = Modifier
                         .padding(dimensionResource(R.dimen.padding_large))
                         .fillMaxSize()
@@ -228,6 +226,7 @@ fun RecipeKeeperApp(
                             snackbarHostState.showSnackbar(message)
                         }
                     },
+                    authFactory = authFactory,
                     modifier = Modifier
                         .padding(dimensionResource(R.dimen.padding_large))
                         .fillMaxSize()

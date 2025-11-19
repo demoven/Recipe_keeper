@@ -2,34 +2,27 @@ package com.example.recipekeeper
 
 import androidx.lifecycle.ViewModel
 import com.example.recipekeeper.data.models.Folder
-import com.example.recipekeeper.data.repository.RecipeRepository
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.example.recipekeeper.data.repository.IAuthRepository
+import com.example.recipekeeper.data.repository.IFolderRepository
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
-class RecipeKeeperViewModel(private val repository: RecipeRepository) : ViewModel() {
-    private val _isUserLoggedIn = MutableStateFlow(FirebaseAuth.getInstance().currentUser != null)
-    val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn.asStateFlow()
-
-    private val authStateListener = FirebaseAuth.AuthStateListener { auth ->
-        _isUserLoggedIn.value = auth.currentUser != null
-    }
+class RecipeKeeperViewModel(
+    private val authRepository: IAuthRepository,
+    private val folderRepository: IFolderRepository
+) : ViewModel() {
+    val isUserLoggedIn: StateFlow<Boolean> = authRepository.isUserLoggedIn
 
     init {
-        FirebaseAuth.getInstance().addAuthStateListener(authStateListener)
+        val currentUserId = authRepository.getCurrentUserId()
+        if (currentUserId != null) {
+            folderRepository.initialize(currentUserId)
+        }
     }
-
-    override fun onCleared() {
-        FirebaseAuth.getInstance().removeAuthStateListener(authStateListener)
-        super.onCleared()
-    }
-
     fun logout(){
-        FirebaseAuth.getInstance().signOut()
+        authRepository.logout()
     }
 
     fun addFolder(folderName: String, parentId: String?) {
-        repository.addFolder(Folder(name = folderName, parentId = parentId))
+        folderRepository.addFolder(folder = Folder(name = folderName, parentId = parentId), onSuccess = {}, onFailure = {})
     }
 }
