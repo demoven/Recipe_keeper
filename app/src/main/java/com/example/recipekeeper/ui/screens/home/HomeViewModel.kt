@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.example.recipekeeper.data.repository.IAuthRepository
 import com.example.recipekeeper.data.repository.IFolderRepository
 import com.example.recipekeeper.data.repository.IRecipeRepository
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,6 +18,10 @@ class HomeViewModel(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    private var foldersListener: ListenerRegistration? = null
+    private var recipesListener: ListenerRegistration? = null
+
+
     init {
         val currentUserId = authRepository.getCurrentUserId()
         if (currentUserId != null) {
@@ -26,11 +31,20 @@ class HomeViewModel(
         }
     }
     fun loadData(folderId: String?) {
-        folderRepository.watchFolder(folderId) { folders ->
+        foldersListener?.remove()
+        recipesListener?.remove()
+
+        foldersListener = folderRepository.watchFolder(folderId) { folders ->
             _uiState.value = _uiState.value.copy(folders = folders)
         }
-        recipeRepository.watchRecipesInFolder(folderId) { recipes ->
+        recipesListener = recipeRepository.watchRecipesInFolder(folderId) { recipes ->
             _uiState.value = _uiState.value.copy(recipes = recipes)
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        foldersListener?.remove()
+        recipesListener?.remove()
     }
 }

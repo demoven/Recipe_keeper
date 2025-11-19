@@ -147,7 +147,7 @@ fun RecipeKeeperApp(
             if (showBottomBar) {
                 BottomNavigationBar(
                     currentScreen = currentScreen,
-                    onNavigate = { screen: RecipeKeeperScreen ->
+                    onNavigate = { screen ->
                         if (screen == RecipeKeeperScreen.CreateRecipe) {
                             coroutineScope.launch { showMainSheet = true }
                         } else if (currentScreen != screen) {
