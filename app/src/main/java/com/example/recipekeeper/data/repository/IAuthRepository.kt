@@ -1,7 +1,6 @@
 package com.example.recipekeeper.data.repository
 
 import com.example.recipekeeper.data.models.AuthUser
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.StateFlow
 
 interface IAuthRepository: AutoCloseable {

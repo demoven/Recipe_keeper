@@ -23,7 +23,6 @@ import androidx.compose.ui.text.input.ImeAction
 import com.example.recipekeeper.R
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.recipekeeper.data.repository.impl.AuthRepositoryImpl
 import com.example.recipekeeper.di.factory.AuthViewModelFactory
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
 import com.example.recipekeeper.ui.screens.auth.PasswordTextField

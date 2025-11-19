@@ -48,7 +48,7 @@ class FolderRepositoryImpl: IFolderRepository {
         foldersCollection.add(folder)
             .addOnSuccessListener { docRef ->
                 val generatedId = docRef.id
-                // Mettre à jour le champ "id" dans le document pour garder l'id dedans
+                // Update the "id" field in the document to keep the generated ID
                 docRef.update("id", generatedId)
                     .addOnSuccessListener {
                         Log.d(TAG, "Folder added with ID: $generatedId")
