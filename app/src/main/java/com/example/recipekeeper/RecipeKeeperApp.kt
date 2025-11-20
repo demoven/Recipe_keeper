@@ -25,6 +25,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,12 +35,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.example.recipekeeper.di.factory.RecipeKeeperViewModelFactory
-import com.example.recipekeeper.data.repository.impl.AuthRepositoryImpl
-import com.example.recipekeeper.data.repository.impl.FolderRepositoryImpl
-import com.example.recipekeeper.data.repository.impl.RecipeRepositoryImpl
-import com.example.recipekeeper.di.factory.AuthViewModelFactory
-import com.example.recipekeeper.di.factory.HomeViewModelFactory
+import com.example.recipekeeper.data.models.Folder
+import com.example.recipekeeper.di.AppContainer
 import com.example.recipekeeper.ui.components.BottomNavigationBar
 import com.example.recipekeeper.ui.components.BottomSheetAddFolder
 import com.example.recipekeeper.ui.components.BottomSheetContent
@@ -53,13 +50,12 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeKeeperApp(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    appContainer: AppContainer
 ) {
-    val folderRepository = remember { FolderRepositoryImpl() }
-    val recipeRepository = remember { RecipeRepositoryImpl() }
-    val authRepository = remember { AuthRepositoryImpl() }
-
-    val authFactory = remember { AuthViewModelFactory(authRepository = authRepository) }
+    val authRepository = appContainer.authRepository
+    val authFactory = appContainer.authFactory
+    val recipeKeeperFactory = appContainer.recipeKeeperFactory
 
     DisposableEffect(Unit) {
         onDispose {
@@ -67,24 +63,32 @@ fun RecipeKeeperApp(
         }
     }
 
-    val recipeKeeperViewModelFactory = remember {
-        RecipeKeeperViewModelFactory(
-            folderRepository = folderRepository,
-            authRepository = authRepository
-        )
-    }
 
-    val homeViewModelFactory = remember {
-        HomeViewModelFactory(
-            folderRepository = folderRepository,
-            recipeRepository = recipeRepository,
-            authRepository = authRepository
-        )
-    }
-
-    val recipeKeeperViewModel: RecipeKeeperViewModel = viewModel(factory = recipeKeeperViewModelFactory)
+    val recipeKeeperViewModel: RecipeKeeperViewModel = viewModel(factory = recipeKeeperFactory)
 
     val isLoggedIn by recipeKeeperViewModel.isUserLoggedIn.collectAsState()
+    val currentUserId = authRepository.getCurrentUserId()
+
+    val userContainer = remember(isLoggedIn, currentUserId) {
+        if (isLoggedIn && currentUserId != null) {
+            appContainer.createUserContainer(userId = currentUserId)
+        } else {
+            null
+        }
+    }
+
+    val homeViewModelFactory = userContainer?.homeFactory
+
+    val addFolderAction: (String, String?) -> Unit = { folderName, parentId ->
+        userContainer?.addFolder(
+            folder = Folder(
+                name = folderName,
+                parentId = parentId
+            ),
+            onSuccess = {},
+            onFailure = {}
+        )
+    }
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val startDestination = if (isLoggedIn) {
@@ -92,6 +96,24 @@ fun RecipeKeeperApp(
     } else {
         RecipeKeeperScreen.Login.name
     }
+
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn) {
+            // If logged in, navigate to Home
+            val currentRoute = navController.currentDestination?.route
+            val isAuthScreen = currentRoute == RecipeKeeperScreen.Login.name ||
+                    currentRoute == RecipeKeeperScreen.Register.name
+
+            // If we are currently on an auth screen, navigate to Home
+            if (isAuthScreen || currentRoute == null) {
+                navController.navigate(RecipeKeeperScreen.Home.name) {
+                    // Clear the back stack
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        }
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
 
     val currentRoute = backStackEntry?.destination?.route
@@ -183,15 +205,24 @@ fun RecipeKeeperApp(
                 })
             ) {
                 entry ->
-                val folderId = entry.arguments?.getString("folderId")
-                HomeScreen(
-                    folderId = folderId,
-                    onNavigateToSubFolder = { subFolderId ->
-                        navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId")                     },
-                    onNavigateToRecipeDetails = {},
-                    homeFactory = homeViewModelFactory,
-                    modifier = Modifier.fillMaxSize()
-                )
+                if (homeViewModelFactory != null) {
+                    val folderId = entry.arguments?.getString("folderId")
+                    HomeScreen(
+                        folderId = folderId,
+                        onNavigateToSubFolder = { subFolderId ->
+                            navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId")                     },
+                        onNavigateToRecipeDetails = {},
+                        homeFactory = homeViewModelFactory,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    LaunchedEffect(Unit) {
+                        navController.navigate(RecipeKeeperScreen.Login.name) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                }
+
             }
             composable(RecipeKeeperScreen.Account.name) {
                 AccountScreen()
@@ -275,9 +306,9 @@ fun RecipeKeeperApp(
                 BottomSheetAddFolder(
                     onAdd = { folderName ->
                         showAddFolderSheet = false
-                        recipeKeeperViewModel.addFolder(
-                            folderName = folderName,
-                            parentId = currentFolderId
+                        addFolderAction(
+                            folderName,
+                            currentFolderId
                         )
                     }
                 )

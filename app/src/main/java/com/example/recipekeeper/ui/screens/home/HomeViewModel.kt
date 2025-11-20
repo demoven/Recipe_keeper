@@ -23,12 +23,7 @@ class HomeViewModel(
 
 
     init {
-        val currentUserId = authRepository.getCurrentUserId()
-        if (currentUserId != null) {
-            folderRepository.initialize(currentUserId)
-            recipeRepository.initialize(currentUserId)
-            loadData(null)
-        }
+        loadData(null)
     }
     fun loadData(folderId: String?) {
         foldersListener?.remove()

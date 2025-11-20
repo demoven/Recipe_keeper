@@ -13,23 +13,19 @@ class FolderRepositoryImpl: IFolderRepository {
     private val TAG = "FolderRepositoryImpl"
     private val db = FirebaseFirestore.getInstance()
 
-    private lateinit var foldersCollection: CollectionReference
+    private var foldersCollection: CollectionReference? = null
 
     override fun initialize(userId: String) {
         if (userId.isEmpty()) {
             throw IllegalArgumentException("User ID cannot be empty")
         }
-        if (::foldersCollection.isInitialized) {
-            Log.w(TAG, "FolderRepositoryImpl is already initialized. Re-initializing with new userId.")
-        }
         foldersCollection = db.collection("users").document(userId).collection("folders")
     }
 
     override fun watchFolder(parentId: String?, onResult: (List<Folder>) -> Unit): ListenerRegistration {
-        if (!::foldersCollection.isInitialized) {
-            throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
-        }
-        return foldersCollection
+        val collection = foldersCollection
+            ?: throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
+        return collection
             .whereEqualTo("parentId", parentId)
             .addSnapshotListener { snapshot, exception ->
                 if (exception != null) {
@@ -42,10 +38,9 @@ class FolderRepositoryImpl: IFolderRepository {
     }
 
     override fun addFolder(folder: Folder, onSuccess: () -> Unit, onFailure: () -> Unit) {
-        if (!::foldersCollection.isInitialized) {
-            throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
-        }
-        foldersCollection.add(folder)
+        val collection = foldersCollection
+            ?: throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
+        collection.add(folder)
             .addOnSuccessListener { docRef ->
                 val generatedId = docRef.id
                 // Update the "id" field in the document to keep the generated ID

@@ -11,24 +11,20 @@ class RecipeRepositoryImpl: IRecipeRepository {
     private val TAG = "RecipeRepositoryImpl"
     private val db = FirebaseFirestore.getInstance()
 
-    private lateinit var recipesCollection: CollectionReference
+    private var recipesCollection: CollectionReference? = null
 
     override fun initialize(userId: String) {
         if (userId.isEmpty()) {
             throw IllegalArgumentException("User ID cannot be empty")
         }
-        if (::recipesCollection.isInitialized) {
-            Log.w(TAG, "RecipeRepositoryImpl is already initialized. Re-initializing with new userId.")
-        }
         recipesCollection = db.collection("users").document(userId).collection("recipes")
     }
 
     override fun watchRecipesInFolder(folderId: String?, onResult: (List<Recipe>) -> Unit): ListenerRegistration {
-        if (!::recipesCollection.isInitialized) {
-            throw IllegalStateException("Repository not initialized. Call initialize(userId) first.")
-        }
+        val collection = recipesCollection
+            ?: throw UninitializedPropertyAccessException("RecipeRepositoryImpl must be initialized with a valid userId before use.")
 
-        return recipesCollection
+        return collection
             .whereEqualTo("folderId", folderId)
             .addSnapshotListener { snapshot, exception ->
                 if (exception != null) {
