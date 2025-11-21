@@ -8,7 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.toObject
 
-class FolderRepositoryImpl: IFolderRepository {
+class FolderRepositoryImpl : IFolderRepository {
 
     private val TAG = "FolderRepositoryImpl"
     private val db = FirebaseFirestore.getInstance()
