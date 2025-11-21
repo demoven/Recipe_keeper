@@ -44,7 +44,7 @@ fun BottomSheetAddFolder(
             },
             modifier = Modifier.align(androidx.compose.ui.Alignment.End)
         ) {
-            Text(stringResource(R.string.add) )
+            Text(stringResource(R.string.add))
         }
     }
 }
