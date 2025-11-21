@@ -64,7 +64,7 @@ fun LoginScreen(
         LoginLayout(
             email = uiState.email,
             password = uiState.password,
-            passwordError = false,
+            passwordError = uiState.passwordError,
             emailError = uiState.emailError,
             onEmailChanged = {
                 loginViewModel.updateEmail(it)
@@ -125,7 +125,7 @@ fun LoginLayout(
                 onDone = { onLogin() }
             ),
             passwordError = passwordError,
-            passwordErrorMessage = "",
+            passwordErrorMessage = null,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_small)))

@@ -27,7 +27,7 @@ fun PasswordTextField(
     label: String,
     password: String,
     passwordError: Boolean,
-    passwordErrorMessage: String,
+    passwordErrorMessage: String?,
     onPasswordChanged: (String) -> Unit,
     keyboardOptions: KeyboardOptions,
     modifier: Modifier = Modifier,
@@ -43,13 +43,12 @@ fun PasswordTextField(
         singleLine = true,
         shape = MaterialTheme.shapes.medium,
         isError = passwordError,
-        supportingText = if (passwordError) {
-            if(password.isBlank()) {
-                { Text(stringResource(R.string.required_field)) }
-            } else {
-                { Text(passwordErrorMessage) }
-            }
-        } else null,
+        supportingText = when {
+            !passwordError -> null
+            password.isBlank() -> { { Text(stringResource(R.string.required_field)) } }
+            passwordErrorMessage != null -> { { Text(passwordErrorMessage) } }
+            else -> null
+        },
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
             IconButton(onClick = { passwordVisible = !passwordVisible }) {
