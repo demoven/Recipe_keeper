@@ -8,7 +8,7 @@ import com.example.recipekeeper.ui.screens.auth.register.RegisterViewModel
 
 class AuthViewModelFactory(
     private val authRepository: IAuthRepository
-): ViewModelProvider.Factory {
+) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(LoginViewModel::class.java)){
