@@ -1,34 +1,16 @@
 package com.example.recipekeeper
 
 import android.util.Log
-import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,47 +24,96 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.example.recipekeeper.R.string.dossier
-import com.example.recipekeeper.data.factory.RecipeKeeperViewModelFactory
-import com.example.recipekeeper.data.repository.RecipeRepository
+import com.example.recipekeeper.data.models.Folder
+import com.example.recipekeeper.di.AppContainer
+import com.example.recipekeeper.ui.components.BottomNavigationBar
+import com.example.recipekeeper.ui.components.BottomSheetAddFolder
+import com.example.recipekeeper.ui.components.BottomSheetContent
+import com.example.recipekeeper.ui.components.RecipeKeeperTopBar
+import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
 import kotlinx.coroutines.launch
 
-enum class RecipeKeeperScreen(@StringRes val title: Int) {
-    Home(title = R.string.app_name),
-    Account(title = R.string.account),
-    CreateRecipe(title = R.string.create_recipe),
-    AddFolder(title = R.string.add_folder),
-    Settings(title = R.string.settings),
-    Login(title = R.string.login),
-    Register(title = R.string.register),
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeKeeperApp(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    appContainer: AppContainer
 ) {
-    val factory = RecipeKeeperViewModelFactory(RecipeRepository())
-    val recipeKeeperViewModel: RecipeKeeperViewModel = viewModel(factory = factory)
+    val authRepository = appContainer.authRepository
+    val authFactory = appContainer.authFactory
+    val recipeKeeperFactory = appContainer.recipeKeeperFactory
+
+    DisposableEffect(Unit) {
+        onDispose {
+            (authRepository as? AutoCloseable)?.close()
+        }
+    }
+
+
+    val recipeKeeperViewModel: RecipeKeeperViewModel = viewModel(factory = recipeKeeperFactory)
+
     val isLoggedIn by recipeKeeperViewModel.isUserLoggedIn.collectAsState()
+    val currentUserId = authRepository.getCurrentUserId()
+
+    val userContainer = remember(isLoggedIn, currentUserId) {
+        if (isLoggedIn && currentUserId != null) {
+            appContainer.createUserContainer(userId = currentUserId)
+        } else {
+            null
+        }
+    }
+
+    val homeViewModelFactory = userContainer?.homeFactory
+
+    val addFolderAction: (String, String?) -> Unit = { folderName, parentId ->
+        userContainer?.addFolder(
+            folder = Folder(
+                name = folderName,
+                parentId = parentId
+            ),
+            onSuccess = {},
+            onFailure = {}
+        )
+    }
+
     val backStackEntry by navController.currentBackStackEntryAsState()
     val startDestination = if (isLoggedIn) {
         RecipeKeeperScreen.Home.name
     } else {
         RecipeKeeperScreen.Login.name
     }
+
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn) {
+            // If logged in, navigate to Home
+            val currentRoute = navController.currentDestination?.route
+            val isAuthScreen = currentRoute == RecipeKeeperScreen.Login.name ||
+                    currentRoute == RecipeKeeperScreen.Register.name
+
+            // If we are currently on an auth screen, navigate to Home
+            if (isAuthScreen || currentRoute == null) {
+                navController.navigate(RecipeKeeperScreen.Home.name) {
+                    // Clear the back stack
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        }
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
 
     val currentRoute = backStackEntry?.destination?.route
@@ -174,14 +205,24 @@ fun RecipeKeeperApp(
                 })
             ) {
                 entry ->
-                val folderId = entry.arguments?.getString("folderId")
-                HomeScreen(
-                    folderId = folderId,
-                    onNavigateToSubFolder = { subFolderId ->
-                        navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId")                     },
-                    onNavigateToRecipeDetails = {},
-                    modifier = Modifier.fillMaxSize()
-                )
+                if (homeViewModelFactory != null) {
+                    val folderId = entry.arguments?.getString("folderId")
+                    HomeScreen(
+                        folderId = folderId,
+                        onNavigateToSubFolder = { subFolderId ->
+                            navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId")                     },
+                        onNavigateToRecipeDetails = {},
+                        homeFactory = homeViewModelFactory,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    LaunchedEffect(Unit) {
+                        navController.navigate(RecipeKeeperScreen.Login.name) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                }
+
             }
             composable(RecipeKeeperScreen.Account.name) {
                 AccountScreen()
@@ -210,6 +251,7 @@ fun RecipeKeeperApp(
                             snackbarHostState.showSnackbar(message)
                         }
                     },
+                    authFactory = authFactory,
                     modifier = Modifier
                         .padding(dimensionResource(R.dimen.padding_large))
                         .fillMaxSize()
@@ -228,6 +270,7 @@ fun RecipeKeeperApp(
                             snackbarHostState.showSnackbar(message)
                         }
                     },
+                    authFactory = authFactory,
                     modifier = Modifier
                         .padding(dimensionResource(R.dimen.padding_large))
                         .fillMaxSize()
@@ -260,127 +303,16 @@ fun RecipeKeeperApp(
                 onDismissRequest = { showAddFolderSheet = false },
                 sheetState = addFolderSheetState
             ) {
-                AddFolderBottomSheet(
+                BottomSheetAddFolder(
                     onAdd = { folderName ->
                         showAddFolderSheet = false
-                        recipeKeeperViewModel.addFolder(
-                            folderName = folderName,
-                            parentId = currentFolderId
+                        addFolderAction(
+                            folderName,
+                            currentFolderId
                         )
                     }
                 )
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RecipeKeeperTopBar(
-    currentScreen: RecipeKeeperScreen,
-    canNavigateBack: Boolean,
-    navigateUp: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TopAppBar(
-        title = { Text(stringResource(currentScreen.title)) },
-        modifier = modifier,
-        navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            }
-        }
-    )
-}
-
-@Composable
-fun BottomNavigationBar(
-    currentScreen: RecipeKeeperScreen,
-    onNavigate: (RecipeKeeperScreen) -> Unit
-) {
-    NavigationBar {
-        NavigationBarItem(
-            selected = currentScreen == RecipeKeeperScreen.Home,
-            onClick = { onNavigate(RecipeKeeperScreen.Home) },
-            icon = { Icon(Icons.Default.Home, contentDescription = "Accueil") },
-            label = { Text("Accueil") }
-        )
-        NavigationBarItem(
-            selected = currentScreen == RecipeKeeperScreen.CreateRecipe,
-            onClick = { onNavigate(RecipeKeeperScreen.CreateRecipe) },
-            icon = { Icon(Icons.Default.AddCircle, contentDescription = "Créer") },
-            label = { Text("Créer") }
-        )
-        NavigationBarItem(
-            selected = currentScreen == RecipeKeeperScreen.Settings,
-            onClick = { onNavigate(RecipeKeeperScreen.Settings) },
-            icon = { Icon(Icons.Default.Settings, contentDescription = "Paramètres") },
-            label = { Text("Paramètres") }
-        )
-    }
-}
-
-@Composable
-fun BottomSheetContent(
-    onAddFolder: () -> Unit,
-    onAddRecipe: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text(text = "AJOUTER :", style = MaterialTheme.typography.titleMedium)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Button(onClick = onAddFolder) {
-                Text(stringResource(dossier))
-            }
-            Button(onClick = onAddRecipe) {
-                Text("RECETTE")
-            }
-        }
-    }
-}
-
-@Composable
-fun AddFolderBottomSheet(
-    onAdd: (String) -> Unit
-) {
-    var folderName by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text(text = "Ajouter un dossier", style = MaterialTheme.typography.titleMedium)
-
-        androidx.compose.material3.OutlinedTextField(
-            value = folderName,
-            onValueChange = { folderName = it },
-            label = { Text("Nom du dossier") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Button(
-            onClick = {
-                if (folderName.isNotBlank()) onAdd(folderName)
-            },
-            modifier = Modifier.align(androidx.compose.ui.Alignment.End)
-        ) {
-            Text("Ajouter")
         }
     }
 }

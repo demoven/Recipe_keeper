@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.ImeAction
 import com.example.recipekeeper.R
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.recipekeeper.di.factory.AuthViewModelFactory
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
 import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 
@@ -31,8 +32,9 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onShowErrorMessage: (String) -> Unit,
     modifier: Modifier = Modifier,
-    loginViewModel: LoginViewModel = viewModel()
+    authFactory: AuthViewModelFactory
 ) {
+    val loginViewModel: LoginViewModel = viewModel(factory = authFactory)
     val uiState by loginViewModel.uiState.collectAsState()
     val loginError = stringResource(R.string.signin_failed)
     LaunchedEffect(uiState.loginError) {

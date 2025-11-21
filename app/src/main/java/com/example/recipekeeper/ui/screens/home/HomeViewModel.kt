@@ -1,36 +1,45 @@
 package com.example.recipekeeper.ui.screens.home
 
 import androidx.lifecycle.ViewModel
-import com.example.recipekeeper.data.repository.RecipeRepository
+import com.example.recipekeeper.data.repository.IAuthRepository
+import com.example.recipekeeper.data.repository.IFolderRepository
+import com.example.recipekeeper.data.repository.IRecipeRepository
 import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class HomeViewModel(private val repository: RecipeRepository) : ViewModel() {
+class HomeViewModel(
+    private val folderRepository: IFolderRepository,
+    private val recipeRepository: IRecipeRepository,
+    authRepository: IAuthRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
-    private var recipesListener: ListenerRegistration? = null
-    private var foldersListener: ListenerRegistration? = null
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    fun watchRecipes(folderId: String?) {
+    private var foldersListener: ListenerRegistration? = null
+    private var recipesListener: ListenerRegistration? = null
+
+
+    init {
+        loadData(null)
+    }
+    fun loadData(folderId: String?) {
+        foldersListener?.remove()
         recipesListener?.remove()
-        recipesListener = repository.watchRecipesInFolder(folderId) { recipes ->
+
+        foldersListener = folderRepository.watchFolder(folderId) { folders ->
+            _uiState.value = _uiState.value.copy(folders = folders)
+        }
+        recipesListener = recipeRepository.watchRecipesInFolder(folderId) { recipes ->
             _uiState.value = _uiState.value.copy(recipes = recipes)
         }
     }
 
-    fun watchFolders(parentId: String?) {
-        foldersListener?.remove()
-        foldersListener = repository.watchFolders(parentId) { folders ->
-            _uiState.value = _uiState.value.copy(folders = folders)
-        }
-    }
-
     override fun onCleared() {
-        recipesListener?.remove()
-        foldersListener?.remove()
         super.onCleared()
+        foldersListener?.remove()
+        recipesListener?.remove()
     }
 }

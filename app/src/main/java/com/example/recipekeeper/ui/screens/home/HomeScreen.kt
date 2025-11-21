@@ -17,25 +17,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
-import com.example.recipekeeper.data.factory.HomeViewModelFactory
-import com.example.recipekeeper.data.repository.RecipeRepository
-import com.example.recipekeeper.ui.sharedcomposable.CardField
-import com.example.recipekeeper.ui.sharedcomposable.SectionTitle
+import com.example.recipekeeper.di.factory.HomeViewModelFactory
+import com.example.recipekeeper.ui.components.CardField
+import com.example.recipekeeper.ui.components.SectionTitle
 
 @Composable
 fun HomeScreen(
     onNavigateToSubFolder: (String) -> Unit,
     onNavigateToRecipeDetails: (String) -> Unit,
+    homeFactory: HomeViewModelFactory,
     modifier: Modifier = Modifier,
     folderId: String? = null
 ) {
-    val factory = HomeViewModelFactory(RecipeRepository())
-    val homeViewModel: HomeViewModel = viewModel(factory = factory)
+    val homeViewModel: HomeViewModel = viewModel(factory = homeFactory)
     val uiState by homeViewModel.uiState.collectAsState()
 
     LaunchedEffect(folderId) {
-        homeViewModel.watchFolders(folderId)
-        homeViewModel.watchRecipes(folderId)
+        homeViewModel.loadData(folderId)
     }
 
     LazyVerticalGrid(

@@ -3,18 +3,16 @@ package com.example.recipekeeper.ui.screens.auth.login
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.recipekeeper.data.repository.IAuthRepository
 import com.example.recipekeeper.tools.AuthValidator
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(private val authRepository: IAuthRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
-    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val validator = AuthValidator()
 
     fun updateEmail(updatedEmail: String) {
@@ -53,7 +51,7 @@ class LoginViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                firebaseAuth.signInWithEmailAndPassword(state.email, state.password).await()
+                authRepository.login(state.email, state.password)
                 resetAllFields()
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Login failed: ${e.message}")

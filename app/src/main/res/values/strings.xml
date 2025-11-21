@@ -3,9 +3,10 @@
     <string name="settings">Paramètres</string>
     <string name="back_button">Back</string>
     <string name="add_folder">Ajouter un dossier</string>
+    <string name="folder_name">Nom du dossier</string>
     <string name="account">Compte</string>
     <string name="create_recipe">Créer une recette</string>
-    <string name="dossier">"DOSSIER 📁 "</string>
+    <string name="dossier">"Dossier"</string>
     <string name="login">Connexion</string>
     <string name="register">S\'inscrire</string>
     <string name="create_account">Créer un compte</string>
@@ -25,4 +26,7 @@
     <string name="folders">Dossiers</string>
     <string name="recipe">Recette</string>
     <string name="recipes">Recettes</string>
+    <string name="home">Accueil</string>
+    <string name="create">Créer</string>
+    <string name="add">Ajouter</string>
 </resources>

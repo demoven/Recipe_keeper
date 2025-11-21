@@ -1,4 +1,4 @@
-package com.example.recipekeeper.ui.sharedcomposable
+package com.example.recipekeeper.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
