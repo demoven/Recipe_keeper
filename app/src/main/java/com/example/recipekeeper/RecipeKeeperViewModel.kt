@@ -9,7 +9,7 @@ class RecipeKeeperViewModel(
 ) : ViewModel() {
     val isUserLoggedIn: StateFlow<Boolean> = authRepository.isUserLoggedIn
 
-    fun logout(){
+    fun logout() {
         authRepository.logout()
     }
 }
