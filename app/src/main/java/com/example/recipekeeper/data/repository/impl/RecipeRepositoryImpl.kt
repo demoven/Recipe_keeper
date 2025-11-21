@@ -7,7 +7,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 
-class RecipeRepositoryImpl: IRecipeRepository {
+class RecipeRepositoryImpl : IRecipeRepository {
     private val TAG = "RecipeRepositoryImpl"
     private val db = FirebaseFirestore.getInstance()
 
