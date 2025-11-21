@@ -7,7 +7,7 @@ import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.tasks.await
 
-class AuthRepositoryImpl: IAuthRepository {
+class AuthRepositoryImpl : IAuthRepository {
     private val authInstance: FirebaseAuth = FirebaseAuth.getInstance()
 
     override val isUserLoggedIn = MutableStateFlow(authInstance.currentUser != null)
