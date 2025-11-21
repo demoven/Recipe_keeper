@@ -3,7 +3,7 @@ package com.example.recipekeeper.data.repository
 import com.example.recipekeeper.data.models.AuthUser
 import kotlinx.coroutines.flow.StateFlow
 
-interface IAuthRepository: AutoCloseable {
+interface IAuthRepository : AutoCloseable {
     val isUserLoggedIn: StateFlow<Boolean>
 
     suspend fun register(email: String, password: String): AuthUser
