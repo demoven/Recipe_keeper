@@ -15,7 +15,7 @@ class AuthRepositoryImpl: IAuthRepository {
         isUserLoggedIn.value = auth.currentUser != null
     }
 
-    init{
+    init {
         authInstance.addAuthStateListener(authStateListener)
     }
 
