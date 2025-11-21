@@ -29,7 +29,7 @@ class FolderRepositoryImpl: IFolderRepository {
             .whereEqualTo("parentId", parentId)
             .addSnapshotListener { snapshot, exception ->
                 if (exception != null) {
-                    Log.e(TAG, "watchRecipesInFolder failed: ", exception)
+                    Log.e(TAG, "watchFolder failed: ", exception)
                     return@addSnapshotListener
                 }
                 val folders = snapshot?.mapNotNull { it.toObject<Folder>() } ?: emptyList()
