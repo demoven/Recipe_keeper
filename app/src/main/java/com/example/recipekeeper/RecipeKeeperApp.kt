@@ -1,6 +1,5 @@
 package com.example.recipekeeper
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -27,10 +26,8 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.dimensionResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -57,16 +54,10 @@ fun RecipeKeeperApp(
     val authFactory = appContainer.authFactory
     val recipeKeeperFactory = appContainer.recipeKeeperFactory
 
-    DisposableEffect(Unit) {
-        onDispose {
-            (authRepository as? AutoCloseable)?.close()
-        }
-    }
-
-
     val recipeKeeperViewModel: RecipeKeeperViewModel = viewModel(factory = recipeKeeperFactory)
-
+    val uiState by recipeKeeperViewModel.uiState.collectAsState()
     val isLoggedIn by recipeKeeperViewModel.isUserLoggedIn.collectAsState()
+
     val currentUserId = authRepository.getCurrentUserId()
 
     val userContainer = remember(isLoggedIn, currentUserId) {
@@ -91,23 +82,29 @@ fun RecipeKeeperApp(
     }
 
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val startDestination = if (isLoggedIn) {
-        RecipeKeeperScreen.Home.name
-    } else {
-        RecipeKeeperScreen.Login.name
+    val currentRoute = backStackEntry?.destination?.route
+
+    LaunchedEffect(currentRoute) {
+        recipeKeeperViewModel.onNavigationChange(currentRoute)
     }
 
+    val currentFolderId = if (currentRoute?.startsWith(RecipeKeeperScreen.Home.name) == true) {
+        backStackEntry?.arguments?.getString("folderId")
+    } else null
+
+    val startDestination = if (isLoggedIn) RecipeKeeperScreen.Home.name else RecipeKeeperScreen.Login.name
+
+    DisposableEffect(Unit) {
+        onDispose { (authRepository as? AutoCloseable)?.close() }
+    }
+
+    // Redirection Auth (Simplifiée)
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
-            // If logged in, navigate to Home
-            val currentRoute = navController.currentDestination?.route
             val isAuthScreen = currentRoute == RecipeKeeperScreen.Login.name ||
                     currentRoute == RecipeKeeperScreen.Register.name
-
-            // If we are currently on an auth screen, navigate to Home
             if (isAuthScreen || currentRoute == null) {
                 navController.navigate(RecipeKeeperScreen.Home.name) {
-                    // Clear the back stack
                     popUpTo(0) { inclusive = true }
                 }
             }
@@ -115,45 +112,10 @@ fun RecipeKeeperApp(
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
-
-    val currentRoute = backStackEntry?.destination?.route
-    val currentRouteBase = currentRoute?.substringBefore('?')
-    val currentScreen = try {
-        RecipeKeeperScreen.valueOf(currentRouteBase ?: RecipeKeeperScreen.Home.name)
-    } catch (e: Exception) {
-        Log.d("RecipeKeeperApp", "Erreur : $e")
-        if (currentRoute?.startsWith(RecipeKeeperScreen.Home.name) == true) {
-            RecipeKeeperScreen.Home
-        } else {
-            RecipeKeeperScreen.Home
-        }
-    }
-
-    val screensWithoutBottomBar = setOf(
-        RecipeKeeperScreen.AddFolder,
-        RecipeKeeperScreen.CreateRecipe,
-        RecipeKeeperScreen.Account,
-        RecipeKeeperScreen.Settings,
-        RecipeKeeperScreen.Login,
-        RecipeKeeperScreen.Register
-    )
-    val screensWithoutTopBar = setOf(
-        RecipeKeeperScreen.Login,
-        RecipeKeeperScreen.Register
-    )
-    val showTopBar = currentScreen !in screensWithoutTopBar
-    val showBottomBar = currentScreen !in screensWithoutBottomBar
+    val coroutineScope = rememberCoroutineScope()
 
     val mainSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val addFolderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    val coroutineScope = rememberCoroutineScope()
-    var showMainSheet by remember { mutableStateOf(false) }
-    var showAddFolderSheet by remember { mutableStateOf(false) }
-
-    val currentFolderId = if (currentRouteBase == RecipeKeeperScreen.Home.name) {
-        backStackEntry?.arguments?.getString("folderId")
-    } else null
 
     Scaffold(
         snackbarHost = {
@@ -164,22 +126,22 @@ fun RecipeKeeperApp(
                     .navigationBarsPadding()
             ) },
         topBar = {
-            if (showTopBar) {
+            if (uiState.isTopBarVisible) {
                 RecipeKeeperTopBar(
-                    currentScreen = currentScreen,
+                    currentScreen = uiState.currentScreen,
                     canNavigateBack = navController.previousBackStackEntry != null,
                     navigateUp = { navController.navigateUp() }
                 )
             }
         },
         bottomBar = {
-            if (showBottomBar) {
+            if (uiState.isBottomBarVisible) {
                 BottomNavigationBar(
-                    currentScreen = currentScreen,
+                    currentScreen = uiState.currentScreen,
                     onNavigate = { screen ->
                         if (screen == RecipeKeeperScreen.CreateRecipe) {
-                            coroutineScope.launch { showMainSheet = true }
-                        } else if (currentScreen != screen) {
+                            recipeKeeperViewModel.openMainSheet()
+                        } else if (uiState.currentScreen != screen) {
                             navController.navigate(screen.name) {
                                 launchSingleTop = true
                             }
@@ -278,38 +240,30 @@ fun RecipeKeeperApp(
             }
         }
 
-        if (showMainSheet) {
+        if (uiState.isMainSheetVisible) {
             ModalBottomSheet(
-                onDismissRequest = { showMainSheet = false },
+                onDismissRequest = { recipeKeeperViewModel.closeMainSheet() },
                 sheetState = mainSheetState
             ) {
                 BottomSheetContent(
-                    onAddFolder = {
-                        showMainSheet = false
-                        showAddFolderSheet = true
-                    },
+                    onAddFolder = { recipeKeeperViewModel.openAddFolderSheet() },
                     onAddRecipe = {
-                        showMainSheet = false
-                        navController.navigate(RecipeKeeperScreen.CreateRecipe.name) {
-                            launchSingleTop = true
-                        }
+                        recipeKeeperViewModel.closeMainSheet()
+                        navController.navigate(RecipeKeeperScreen.CreateRecipe.name) { launchSingleTop = true }
                     }
                 )
             }
         }
 
-        if (showAddFolderSheet) {
+        if (uiState.isAddFolderSheetVisible) {
             ModalBottomSheet(
-                onDismissRequest = { showAddFolderSheet = false },
+                onDismissRequest = { recipeKeeperViewModel.closeAddFolderSheet() },
                 sheetState = addFolderSheetState
             ) {
                 BottomSheetAddFolder(
                     onAdd = { folderName ->
-                        showAddFolderSheet = false
-                        addFolderAction(
-                            folderName,
-                            currentFolderId
-                        )
+                        recipeKeeperViewModel.closeAddFolderSheet()
+                        addFolderAction(folderName, currentFolderId)
                     }
                 )
             }
