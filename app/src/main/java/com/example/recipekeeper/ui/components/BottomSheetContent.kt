@@ -42,7 +42,7 @@ fun BottomSheetContent(
                 onClick = onAddRecipe,
                 modifier = Modifier.weight(1f)
             ) {
-                Text(stringResource(R.string.recipe) )
+                Text(stringResource(R.string.recipe))
             }
         }
         Spacer(modifier = Modifier.height(40.dp))
