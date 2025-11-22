@@ -2,6 +2,7 @@ package com.example.recipekeeper.data.repository.impl
 
 import com.example.recipekeeper.data.models.AuthUser
 import com.example.recipekeeper.data.repository.IAuthRepository
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,5 +57,23 @@ class AuthRepositoryImpl : IAuthRepository {
 
     override fun close() {
         authInstance.removeAuthStateListener(authStateListener)
+    }
+
+    override suspend fun updatePassword(currentPassword: String, newPassword: String) {
+        val user = authInstance.currentUser
+        val email = user?.email
+
+        if (user != null && email != null) {
+            val credential = EmailAuthProvider.getCredential(email, currentPassword)
+
+            try {
+                user.reauthenticate(credential).await()
+                user.updatePassword(newPassword).await()
+            } catch (e: Exception) {
+                throw Exception("Re-authentication failed: ${e.message}")
+            }
+        } else {
+            throw Exception("No authenticated user found.")
+        }
     }
 }

@@ -12,5 +12,7 @@ interface IAuthRepository : AutoCloseable {
     fun getCurrentUserId(): String?
     fun logout()
 
+    suspend fun updatePassword(currentPassword: String, newPassword: String)
+
     override fun close()
 }
