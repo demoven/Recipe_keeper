@@ -16,13 +16,13 @@ import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeKeeperTopBar(
-    currentScreen: RecipeKeeperScreen,
+    title: String,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
-        title = { Text(stringResource(currentScreen.title)) },
+        title = { Text(title) },
         modifier = modifier,
         navigationIcon = {
             if (canNavigateBack) {

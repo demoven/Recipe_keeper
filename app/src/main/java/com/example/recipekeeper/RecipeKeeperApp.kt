@@ -29,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -84,6 +85,17 @@ fun RecipeKeeperApp(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
+    val currentFolderName = backStackEntry?.arguments?.getString("folderName")
+
+    val  topBarTitle = if (currentFolderName != null) {
+        currentFolderName
+    } else {
+        val currentScreen = try {
+            RecipeKeeperScreen.valueOf(currentRoute?.substringBefore('?') ?: RecipeKeeperScreen.Home.name)
+        } catch (e: Exception) { RecipeKeeperScreen.Home }
+        stringResource(currentScreen.title)
+    }
+
     LaunchedEffect(currentRoute) {
         recipeKeeperViewModel.onNavigationChange(currentRoute)
     }
@@ -128,7 +140,7 @@ fun RecipeKeeperApp(
         topBar = {
             if (uiState.isTopBarVisible) {
                 RecipeKeeperTopBar(
-                    currentScreen = uiState.currentScreen,
+                    title = topBarTitle,
                     canNavigateBack = navController.previousBackStackEntry != null,
                     navigateUp = { navController.navigateUp() }
                 )
@@ -159,20 +171,26 @@ fun RecipeKeeperApp(
                 .fillMaxSize()
         ) {
             composable(
-                route = "${RecipeKeeperScreen.Home.name}?folderId={folderId}",
-                arguments = listOf(navArgument("folderId") {
+                route = "${RecipeKeeperScreen.Home.name}?folderId={folderId}&folderName={folderName}",
+                arguments = listOf(
+                    navArgument("folderId") {
                     type = NavType.StringType
                     nullable = true
                     defaultValue = null
-                })
+                },
+                    navArgument("folderName") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                    })
             ) {
                 entry ->
                 if (homeViewModelFactory != null) {
                     val folderId = entry.arguments?.getString("folderId")
                     HomeScreen(
                         folderId = folderId,
-                        onNavigateToSubFolder = { subFolderId ->
-                            navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId")                     },
+                        onNavigateToSubFolder = { subFolderId, subFolderName ->
+                            navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId&folderName=$subFolderName")                     },
                         onNavigateToRecipeDetails = {},
                         homeFactory = homeViewModelFactory,
                         modifier = Modifier.fillMaxSize()
