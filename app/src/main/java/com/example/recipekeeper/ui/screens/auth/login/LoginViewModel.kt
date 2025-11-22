@@ -52,7 +52,12 @@ class LoginViewModel(private val authRepository: IAuthRepository) : ViewModel() 
         viewModelScope.launch {
             try {
                 authRepository.login(state.email, state.password)
-                resetAllFields()
+                if (authRepository.isEmailVerified()) {
+                    resetAllFields()
+                } else {
+                    authRepository.logout()
+                    Log.e("LoginViewModel", "Email non vérifié")
+                }
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Login failed: ${e.message}")
                 updateLoginError(true)

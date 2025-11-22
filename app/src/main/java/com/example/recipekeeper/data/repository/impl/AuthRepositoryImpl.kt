@@ -38,6 +38,21 @@ class AuthRepositoryImpl : IAuthRepository {
         return mapFirebaseUser(firebaseUser)
     }
 
+    override suspend fun sendEmailVerification() {
+        val user = authInstance.currentUser
+        if (user != null && !user.isEmailVerified) {
+            user.sendEmailVerification().await()
+        }
+    }
+
+    override fun isEmailVerified(): Boolean {
+        return authInstance.currentUser?.isEmailVerified == true
+    }
+
+    override suspend fun reloadUser() {
+        authInstance.currentUser?.reload()?.await()
+    }
+
     override fun getCurrentUserId(): String? {
         return authInstance.currentUser?.uid
     }
@@ -69,6 +84,25 @@ class AuthRepositoryImpl : IAuthRepository {
             try {
                 user.reauthenticate(credential).await()
                 user.updatePassword(newPassword).await()
+            } catch (e: Exception) {
+                throw Exception("Re-authentication failed: ${e.message}")
+            }
+        } else {
+            throw Exception("No authenticated user found.")
+        }
+    }
+
+    override suspend fun updateEmail(currentPassword: String, newEmail: String) {
+        val user = authInstance.currentUser
+        val email = user?.email
+
+        if (user != null && email != null) {
+            val credential = EmailAuthProvider.getCredential(email, currentPassword)
+
+            try {
+                user.reauthenticate(credential).await()
+                user.updateEmail(newEmail).await()
+                //user.verifyBeforeUpdateEmail(newEmail).await()
             } catch (e: Exception) {
                 throw Exception("Re-authentication failed: ${e.message}")
             }

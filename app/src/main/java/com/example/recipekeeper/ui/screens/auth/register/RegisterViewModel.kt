@@ -62,6 +62,7 @@ class RegisterViewModel(private val authRepository: IAuthRepository) : ViewModel
         viewModelScope.launch {
             try {
                 authRepository.register(state.email, state.password)
+                authRepository.sendEmailVerification()
                 resetAllFields()
             } catch (e: Exception) {
                 Log.e("RegisterViewModel", "Registration failed", e)
