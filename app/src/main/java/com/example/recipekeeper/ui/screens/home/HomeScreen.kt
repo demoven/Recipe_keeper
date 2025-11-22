@@ -23,7 +23,7 @@ import com.example.recipekeeper.ui.components.SectionTitle
 
 @Composable
 fun HomeScreen(
-    onNavigateToSubFolder: (String) -> Unit,
+    onNavigateToSubFolder: (String, String) -> Unit,
     onNavigateToRecipeDetails: (String) -> Unit,
     homeFactory: HomeViewModelFactory,
     modifier: Modifier = Modifier,
@@ -55,7 +55,7 @@ fun HomeScreen(
                     title = folder.name,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onNavigateToSubFolder(folder.id) }
+                        .clickable { onNavigateToSubFolder(folder.id, folder.name) }
                 )
             }
         }
