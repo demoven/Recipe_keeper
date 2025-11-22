@@ -110,4 +110,22 @@ class AuthRepositoryImpl : IAuthRepository {
             throw Exception("No authenticated user found.")
         }
     }
+
+    override suspend fun deleteAccount(currentPassword: String) {
+        val user = authInstance.currentUser
+        val email = user?.email
+
+        if (user != null && email != null) {
+            val credential = EmailAuthProvider.getCredential(email, currentPassword)
+
+            try {
+                user.reauthenticate(credential).await()
+                user.delete().await()
+            } catch (e: Exception) {
+                throw Exception("Re-authentication failed: ${e.message}")
+            }
+        } else {
+            throw Exception("No authenticated user found.")
+        }
+    }
 }
