@@ -35,6 +35,10 @@ class LoginViewModel(private val authRepository: IAuthRepository) : ViewModel() 
         _uiState.value = _uiState.value.copy(passwordError = hasError)
     }
 
+    fun updateEmailVerificationError(hasError: Boolean) {
+        _uiState.value = _uiState.value.copy(emailVerificationError = hasError)
+    }
+
     fun resetAllFields() {
         _uiState.value = LoginUiState()
     }
@@ -54,8 +58,16 @@ class LoginViewModel(private val authRepository: IAuthRepository) : ViewModel() 
                 authRepository.login(state.email, state.password)
                 if (authRepository.isEmailVerified()) {
                     resetAllFields()
+                    updateEmailVerificationError(false)
                 } else {
+                    try {
+                        authRepository.sendEmailVerification()
+                        Log.d("LoginViewModel", "Email de vérification renvoyé automatiquement.")
+                    } catch (e: Exception) {
+                        Log.w("LoginViewModel", "Impossible de renvoyer l'email (peut-être trop tôt ?) : ${e.message}")
+                    }
                     authRepository.logout()
+                    updateEmailVerificationError(true)
                     Log.e("LoginViewModel", "Email non vérifié")
                 }
             } catch (e: Exception) {

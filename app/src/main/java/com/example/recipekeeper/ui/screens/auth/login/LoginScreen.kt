@@ -1,5 +1,6 @@
 package com.example.recipekeeper.ui.screens.auth.login
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -30,16 +32,24 @@ import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
-    onShowErrorMessage: (String) -> Unit,
     modifier: Modifier = Modifier,
     authFactory: AuthViewModelFactory
 ) {
     val loginViewModel: LoginViewModel = viewModel(factory = authFactory)
     val uiState by loginViewModel.uiState.collectAsState()
     val loginError = stringResource(R.string.signin_failed)
+    val context = LocalContext.current
+
+    LaunchedEffect(uiState.emailVerificationError) {
+        if (uiState.emailVerificationError) {
+            Toast.makeText(context, "Vérifier l'email", Toast.LENGTH_SHORT).show()
+            loginViewModel.updateEmailVerificationError(false)
+        }
+    }
+
     LaunchedEffect(uiState.loginError) {
         if (uiState.loginError) {
-            onShowErrorMessage(loginError)
+            Toast.makeText(context, loginError, Toast.LENGTH_SHORT).show()
             loginViewModel.updateLoginError(false)
         }
     }

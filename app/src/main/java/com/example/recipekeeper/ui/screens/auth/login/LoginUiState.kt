@@ -6,5 +6,6 @@ data class LoginUiState (
     // Error fields
     val loginError: Boolean = false,
     val emailError: Boolean = false,
-    val passwordError: Boolean = false
+    val passwordError: Boolean = false,
+    val emailVerificationError: Boolean = false,
 )

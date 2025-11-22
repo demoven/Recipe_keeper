@@ -43,6 +43,10 @@ class RegisterViewModel(private val authRepository: IAuthRepository) : ViewModel
         _uiState.value = _uiState.value.copy(confirmPasswordError = hasError)
     }
 
+    fun updateVerificationEmailSent(isSent: Boolean) {
+        _uiState.value = _uiState.value.copy(verificationEmailSent = isSent)
+    }
+
     fun resetAllFields() {
         _uiState.value = RegisterUiState()
     }
@@ -63,7 +67,8 @@ class RegisterViewModel(private val authRepository: IAuthRepository) : ViewModel
             try {
                 authRepository.register(state.email, state.password)
                 authRepository.sendEmailVerification()
-                resetAllFields()
+                authRepository.logout()
+                updateVerificationEmailSent(true)
             } catch (e: Exception) {
                 Log.e("RegisterViewModel", "Registration failed", e)
                 updateRegisterError(true)
