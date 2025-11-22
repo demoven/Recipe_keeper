@@ -27,8 +27,7 @@ fun HomeScreen(
     onNavigateToRecipeDetails: (String) -> Unit,
     homeFactory: HomeViewModelFactory,
     modifier: Modifier = Modifier,
-    folderId: String? = null,
-    folderName: String? = null
+    folderId: String? = null
 ) {
     val homeViewModel: HomeViewModel = viewModel(factory = homeFactory)
     val uiState by homeViewModel.uiState.collectAsState()

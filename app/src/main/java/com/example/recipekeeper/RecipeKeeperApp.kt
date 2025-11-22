@@ -87,7 +87,7 @@ fun RecipeKeeperApp(
 
     val currentFolderName = backStackEntry?.arguments?.getString("folderName")
 
-    val  topBarTitle = if (currentFolderName != null) {
+    val topBarTitle = if (currentFolderName != null) {
         currentFolderName
     } else {
         val currentScreen = try {
