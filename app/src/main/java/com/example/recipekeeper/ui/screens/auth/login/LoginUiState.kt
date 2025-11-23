@@ -8,4 +8,7 @@ data class LoginUiState (
     val emailError: Boolean = false,
     val passwordError: Boolean = false,
     val emailVerificationError: Boolean = false,
+    val isResetPasswordDialogVisible: Boolean = false,
+    val isResetPasswordEmailSent: Boolean = false,
+    val resetPasswordError: String? = null
 )

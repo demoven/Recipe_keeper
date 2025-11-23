@@ -76,4 +76,37 @@ class LoginViewModel(private val authRepository: IAuthRepository) : ViewModel() 
             }
         }
     }
+
+    fun showResetPasswordDialog() {
+        _uiState.value = _uiState.value.copy(isResetPasswordDialogVisible = true)
+    }
+
+    fun hideResetPasswordDialog() {
+        _uiState.value = _uiState.value.copy(
+            isResetPasswordDialogVisible = false,
+            resetPasswordError = null,
+            isResetPasswordEmailSent = false
+        )
+    }
+
+    fun sendPasswordResetEmail(emailForReset: String) {
+        if (!validator.isEmailValid(emailForReset)) {
+            _uiState.value = _uiState.value.copy(resetPasswordError = "Email invalide")
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                authRepository.sendPasswordResetEmail(emailForReset)
+                _uiState.value = _uiState.value.copy(
+                    isResetPasswordEmailSent = true,
+                    resetPasswordError = null
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    resetPasswordError = "Erreur : Vérifiez que l'email est correct."
+                )
+            }
+        }
+    }
 }

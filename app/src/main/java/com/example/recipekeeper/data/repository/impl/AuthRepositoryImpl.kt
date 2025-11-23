@@ -128,4 +128,11 @@ class AuthRepositoryImpl : IAuthRepository {
             throw Exception("No authenticated user found.")
         }
     }
+
+    override suspend fun sendPasswordResetEmail(email: String) {
+        if (email.isBlank()) {
+            throw IllegalArgumentException("Email cannot be blank")
+        }
+        authInstance.sendPasswordResetEmail(email).await()
+    }
 }
