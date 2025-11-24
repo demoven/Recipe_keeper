@@ -1,13 +1,19 @@
 package com.example.recipekeeper.ui.screens.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -20,6 +26,10 @@ import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.HomeViewModelFactory
 import com.example.recipekeeper.ui.components.CardField
 import com.example.recipekeeper.ui.components.SectionTitle
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun HomeScreen(
@@ -43,6 +53,7 @@ fun HomeScreen(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+
         if (uiState.folders.isNotEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 SectionTitle(title = stringResource(R.string.folders))
@@ -57,6 +68,19 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .clickable { onNavigateToSubFolder(folder.id, folder.name) }
                 )
+            }
+
+            // Divider entre Folders et Recipes
+            if (uiState.recipes.isNotEmpty()) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Divider(
+                        color = Color(0xFFE0E0E0),
+                        thickness = 1.dp,
+                        modifier = Modifier
+                            .padding(vertical = 12.dp)
+                            .fillMaxWidth()
+                    )
+                }
             }
         }
 
@@ -78,3 +102,33 @@ fun HomeScreen(
         }
     }
 }
+
+@Composable
+fun FolderChips(
+    folders: List<String>,
+    selectedFolder: String?,
+    onFolderSelected: (String) -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+    ) {
+        folders.forEach { folder ->
+            val isSelected = folder == selectedFolder
+            Surface(
+                color = if (isSelected) Color.Black else Color.White,
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, Color.Black),
+                modifier = Modifier
+                    .clickable { onFolderSelected(folder) }
+            ) {
+                Text(
+                    text = folder,
+                    color = if (isSelected) Color.White else Color.Black,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
+        }
+    }
+}
+
