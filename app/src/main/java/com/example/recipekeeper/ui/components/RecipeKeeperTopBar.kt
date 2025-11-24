@@ -11,18 +11,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.recipekeeper.R
-import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeKeeperTopBar(
-    title: String,
+    title: @Composable () -> Unit, // <-- changer ici
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
-        title = { Text(title) },
+        title = title,
         modifier = modifier,
         navigationIcon = {
             if (canNavigateBack) {
