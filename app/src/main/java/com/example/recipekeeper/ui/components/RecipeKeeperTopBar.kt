@@ -1,5 +1,6 @@
 package com.example.recipekeeper.ui.components
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,7 +20,8 @@ fun RecipeKeeperTopBar(
     title: String,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
         title = { Text(title) },
@@ -33,6 +35,7 @@ fun RecipeKeeperTopBar(
                     )
                 }
             }
-        }
+        },
+        actions = actions
     )
 }

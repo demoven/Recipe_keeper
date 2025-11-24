@@ -31,4 +31,13 @@ class UserContainer(
             onFailure = onFailure
         )
     }
+
+    suspend fun deleteFolderRecursive(folderId: String) {
+        val subfolders = folderRepository.getSubFolders(folderId)
+        subfolders.forEach { folder ->
+            deleteFolderRecursive(folder.id)
+        }
+        recipeRepository.deleteRecipesInFolder(folderId)
+        folderRepository.deleteFolder(folderId)
+    }
 }

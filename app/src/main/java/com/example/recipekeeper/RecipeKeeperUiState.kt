@@ -7,5 +7,7 @@ data class RecipeKeeperUiState (
     val isTopBarVisible: Boolean = true,
     val isBottomBarVisible: Boolean = true,
     val isMainSheetVisible: Boolean = false,
-    val isAddFolderSheetVisible: Boolean = false
+    val isAddFolderSheetVisible: Boolean = false,
+    val isFolderMenuVisible: Boolean = false,
+    val isRenameDialogVisible: Boolean = false
 )

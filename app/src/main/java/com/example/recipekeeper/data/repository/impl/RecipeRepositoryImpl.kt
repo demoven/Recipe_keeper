@@ -6,6 +6,7 @@ import com.example.recipekeeper.data.repository.IRecipeRepository
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.tasks.await
 
 class RecipeRepositoryImpl : IRecipeRepository {
     private val TAG = "RecipeRepositoryImpl"
@@ -34,5 +35,21 @@ class RecipeRepositoryImpl : IRecipeRepository {
                 val recipes = snapshot?.map { it.toObject(Recipe::class.java) } ?: emptyList()
                 onResult(recipes)
             }
+    }
+
+    override suspend fun deleteRecipesInFolder(folderId: String) {
+        val collection = recipesCollection
+            ?: throw UninitializedPropertyAccessException("RecipeRepositoryImpl must be initialized with a valid userId before use.")
+
+        val snapshot = collection
+            .whereEqualTo("folderId", folderId)
+            .get()
+            .await()
+
+        val batch = db.batch()
+        snapshot.documents.forEach { document ->
+            batch.delete(document.reference)
+        }
+        batch.commit().await()
     }
 }

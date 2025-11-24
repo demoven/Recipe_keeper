@@ -4,7 +4,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,8 +32,10 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,6 +47,7 @@ import com.example.recipekeeper.ui.components.BottomNavigationBar
 import com.example.recipekeeper.ui.components.BottomSheetAddFolder
 import com.example.recipekeeper.ui.components.BottomSheetContent
 import com.example.recipekeeper.ui.components.RecipeKeeperTopBar
+import com.example.recipekeeper.ui.components.RenameFolderDialog
 import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
@@ -87,13 +96,19 @@ fun RecipeKeeperApp(
 
     val currentFolderName = backStackEntry?.arguments?.getString("folderName")
 
-    val topBarTitle = if (currentFolderName != null) {
+    val initialTitle = if (currentFolderName != null) {
         currentFolderName
     } else {
         val currentScreen = try {
             RecipeKeeperScreen.valueOf(currentRoute?.substringBefore('?') ?: RecipeKeeperScreen.Home.name)
         } catch (e: Exception) { RecipeKeeperScreen.Home }
         stringResource(currentScreen.title)
+    }
+
+    var folderTitle by remember(currentRoute, currentFolderName) { mutableStateOf(initialTitle) }
+
+    LaunchedEffect(currentFolderName) {
+        folderTitle = currentFolderName ?: initialTitle
     }
 
     LaunchedEffect(currentRoute) {
@@ -110,7 +125,6 @@ fun RecipeKeeperApp(
         onDispose { (authRepository as? AutoCloseable)?.close() }
     }
 
-    // Redirection Auth (Simplifiée)
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
             val isAuthScreen = currentRoute == RecipeKeeperScreen.Login.name ||
@@ -129,6 +143,17 @@ fun RecipeKeeperApp(
     val mainSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val addFolderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    val updateFolderAction: (String, String) -> Unit = { folderId, newName ->
+        userContainer?.folderRepository?.updateFolder(
+            folderId = folderId,
+            newName = newName,
+            onSuccess = { /* Gérer le succès, ex: Snackbar */ },
+            onFailure = { /* Gérer l'erreur */ }
+        )
+    }
+
+    val showFolderActions = uiState.currentScreen == RecipeKeeperScreen.Home && currentFolderId != null
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(
@@ -140,9 +165,29 @@ fun RecipeKeeperApp(
         topBar = {
             if (uiState.isTopBarVisible) {
                 RecipeKeeperTopBar(
-                    title = topBarTitle,
+                    title = folderTitle,
                     canNavigateBack = navController.previousBackStackEntry != null,
-                    navigateUp = { navController.navigateUp() }
+                    navigateUp = { navController.navigateUp() },
+                    actions = {
+                        if (showFolderActions) {
+                            IconButton(onClick = { recipeKeeperViewModel.showFolderMenu() }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "Options du dossier")
+                            }
+                            DropdownMenu(
+                                expanded = uiState.isFolderMenuVisible,
+                                onDismissRequest = { recipeKeeperViewModel.hideFolderMenu() }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.rename_folder)) },
+                                    onClick = {
+                                        recipeKeeperViewModel.hideFolderMenu()
+                                        recipeKeeperViewModel.showRenameDialog()
+                                    }
+                                )
+                                // TODO: add delete option
+                            }
+                        }
+                    }
                 )
             }
         },
@@ -163,6 +208,18 @@ fun RecipeKeeperApp(
             }
         }
     ) { innerPadding ->
+        if (uiState.isRenameDialogVisible && currentFolderId != null) {
+            RenameFolderDialog(
+                onDismiss = { recipeKeeperViewModel.hideRenameDialog() },
+                onConfirm = { newName ->
+                    if (!newName.isBlank()) {
+                        updateFolderAction(currentFolderId, newName)
+                        folderTitle = newName
+                        recipeKeeperViewModel.hideRenameDialog()
+                    }
+                }
+            )
+        }
         NavHost(
             navController = navController,
             startDestination = startDestination,

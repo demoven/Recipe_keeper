@@ -53,4 +53,11 @@ class RecipeKeeperViewModel(
         _uiState.value = _uiState.value.copy(isMainSheetVisible = false, isAddFolderSheetVisible = true)
     }
     fun closeAddFolderSheet() { _uiState.value = _uiState.value.copy(isAddFolderSheetVisible = false) }
+
+    fun showFolderMenu() { _uiState.value = _uiState.value.copy(isFolderMenuVisible = true) }
+    fun hideFolderMenu() { _uiState.value = _uiState.value.copy(isFolderMenuVisible = false) }
+
+    fun showRenameDialog() { _uiState.value = _uiState.value.copy(isRenameDialogVisible = true) }
+    fun hideRenameDialog() { _uiState.value = _uiState.value.copy(isRenameDialogVisible = false) }
+
 }
