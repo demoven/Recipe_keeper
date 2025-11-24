@@ -9,5 +9,6 @@ data class RecipeKeeperUiState (
     val isMainSheetVisible: Boolean = false,
     val isAddFolderSheetVisible: Boolean = false,
     val isFolderMenuVisible: Boolean = false,
-    val isRenameDialogVisible: Boolean = false
+    val isRenameDialogVisible: Boolean = false,
+    val isDeleteDialogVisible: Boolean = false
 )

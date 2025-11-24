@@ -152,6 +152,12 @@ fun RecipeKeeperApp(
         )
     }
 
+    val deleteFolderAction : (String) -> Unit = { folderId ->
+        coroutineScope.launch {
+            userContainer?.deleteFolderRecursive(folderId)
+        }
+    }
+
     val showFolderActions = uiState.currentScreen == RecipeKeeperScreen.Home && currentFolderId != null
 
     Scaffold(
@@ -182,6 +188,13 @@ fun RecipeKeeperApp(
                                     onClick = {
                                         recipeKeeperViewModel.hideFolderMenu()
                                         recipeKeeperViewModel.showRenameDialog()
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.delete_folder)) },
+                                    onClick = {
+                                        recipeKeeperViewModel.hideFolderMenu()
+                                        recipeKeeperViewModel.showDeleteDialog()
                                     }
                                 )
                                 // TODO: add delete option
@@ -217,6 +230,16 @@ fun RecipeKeeperApp(
                         folderTitle = newName
                         recipeKeeperViewModel.hideRenameDialog()
                     }
+                }
+            )
+        }
+        if (uiState.isDeleteDialogVisible && currentFolderId != null) {
+            com.example.recipekeeper.ui.components.DeleteFolderDialog(
+                onDismiss = { recipeKeeperViewModel.hideDeleteDialog() },
+                onConfirm = {
+                    recipeKeeperViewModel.hideDeleteDialog()
+                    deleteFolderAction(currentFolderId)
+                    navController.navigateUp()
                 }
             )
         }
