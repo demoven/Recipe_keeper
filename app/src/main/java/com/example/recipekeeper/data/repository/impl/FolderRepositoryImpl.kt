@@ -81,6 +81,26 @@ class FolderRepositoryImpl : IFolderRepository {
             }
     }
 
+    override fun moveFolder(
+        folderId: String,
+        newParentId: String?,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val collection = foldersCollection
+            ?: throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
+        collection.document(folderId)
+            .update("parentId", newParentId)
+            .addOnSuccessListener {
+                Log.d(TAG, "Folder moved with ID: $folderId")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error moving folder", e)
+                onFailure()
+            }
+    }
+
     override suspend fun getSubFolders(parentId: String): List<Folder> {
         val collection = foldersCollection
             ?: throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")

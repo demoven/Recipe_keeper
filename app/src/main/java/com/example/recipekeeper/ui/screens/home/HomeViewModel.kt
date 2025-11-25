@@ -37,6 +37,19 @@ class HomeViewModel(
         }
     }
 
+    fun moveFolder(folderId: String, targetParentId: String?) {
+        folderRepository.moveFolder(
+            folderId = folderId,
+            newParentId = targetParentId,
+            onSuccess = {
+                // Optionnel : Gérer le succès (afficher un toast, fermer un dialogue, etc.)
+            },
+            onFailure = {
+                // Optionnel : Gérer l'erreur
+            }
+        )
+    }
+
     override fun onCleared() {
         super.onCleared()
         foldersListener?.remove()
