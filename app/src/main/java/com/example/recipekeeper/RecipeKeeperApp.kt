@@ -154,7 +154,12 @@ fun RecipeKeeperApp(
                             Text(topBarTitle)
                             Spacer(modifier = Modifier.weight(1f))
                             if (currentRoute == RecipeKeeperScreen.CreateRecipe.name) {
-                                Button(onClick = { println("Recette sauvegardée !") }) {
+                                Button(onClick = { println("Recette sauvegardée !")
+                                    navController.navigate(RecipeKeeperScreen.Home.name) {
+                                        launchSingleTop = true
+                                        popUpTo(RecipeKeeperScreen.CreateRecipe.name) { inclusive = true }
+                                    }
+                                }) {
                                     Text("Save")
                                 }
                             }
