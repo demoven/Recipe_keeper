@@ -1,5 +1,6 @@
 package com.example.recipekeeper.ui.components
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -20,7 +21,7 @@ fun RecipeKeeperTopBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    onSaveAction: (() -> Unit)? = null
+    actions : @Composable RowScope.() -> Unit = {},
 ) {
     TopAppBar(
         title = title,
@@ -35,15 +36,6 @@ fun RecipeKeeperTopBar(
                 }
             }
         },
-        actions = {
-            if (onSaveAction != null) {
-                IconButton(onClick = onSaveAction) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Sauvegarder"
-                    )
-                }
-            }
-        }
+        actions = actions
     )
 }

@@ -6,7 +6,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -165,7 +169,18 @@ fun RecipeKeeperApp(
                     },
                     canNavigateBack = navController.previousBackStackEntry != null,
                     navigateUp = { navController.navigateUp() },
-                    onSaveAction = if (isCreateRecipeScreen) onSaveClick else null
+                    actions = {
+                        if (isCreateRecipeScreen) {
+                            onSaveClick?.let {
+                                IconButton(onClick = it) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = "Sauvegarder"
+                                    )
+                                }
+                            }
+                        }
+                    }
                 )
             }
         },
