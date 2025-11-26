@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,13 +45,34 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
+import com.example.recipekeeper.di.factory.CreateRecipeViewModelFactory
 
 @Composable
 fun CreateRecipeScreen(
-    createRecipeViewModel: CreateRecipeViewModel = viewModel()
+    createRecipeFactory: CreateRecipeViewModelFactory,
+    onRecipeSuccess: () -> Unit,
+    folderId: String? = null,
+    onSetSaveAction: (() -> Unit) -> Unit
 ) {
+    val createRecipeViewModel: CreateRecipeViewModel = viewModel(factory = createRecipeFactory)
     val uiState by createRecipeViewModel.uiState.collectAsState()
     val scrollState =  rememberScrollState()
+
+    DisposableEffect(Unit) {
+        // QUAND ON ARRIVE SUR L'ÉCRAN : On définit l'action de sauvegarde
+        onSetSaveAction {
+            createRecipeViewModel.saveRecipe(
+                onSuccess = onRecipeSuccess,
+                onFailure = {},
+                folderId = folderId
+            )
+        }
+
+        // QUAND ON QUITTE L'ÉCRAN : On nettoie (on retire le bouton)
+        onDispose {
+            onSetSaveAction {} // On passe une fonction vide ou null selon votre implémentation
+        }
+    }
 
     Column(
         modifier = Modifier

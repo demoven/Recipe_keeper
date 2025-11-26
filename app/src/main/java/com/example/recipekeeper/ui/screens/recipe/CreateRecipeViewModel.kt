@@ -1,12 +1,16 @@
 package com.example.recipekeeper.ui.screens.recipe
 
 import androidx.lifecycle.ViewModel
+import com.example.recipekeeper.data.models.Recipe
+import com.example.recipekeeper.data.repository.IRecipeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class CreateRecipeViewModel() : ViewModel() {
+class CreateRecipeViewModel(
+    private val recipeRepository: IRecipeRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow(CreateRecipeUiState())
     val uiState: StateFlow<CreateRecipeUiState> = _uiState.asStateFlow()
 
@@ -81,5 +85,29 @@ class CreateRecipeViewModel() : ViewModel() {
                 current.copy(instructions = newList)
             } else current
         }
+    }
+
+    fun saveRecipe(folderId: String?, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val state = _uiState.value
+        val newRecipe = Recipe(
+            id = "",
+            title = state.title,
+            description = state.description,
+            prepTime = state.prepTime,
+            cookTime = state.cookTime,
+            servings = state.servings,
+            ingredients = state.ingredients,
+            instructions = state.instructions,
+            folderId = folderId
+        )
+        recipeRepository.saveRecipe(newRecipe,
+            onSuccess = {
+                onSuccess()
+                _uiState.value = CreateRecipeUiState() // Reset state after saving
+            },
+            onFailure = {
+                onFailure
+            }
+        )
     }
 }
