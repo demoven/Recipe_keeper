@@ -1,4 +1,4 @@
-package com.example.recipekeeper.ui.screens
+package com.example.recipekeeper.ui.screens.recipe
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -24,9 +24,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,16 +43,36 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
-import kotlin.comparisons.then
+import com.example.recipekeeper.di.factory.CreateRecipeViewModelFactory
 
 @Composable
-fun CreateRecipeScreen() {
-    var recipeName by remember { mutableStateOf("") }
-    var recipeDescription by remember { mutableStateOf("") }
+fun CreateRecipeScreen(
+    createRecipeFactory: CreateRecipeViewModelFactory,
+    onRecipeSuccess: () -> Unit,
+    folderId: String? = null,
+    onSetSaveAction: (() -> Unit) -> Unit
+) {
+    val createRecipeViewModel: CreateRecipeViewModel = viewModel(factory = createRecipeFactory)
+    val uiState by createRecipeViewModel.uiState.collectAsState()
     val scrollState =  rememberScrollState()
-    val ingredients = remember { mutableStateListOf<String>("") }
-    val steps = remember { mutableStateListOf<String>("") }
+
+    DisposableEffect(Unit) {
+        // QUAND ON ARRIVE SUR L'ÉCRAN : On définit l'action de sauvegarde
+        onSetSaveAction {
+            createRecipeViewModel.saveRecipe(
+                onSuccess = onRecipeSuccess,
+                onFailure = {},
+                folderId = folderId
+            )
+        }
+
+        // QUAND ON QUITTE L'ÉCRAN : On nettoie (on retire le bouton)
+        onDispose {
+            onSetSaveAction {} // On passe une fonction vide ou null selon votre implémentation
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -72,27 +93,36 @@ fun CreateRecipeScreen() {
             )
         }
         DescriptionLayout(
-            recipeName = recipeName,
-            recipeDescription = recipeDescription,
-            onRecipeNameChange = { recipeName = it },
-            onRecipeDescriptionChange = { recipeDescription = it },
+            recipeName = uiState.title,
+            recipeDescription = uiState.description,
+            onRecipeNameChange = { createRecipeViewModel.updateTitle(it) },
+            onRecipeDescriptionChange = { createRecipeViewModel.updateDescription(it) },
         )
         Spacer(modifier = Modifier.padding(8.dp))
+        // Liste Ingrédients connectée au ViewModel
         ListLayout(
-            elements = ingredients,
+            elements = uiState.ingredients,
             placeholder = "ex: 200g de farine",
             title = "Ingrédients",
+            onValueChange = { index, ingredient -> createRecipeViewModel.updateIngredient(index, ingredient) },
+            onAdd = { createRecipeViewModel.addIngredient() },
+            onRemove = { index -> createRecipeViewModel.removeIngredient(index) },
             modifier = Modifier.fillMaxWidth()
         )
+
         Spacer(modifier = Modifier.padding(8.dp))
+
+        // Liste Étapes connectée au ViewModel
         ListLayout(
-            elements = steps,
+            elements = uiState.instructions, // Attention au nom (steps vs instructions dans votre uiState)
             placeholder = "Décrire l'étape",
             title = "Étapes",
             numbered = true,
             singleLineTextField = false,
+            onValueChange = { index, step -> createRecipeViewModel.updateStep(index, step) },
+            onAdd = { createRecipeViewModel.addStep() },
+            onRemove = { index -> createRecipeViewModel.removeStep(index) },
             modifier = Modifier.fillMaxWidth()
-
         )
     }
 }
@@ -131,38 +161,44 @@ fun DescriptionLayout(
         )
     }
 }
+
 @Composable
 fun ListLayout(
-    elements: MutableList<String>,
+    elements: List<String>, // On reçoit une liste simple, pas Mutable
     placeholder: String,
     title: String,
-    modifier : Modifier = Modifier,
+    onValueChange: (Int, String) -> Unit, // Callback modification
+    onAdd: () -> Unit,                    // Callback ajout
+    onRemove: (Int) -> Unit,              // Callback suppression
+    modifier: Modifier = Modifier,
     numbered: Boolean = false,
-    singleLineTextField : Boolean = true,
+    singleLineTextField: Boolean = true,
 ) {
-    val elementsFocus = remember { mutableStateListOf(FocusRequester()) }
+    // Gestion intelligente du focus : on recrée les focus si la taille de la liste change
+    val focusRequesters = remember(elements.size) { List(elements.size) { FocusRequester() } }
     var shouldFocusLast by remember { mutableStateOf(false) }
 
-    LaunchedEffect(elements.size, shouldFocusLast) {
+    // Focus automatique sur le nouvel élément ajouté
+    LaunchedEffect(elements.size) {
         if (shouldFocusLast && elements.isNotEmpty()) {
-            elementsFocus.lastOrNull()?.requestFocus()
+            focusRequesters.last().requestFocus()
             shouldFocusLast = false
         }
     }
 
     Column(modifier = modifier) {
         Text(title)
-        elements.forEachIndexed { index, ing ->
+        elements.forEachIndexed { index, item ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
-                verticalAlignment = if(numbered) Alignment.Top else Alignment.CenterVertically
+                verticalAlignment = if (numbered) Alignment.Top else Alignment.CenterVertically
             ) {
-                if(numbered) {
+                if (numbered) {
                     Text(
                         text = "${index + 1}.",
-                        modifier =  Modifier
+                        modifier = Modifier
                             .width(28.dp)
                             .alignBy(FirstBaseline),
                         textAlign = TextAlign.End
@@ -170,8 +206,8 @@ fun ListLayout(
                     Spacer(modifier = Modifier.size(8.dp))
                 }
                 TextFieldTransparent(
-                    value = ing,
-                    onValueChange = { newIng -> elements[index] = newIng },
+                    value = item,
+                    onValueChange = { newValue -> onValueChange(index, newValue) },
                     placeholder = placeholder,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
@@ -181,22 +217,21 @@ fun ListLayout(
                     modifier = Modifier
                         .weight(1f)
                         .then(if (numbered) Modifier.alignBy(FirstBaseline) else Modifier)
-                        .focusRequester(elementsFocus[index])
+                        .focusRequester(focusRequesters[index])
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 IconButton(
-                    onClick = {
-                        elements.removeAt(index)
-                        elementsFocus.removeAt(index)
-                    }
+                    onClick = { onRemove(index) }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Delete,
-                        contentDescription = "Supprimer l’ingrédient"
+                        contentDescription = "Supprimer"
                     )
                 }
             }
         }
+
+        // Bouton Ajouter
         val canAdd = elements.isEmpty() || elements.last().isNotBlank()
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -204,8 +239,7 @@ fun ListLayout(
         ) {
             Button(
                 onClick = {
-                    elements.add("")
-                    elementsFocus.add(FocusRequester())
+                    onAdd()
                     shouldFocusLast = true
                 },
                 enabled = canAdd,

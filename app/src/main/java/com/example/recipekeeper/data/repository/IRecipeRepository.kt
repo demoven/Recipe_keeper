@@ -10,4 +10,10 @@ interface IRecipeRepository {
         folderId: String?,
         onResult: (List<Recipe>) -> Unit
     ): ListenerRegistration
+
+    fun saveRecipe(
+        recipe: Recipe,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    )
 }
