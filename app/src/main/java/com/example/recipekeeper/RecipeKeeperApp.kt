@@ -4,13 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,6 +42,7 @@ import com.example.recipekeeper.ui.components.BottomSheetAddFolder
 import com.example.recipekeeper.ui.components.BottomSheetContent
 import com.example.recipekeeper.ui.components.RecipeKeeperTopBar
 import com.example.recipekeeper.ui.components.RenameFolderDialog
+import com.example.recipekeeper.ui.components.actions.FolderActions
 import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
@@ -176,29 +171,13 @@ fun RecipeKeeperApp(
                     navigateUp = { navController.navigateUp() },
                     actions = {
                         if (showFolderActions) {
-                            IconButton(onClick = { recipeKeeperViewModel.showFolderMenu() }) {
-                                Icon(Icons.Default.MoreVert, contentDescription = "Options du dossier")
-                            }
-                            DropdownMenu(
-                                expanded = uiState.isFolderMenuVisible,
-                                onDismissRequest = { recipeKeeperViewModel.hideFolderMenu() }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.rename_folder)) },
-                                    onClick = {
-                                        recipeKeeperViewModel.hideFolderMenu()
-                                        recipeKeeperViewModel.showRenameDialog()
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.delete_folder)) },
-                                    onClick = {
-                                        recipeKeeperViewModel.hideFolderMenu()
-                                        recipeKeeperViewModel.showDeleteDialog()
-                                    }
-                                )
-                                // TODO: add delete option
-                            }
+                            FolderActions(
+                                onShowFolderMenu = { recipeKeeperViewModel.showFolderMenu() },
+                                isFolderMenuVisible = uiState.isFolderMenuVisible,
+                                hideFolderMenu = { recipeKeeperViewModel.hideFolderMenu() },
+                                showRenameDialog = { recipeKeeperViewModel.showRenameDialog() },
+                                showDeleteDialog = { recipeKeeperViewModel.showDeleteDialog() }
+                            )
                         }
                     }
                 )
