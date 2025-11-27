@@ -51,6 +51,11 @@ class CreateRecipeViewModel(
         }
     }
 
+    fun updatePrepTime(value: String) {
+        val numericValue = value.toIntOrNull() ?: 0
+        _uiState.update { it.copy(prepTime = numericValue) }
+    }
+
     fun updateIngredient(index: Int, newValue: String) {
         _uiState.update { current ->
             if (index in current.ingredients.indices) {

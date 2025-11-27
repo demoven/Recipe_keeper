@@ -98,6 +98,17 @@ fun CreateRecipeScreen(
             onRecipeNameChange = { createRecipeViewModel.updateTitle(it) },
             onRecipeDescriptionChange = { createRecipeViewModel.updateDescription(it) },
         )
+        TextFieldTransparent(
+            value = uiState.prepTime.toString(),
+            onValueChange = { createRecipeViewModel.updatePrepTime(it) },
+            label = "Temps de préparation (min)",
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(modifier = Modifier.padding(8.dp))
         // Liste Ingrédients connectée au ViewModel
         ListLayout(
