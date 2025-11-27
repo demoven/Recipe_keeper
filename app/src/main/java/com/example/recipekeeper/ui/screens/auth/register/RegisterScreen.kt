@@ -38,6 +38,7 @@ fun RegisterScreen(
     val registerViewModel: RegisterViewModel = viewModel(factory = authFactory)
     val uiState by registerViewModel.uiState.collectAsState()
     val registerError = stringResource(R.string.register_failed)
+    val sentVerificationEmail = stringResource(R.string.check_verification_email)
     val context = LocalContext.current
 
     LaunchedEffect(uiState.registerError) {
@@ -49,7 +50,7 @@ fun RegisterScreen(
 
     LaunchedEffect(uiState.verificationEmailSent) {
         if (uiState.verificationEmailSent) {
-            Toast.makeText(context,"Email de vérification envoyé. Veuillez vérifier votre boîte de réception.",Toast.LENGTH_LONG).show()
+            Toast.makeText(context,sentVerificationEmail,Toast.LENGTH_LONG).show()
             registerViewModel.updateVerificationEmailSent(false)
             onNavigateToLogin()
         }

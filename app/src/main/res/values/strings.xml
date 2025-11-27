@@ -36,4 +36,5 @@
     <string name="close">Fermer</string>
     <string name="cancel">Annuler</string>
     <string name="check_mailbox">Vérifier l\'email de confirmation dans votre boite de réception</string>
+    <string name="check_verification_email">Email de vérification envoyé. Veuillez vérifier votre boîte de réception.</string>
 </resources>
