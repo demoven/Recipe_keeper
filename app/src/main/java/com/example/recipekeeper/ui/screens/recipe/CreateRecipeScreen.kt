@@ -118,9 +118,11 @@ fun CreateRecipeScreen(
             onValueChange = { index, ingredient -> createRecipeViewModel.updateIngredient(index, ingredient) },
             onAdd = { createRecipeViewModel.addIngredient() },
             onRemove = { index -> createRecipeViewModel.removeIngredient(index) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            onJumpToNextSection = {
+                createRecipeViewModel.addStepIfEmpty()
+            }
         )
-
         Spacer(modifier = Modifier.padding(8.dp))
 
         // Liste Étapes connectée au ViewModel
@@ -184,6 +186,7 @@ fun ListLayout(
     modifier: Modifier = Modifier,
     numbered: Boolean = false,
     singleLineTextField: Boolean = true,
+    onJumpToNextSection: (() -> Unit)? = null,
 ) {
     // Gestion intelligente du focus : on recrée les focus si la taille de la liste change
     val focusRequesters = remember(elements.size) { List(elements.size) { FocusRequester() } }
@@ -224,12 +227,31 @@ fun ListLayout(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
                     ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+
+                            //  Si le champ est vide → passer à la section suivante
+                            if (item.isBlank()) {
+                                onJumpToNextSection?.invoke()
+                                return@KeyboardActions
+                            }
+
+                            //  Sinon comportement normal
+                            if (index == elements.lastIndex) {
+                                onAdd()
+                                shouldFocusLast = true
+                            } else {
+                                focusRequesters[index + 1].requestFocus()
+                            }
+                        }
+                    ),
                     singleLine = singleLineTextField,
                     modifier = Modifier
                         .weight(1f)
                         .then(if (numbered) Modifier.alignBy(FirstBaseline) else Modifier)
                         .focusRequester(focusRequesters[index])
                 )
+
                 Spacer(modifier = Modifier.size(8.dp))
                 IconButton(
                     onClick = { onRemove(index) }
