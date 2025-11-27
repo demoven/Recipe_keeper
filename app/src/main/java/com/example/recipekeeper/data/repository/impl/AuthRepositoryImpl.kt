@@ -102,7 +102,7 @@ class AuthRepositoryImpl : IAuthRepository {
             try {
                 user.reauthenticate(credential).await()
                 user.updateEmail(newEmail).await()
-                //user.verifyBeforeUpdateEmail(newEmail).await()
+                //TODO user.verifyBeforeUpdateEmail(newEmail).await()
             } catch (e: Exception) {
                 throw Exception("Re-authentication failed: ${e.message}")
             }
