@@ -50,7 +50,7 @@ fun DeleteFolderDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.delete_folder)) },
         text = {
-            Text(stringResource(R.string.delete_folder_confirmation) )
+            Text(stringResource(R.string.delete_folder_confirmation))
         },
         confirmButton = {
             TextButton(onClick = { onConfirm() }) {
