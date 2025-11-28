@@ -114,6 +114,8 @@ class FolderRepositoryImpl : IFolderRepository {
     }
 
     override suspend fun deleteFolder(folderId: String) {
-        foldersCollection?.document(folderId)?.delete()?.await()
+        val collection = foldersCollection
+            ?: throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
+        collection.document(folderId).delete().await()
     }
 }
