@@ -21,7 +21,7 @@ fun RecipeKeeperTopBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    actions : @Composable RowScope.() -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
         title = title,

@@ -7,6 +7,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.tasks.await
 
 class FolderRepositoryImpl : IFolderRepository {
 
@@ -58,5 +59,63 @@ class FolderRepositoryImpl : IFolderRepository {
                 Log.w(TAG, "Error adding folder", e)
                 onFailure()
             }
+    }
+
+    override fun updateFolder(
+        folderId: String,
+        newName: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        if (newName.isBlank()) {
+            onFailure()
+            return
+        }
+        val collection = foldersCollection
+            ?: throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
+        collection.document(folderId)
+            .update("name", newName)
+            .addOnSuccessListener {
+                Log.d(TAG, "Folder updated with ID: $folderId")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error updating folder", e)
+                onFailure()
+            }
+    }
+
+    override fun moveFolder(
+        folderId: String,
+        newParentId: String?,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val collection = foldersCollection
+            ?: throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
+        collection.document(folderId)
+            .update("parentId", newParentId)
+            .addOnSuccessListener {
+                Log.d(TAG, "Folder moved with ID: $folderId")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error moving folder", e)
+                onFailure()
+            }
+    }
+
+    override suspend fun getSubFolders(parentId: String): List<Folder> {
+        val collection = foldersCollection
+            ?: throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
+
+        val snapshot = collection.whereEqualTo("parentId", parentId).get().await()
+        return snapshot.toObjects(Folder::class.java)
+    }
+
+    override suspend fun deleteFolder(folderId: String) {
+        val collection = foldersCollection
+            ?: throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
+        collection.document(folderId).delete().await()
     }
 }

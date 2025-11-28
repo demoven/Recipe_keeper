@@ -11,6 +11,7 @@ interface IRecipeRepository {
         onResult: (List<Recipe>) -> Unit
     ): ListenerRegistration
 
+    suspend fun deleteRecipesInFolder(folderId: String)
     fun saveRecipe(
         recipe: Recipe,
         onSuccess: () -> Unit,
