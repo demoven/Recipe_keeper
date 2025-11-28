@@ -37,4 +37,11 @@
     <string name="cancel">Annuler</string>
     <string name="check_mailbox">Vérifier l\'email de confirmation dans votre boite de réception</string>
     <string name="check_verification_email">Email de vérification envoyé. Veuillez vérifier votre boîte de réception.</string>
+    <string name="rename_folder">Renommer le dossier</string>
+    <string name="cancel">Annuler</string>
+    <string name="save">Enregistrer</string>
+    <string name="new_name">Nouveau nom</string>
+    <string name="delete_folder">Supprimer le dossier</string>
+    <string name="confirm">Confirmer</string>
+    <string name="delete_folder_confirmation">Êtes-vous sûr de vouloir supprimer ce dossier et toutes ses recettes ? Cette action est irréversible.</string>
 </resources>

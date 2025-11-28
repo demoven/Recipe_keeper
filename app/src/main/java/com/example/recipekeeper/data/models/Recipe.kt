@@ -7,6 +7,7 @@ import kotlinx.parcelize.Parcelize
 data class Recipe(
     val id: String = "",
     val title: String = "",
+    val description: String = "",
     val ingredients: List<String> = emptyList(),
     val instructions: List<String> = emptyList(),
     val prepTime: Int = 0, // in minutes

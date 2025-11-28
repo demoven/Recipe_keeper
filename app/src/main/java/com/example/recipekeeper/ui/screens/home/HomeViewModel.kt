@@ -37,6 +37,23 @@ class HomeViewModel(
         }
     }
 
+    //TODO implements moveFolder
+    fun moveFolder(folderId: String, targetParentId: String?) {
+        folderRepository.moveFolder(
+            folderId = folderId,
+            newParentId = targetParentId,
+            onSuccess = {
+                // Optionnel : Gérer le succès (afficher un toast, fermer un dialogue, etc.)
+            },
+            onFailure = {
+                // Optionnel : Gérer l'erreur
+            }
+        )
+    }
+    fun selectFolder(folder: String?) {
+        _uiState.value = _uiState.value.copy(selectedFolder = folder)
+    }
+
     override fun onCleared() {
         super.onCleared()
         foldersListener?.remove()

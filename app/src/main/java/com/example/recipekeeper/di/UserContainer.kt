@@ -1,10 +1,12 @@
 package com.example.recipekeeper.di
 
 import com.example.recipekeeper.data.models.Folder
+import com.example.recipekeeper.data.models.Recipe
 import com.example.recipekeeper.data.repository.IAuthRepository
 import com.example.recipekeeper.data.repository.IFolderRepository
 import com.example.recipekeeper.data.repository.impl.FolderRepositoryImpl
 import com.example.recipekeeper.data.repository.impl.RecipeRepositoryImpl
+import com.example.recipekeeper.di.factory.CreateRecipeViewModelFactory
 import com.example.recipekeeper.di.factory.HomeViewModelFactory
 
 class UserContainer(
@@ -24,11 +26,24 @@ class UserContainer(
         authRepository = authRepository
     )
 
+    val createRecipeFactory: CreateRecipeViewModelFactory = CreateRecipeViewModelFactory(
+        recipeRepository = recipeRepository
+    )
+
     fun addFolder(folder: Folder, onSuccess: () -> Unit, onFailure: () -> Unit) {
         folderRepository.addFolder(
             folder = folder,
             onSuccess = onSuccess,
             onFailure = onFailure
         )
+    }
+
+    suspend fun deleteFolderRecursive(folderId: String) {
+        val subfolders = folderRepository.getSubFolders(folderId)
+        subfolders.forEach { folder ->
+            deleteFolderRecursive(folder.id)
+        }
+        recipeRepository.deleteRecipesInFolder(folderId)
+        folderRepository.deleteFolder(folderId)
     }
 }

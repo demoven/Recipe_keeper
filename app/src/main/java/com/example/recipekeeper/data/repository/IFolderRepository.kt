@@ -16,4 +16,22 @@ interface IFolderRepository {
         onSuccess: () -> Unit,
         onFailure: () -> Unit
     )
+
+    fun updateFolder(
+        folderId: String,
+        newName: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    )
+
+    fun moveFolder(
+        folderId: String,
+        newParentId: String?,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    )
+
+    suspend fun getSubFolders(parentId: String): List<Folder>
+
+    suspend fun deleteFolder(folderId: String)
 }
