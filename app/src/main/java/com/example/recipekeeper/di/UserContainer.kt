@@ -1,10 +1,12 @@
 package com.example.recipekeeper.di
 
 import com.example.recipekeeper.data.models.Folder
+import com.example.recipekeeper.data.models.Recipe
 import com.example.recipekeeper.data.repository.IAuthRepository
 import com.example.recipekeeper.data.repository.IFolderRepository
 import com.example.recipekeeper.data.repository.impl.FolderRepositoryImpl
 import com.example.recipekeeper.data.repository.impl.RecipeRepositoryImpl
+import com.example.recipekeeper.di.factory.CreateRecipeViewModelFactory
 import com.example.recipekeeper.di.factory.HomeViewModelFactory
 
 class UserContainer(
@@ -22,6 +24,10 @@ class UserContainer(
         folderRepository = folderRepository,
         recipeRepository = recipeRepository,
         authRepository = authRepository
+    )
+
+    val createRecipeFactory: CreateRecipeViewModelFactory = CreateRecipeViewModelFactory(
+        recipeRepository = recipeRepository
     )
 
     fun addFolder(folder: Folder, onSuccess: () -> Unit, onFailure: () -> Unit) {

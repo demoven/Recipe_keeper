@@ -1,10 +1,30 @@
 package com.example.recipekeeper
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.recipekeeper.ui.screens.home.HomeScreen
+import com.example.recipekeeper.ui.screens.AccountScreen
+import com.example.recipekeeper.ui.screens.recipe.CreateRecipeScreen
+import com.example.recipekeeper.ui.screens.SettingsScreen
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -21,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -161,6 +182,15 @@ fun RecipeKeeperApp(
     val showFolderActions =
         uiState.currentScreen == RecipeKeeperScreen.Home && currentFolderId != null
 
+    var onSaveClick by remember { mutableStateOf<(() -> Unit)?>(null) }
+
+    LaunchedEffect(currentRoute) {
+        recipeKeeperViewModel.onNavigationChange(currentRoute)
+        if (currentRoute?.startsWith(RecipeKeeperScreen.CreateRecipe.name) == false) {
+            onSaveClick = null
+        }
+    }
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(
@@ -172,6 +202,7 @@ fun RecipeKeeperApp(
         },
         topBar = {
             if (uiState.isTopBarVisible) {
+                val isCreateRecipeScreen = currentRoute?.startsWith(RecipeKeeperScreen.CreateRecipe.name) == true
                 RecipeKeeperTopBar(
                     title = folderTitle,
                     canNavigateBack = navController.previousBackStackEntry != null,
@@ -185,6 +216,26 @@ fun RecipeKeeperApp(
                                 showRenameDialog = { recipeKeeperViewModel.showRenameDialog() },
                                 showDeleteDialog = { recipeKeeperViewModel.showDeleteDialog() }
                             )
+                    title = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(topBarTitle)
+                        }
+                    },
+                    canNavigateBack = navController.previousBackStackEntry != null,
+                    navigateUp = { navController.navigateUp() },
+                    actions = {
+                        if (isCreateRecipeScreen) {
+                            onSaveClick?.let {
+                                IconButton(onClick = it) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = "Sauvegarder"
+                                    )
+                                }
+                            }
                         }
                     }
                 )
@@ -272,8 +323,25 @@ fun RecipeKeeperApp(
             composable(RecipeKeeperScreen.Account.name) {
                 AccountScreen()
             }
-            composable(RecipeKeeperScreen.CreateRecipe.name) {
-                CreateRecipeScreen()
+            composable(
+                route = "${RecipeKeeperScreen.CreateRecipe.name}?folderId={folderId}",
+                arguments = listOf(navArgument("folderId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                })
+            ) { entry ->
+                if (userContainer != null) {
+                    val folderId = entry.arguments?.getString("folderId")
+                    CreateRecipeScreen(
+                        folderId = folderId,
+                        createRecipeFactory = userContainer.createRecipeFactory,
+                        onSetSaveAction = { action -> onSaveClick = action },
+                        onRecipeSuccess = {
+                            navController.navigateUp()
+                        }
+                    )
+                }
             }
             composable(RecipeKeeperScreen.Settings.name) {
                 SettingsScreen(
@@ -332,9 +400,12 @@ fun RecipeKeeperApp(
                     onAddFolder = { recipeKeeperViewModel.openAddFolderSheet() },
                     onAddRecipe = {
                         recipeKeeperViewModel.closeMainSheet()
-                        navController.navigate(RecipeKeeperScreen.CreateRecipe.name) {
-                            launchSingleTop = true
+                        val route = if (currentFolderId != null) {
+                            "${RecipeKeeperScreen.CreateRecipe.name}?folderId=$currentFolderId"
+                        } else {
+                            RecipeKeeperScreen.CreateRecipe.name
                         }
+                        navController.navigate(route) { launchSingleTop = true }
                     }
                 )
             }

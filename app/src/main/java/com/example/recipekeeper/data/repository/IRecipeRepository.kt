@@ -12,4 +12,9 @@ interface IRecipeRepository {
     ): ListenerRegistration
 
     suspend fun deleteRecipesInFolder(folderId: String)
+    fun saveRecipe(
+        recipe: Recipe,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    )
 }

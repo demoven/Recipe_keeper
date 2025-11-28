@@ -54,5 +54,26 @@ class RecipeRepositoryImpl : IRecipeRepository {
             batch.delete(document.reference)
         }
         batch.commit().await()
+    override fun saveRecipe(recipe: Recipe, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        val collection = recipesCollection
+            ?: throw UninitializedPropertyAccessException("RecipeRepositoryImpl must be initialized with a valid userId before use.")
+
+        val docRef = if (recipe.id.isNotEmpty()) {
+            collection.document(recipe.id)
+        } else {
+            collection.document()
+        }
+
+        val recipeWithId = recipe.copy(id = docRef.id)
+
+        docRef.set(recipeWithId)
+            .addOnSuccessListener {
+                Log.d(TAG, "Recipe saved with ID: ${docRef.id}")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error saving recipe", e)
+                onFailure()
+            }
     }
 }
