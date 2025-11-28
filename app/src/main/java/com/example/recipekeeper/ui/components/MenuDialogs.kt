@@ -14,10 +14,11 @@ import com.example.recipekeeper.R
 
 @Composable
 fun RenameFolderDialog(
+    currentFolderName: String,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
-    var text by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf(currentFolderName) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.rename_folder)) },

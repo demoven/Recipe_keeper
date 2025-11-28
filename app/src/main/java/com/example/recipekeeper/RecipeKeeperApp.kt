@@ -209,6 +209,7 @@ fun RecipeKeeperApp(
     ) { innerPadding ->
         if (uiState.isRenameDialogVisible && currentFolderId != null) {
             RenameFolderDialog(
+                currentFolderName = folderTitle,
                 onDismiss = { recipeKeeperViewModel.hideRenameDialog() },
                 onConfirm = { newName ->
                     updateFolderAction(currentFolderId, newName)
