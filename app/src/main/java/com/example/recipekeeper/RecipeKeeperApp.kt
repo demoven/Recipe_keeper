@@ -147,8 +147,8 @@ fun RecipeKeeperApp(
         userContainer?.folderRepository?.updateFolder(
             folderId = folderId,
             newName = newName,
-            onSuccess = { /* Gérer le succès, ex: Snackbar */ },
-            onFailure = { /* Gérer l'erreur */ }
+            onSuccess = { /* TODO Gérer le succès, ex: Snackbar */ },
+            onFailure = { /* TODO Gérer l'erreur */ }
         )
     }
 
