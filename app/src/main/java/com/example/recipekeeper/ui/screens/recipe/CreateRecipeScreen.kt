@@ -230,7 +230,7 @@ fun ListLayout(
                     keyboardActions = KeyboardActions(
                         onNext = {
 
-                            //  Si le champ est vide → passer à la section suivante
+                            // Si le champ est vide → passer à la section suivante
                             if (item.isBlank()) {
                                 onJumpToNextSection?.invoke()
                                 return@KeyboardActions
