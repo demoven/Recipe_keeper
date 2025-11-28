@@ -3,10 +3,8 @@ package com.example.recipekeeper.ui.screens.home
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -30,6 +28,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun HomeScreen(
@@ -99,11 +98,19 @@ fun HomeScreen(
             key = { it.id }
         ) { recipe ->
             CardField(
-                title = recipe.title,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onNavigateToRecipeDetails(recipe.id) }
+                    .clickable { onNavigateToRecipeDetails(recipe.id) },
+                title = {
+                    Text(
+                        text = recipe.title,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             )
+
+
         }
     }
 }

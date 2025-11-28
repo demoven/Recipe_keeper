@@ -1,6 +1,7 @@
 package com.example.recipekeeper.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,7 +19,7 @@ import com.example.recipekeeper.R
 
 @Composable
 fun CardField(
-    title: String,
+    title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val cardShape = RoundedCornerShape(8.dp)
@@ -37,10 +38,10 @@ fun CardField(
                     .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)),
                 contentScale = ContentScale.Crop
             )
-            Text(
-                text = title,
-                modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 12.dp)
-            )
+            // Ici on appelle le composable title directement
+            Box(modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 12.dp)) {
+                title()
+            }
         }
     }
 }
