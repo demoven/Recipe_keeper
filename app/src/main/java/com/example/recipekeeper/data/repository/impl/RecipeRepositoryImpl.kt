@@ -21,10 +21,27 @@ class RecipeRepositoryImpl : IRecipeRepository {
         recipesCollection = db.collection("users").document(userId).collection("recipes")
     }
 
-    override fun watchRecipesInFolder(
-        folderId: String?,
-        onResult: (List<Recipe>) -> Unit
-    ): ListenerRegistration {
+    override fun getRecipeById(recipeId: String, onResult: (Recipe?) -> Unit) {
+        val collection = recipesCollection
+            ?: throw UninitializedPropertyAccessException("RecipeRepositoryImpl must be initialized with a valid userId before use.")
+
+        collection.document(recipeId).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val recipe = document.toObject(Recipe::class.java)
+                    onResult(recipe)
+                } else {
+                    Log.d(TAG, "No such document")
+                    onResult(null)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "get failed with ", exception)
+                onResult(null)
+            }
+    }
+
+    override fun watchRecipesInFolder(folderId: String?, onResult: (List<Recipe>) -> Unit): ListenerRegistration {
         val collection = recipesCollection
             ?: throw UninitializedPropertyAccessException("RecipeRepositoryImpl must be initialized with a valid userId before use.")
 

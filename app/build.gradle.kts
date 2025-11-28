@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

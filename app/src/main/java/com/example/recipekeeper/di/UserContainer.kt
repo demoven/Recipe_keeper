@@ -6,8 +6,10 @@ import com.example.recipekeeper.data.repository.IAuthRepository
 import com.example.recipekeeper.data.repository.IFolderRepository
 import com.example.recipekeeper.data.repository.impl.FolderRepositoryImpl
 import com.example.recipekeeper.data.repository.impl.RecipeRepositoryImpl
+import com.example.recipekeeper.di.factory.CookingViewModelFactory
 import com.example.recipekeeper.di.factory.CreateRecipeViewModelFactory
 import com.example.recipekeeper.di.factory.HomeViewModelFactory
+import com.example.recipekeeper.di.factory.RecipeDetailViewModelFactory
 
 class UserContainer(
     authRepository: IAuthRepository,
@@ -27,6 +29,14 @@ class UserContainer(
     )
 
     val createRecipeFactory: CreateRecipeViewModelFactory = CreateRecipeViewModelFactory(
+        recipeRepository = recipeRepository
+    )
+
+    val recipeDetailFactory: RecipeDetailViewModelFactory = RecipeDetailViewModelFactory(
+        recipeRepository = recipeRepository
+    )
+
+    val cookingFactory: CookingViewModelFactory = CookingViewModelFactory(
         recipeRepository = recipeRepository
     )
 

@@ -11,4 +11,6 @@ enum class RecipeKeeperScreen(@StringRes val title: Int) {
     Settings(title = R.string.settings),
     Login(title = R.string.login),
     Register(title = R.string.register),
+    RecipeDetail(title = R.string.recipe_detail),
+    Cooking(title = R.string.cooking),
 }

@@ -29,6 +29,8 @@
     <string name="home">Accueil</string>
     <string name="create">Créer</string>
     <string name="add">Ajouter</string>
+    <string name="recipe_detail">Détail de la recette</string>
+    <string name="cooking">En Cuisine !</string>
     <string name="reset_password">Réinitialiser le mot de passe</string>
     <string name="email_sent">Un email a été envoyé ! Vérifiez votre boîte de réception.</string>
     <string name="enter_reset_email">Entrez votre adresse email pour recevoir un lien de réinitialisation.</string>
