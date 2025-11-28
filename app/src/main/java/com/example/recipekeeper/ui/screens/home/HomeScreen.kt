@@ -25,6 +25,7 @@ import com.example.recipekeeper.di.factory.HomeViewModelFactory
 import com.example.recipekeeper.ui.components.CardField
 import com.example.recipekeeper.ui.components.SectionTitle
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
@@ -75,12 +76,12 @@ fun HomeScreen(
         // --- Divider ---
         if (uiState.recipes.isNotEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                Divider(
-                    color = Color(0xFFE0E0E0),
-                    thickness = 1.dp,
+                HorizontalDivider(
                     modifier = Modifier
                         .padding(vertical = 12.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    thickness = 1.dp,
+                    color = Color(0xFFE0E0E0)
                 )
             }
         }
@@ -104,7 +105,7 @@ fun HomeScreen(
                 title = {
                     Text(
                         text = recipe.title,
-                        maxLines = 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
