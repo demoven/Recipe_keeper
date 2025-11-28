@@ -151,6 +151,10 @@ fun RecipeKeeperApp(
                     }
                 }
             }
+        } else {
+            navController.navigate(RecipeKeeperScreen.Login.name) {
+                popUpTo(0) { inclusive = true }
+            }
         }
     }
 
