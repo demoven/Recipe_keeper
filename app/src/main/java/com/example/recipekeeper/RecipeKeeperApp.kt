@@ -1,8 +1,6 @@
 package com.example.recipekeeper
 
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -26,31 +24,20 @@ import com.example.recipekeeper.ui.screens.AccountScreen
 import com.example.recipekeeper.ui.screens.recipe.CreateRecipeScreen
 import com.example.recipekeeper.ui.screens.SettingsScreen
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.recipekeeper.data.models.Folder
 import com.example.recipekeeper.di.AppContainer
@@ -61,12 +48,8 @@ import com.example.recipekeeper.ui.components.RecipeKeeperTopBar
 import com.example.recipekeeper.ui.components.RenameFolderDialog
 import com.example.recipekeeper.ui.components.actions.FolderActions
 import com.example.recipekeeper.ui.models.RecipeKeeperScreen
-import com.example.recipekeeper.ui.screens.AccountScreen
-import com.example.recipekeeper.ui.screens.CreateRecipeScreen
-import com.example.recipekeeper.ui.screens.SettingsScreen
 import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
-import com.example.recipekeeper.ui.screens.home.HomeScreen
 import kotlinx.coroutines.launch
 
 
@@ -216,17 +199,7 @@ fun RecipeKeeperApp(
                                 showRenameDialog = { recipeKeeperViewModel.showRenameDialog() },
                                 showDeleteDialog = { recipeKeeperViewModel.showDeleteDialog() }
                             )
-                    title = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(topBarTitle)
                         }
-                    },
-                    canNavigateBack = navController.previousBackStackEntry != null,
-                    navigateUp = { navController.navigateUp() },
-                    actions = {
                         if (isCreateRecipeScreen) {
                             onSaveClick?.let {
                                 IconButton(onClick = it) {

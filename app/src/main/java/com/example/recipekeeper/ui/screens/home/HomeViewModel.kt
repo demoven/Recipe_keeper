@@ -49,6 +49,7 @@ class HomeViewModel(
                 // Optionnel : Gérer l'erreur
             }
         )
+    }
     fun selectFolder(folder: String?) {
         _uiState.value = _uiState.value.copy(selectedFolder = folder)
     }

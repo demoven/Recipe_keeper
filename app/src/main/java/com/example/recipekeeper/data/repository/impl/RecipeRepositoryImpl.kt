@@ -21,7 +21,10 @@ class RecipeRepositoryImpl : IRecipeRepository {
         recipesCollection = db.collection("users").document(userId).collection("recipes")
     }
 
-    override fun watchRecipesInFolder(folderId: String?, onResult: (List<Recipe>) -> Unit): ListenerRegistration {
+    override fun watchRecipesInFolder(
+        folderId: String?,
+        onResult: (List<Recipe>) -> Unit
+    ): ListenerRegistration {
         val collection = recipesCollection
             ?: throw UninitializedPropertyAccessException("RecipeRepositoryImpl must be initialized with a valid userId before use.")
 
@@ -54,6 +57,7 @@ class RecipeRepositoryImpl : IRecipeRepository {
             batch.delete(document.reference)
         }
         batch.commit().await()
+    }
     override fun saveRecipe(recipe: Recipe, onSuccess: () -> Unit, onFailure: () -> Unit) {
         val collection = recipesCollection
             ?: throw UninitializedPropertyAccessException("RecipeRepositoryImpl must be initialized with a valid userId before use.")
