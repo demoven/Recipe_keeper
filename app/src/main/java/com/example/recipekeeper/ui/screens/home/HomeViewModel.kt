@@ -37,6 +37,10 @@ class HomeViewModel(
         }
     }
 
+    fun selectFolder(folder: String?) {
+        _uiState.value = _uiState.value.copy(selectedFolder = folder)
+    }
+
     override fun onCleared() {
         super.onCleared()
         foldersListener?.remove()
