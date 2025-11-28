@@ -29,4 +29,6 @@
     <string name="home">Accueil</string>
     <string name="create">Créer</string>
     <string name="add">Ajouter</string>
+    <string name="recipe_detail">Détail de la recette</string>
+    <string name="cooking">En Cuisine !</string>
 </resources>

@@ -22,7 +22,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.recipekeeper.ui.screens.home.HomeScreen
-import com.example.recipekeeper.ui.screens.AccountScreen
 import com.example.recipekeeper.ui.screens.recipe.CreateRecipeScreen
 import com.example.recipekeeper.ui.screens.SettingsScreen
 import androidx.compose.material3.ModalBottomSheet
@@ -51,6 +50,8 @@ import com.example.recipekeeper.ui.components.RecipeKeeperTopBar
 import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
+import com.example.recipekeeper.ui.screens.recipe.CookingScreen
+import com.example.recipekeeper.ui.screens.recipe.RecipeDetailScreen
 import kotlinx.coroutines.launch
 
 
@@ -79,6 +80,8 @@ fun RecipeKeeperApp(
     }
 
     val homeViewModelFactory = userContainer?.homeFactory
+    val recipeDetailFactory = userContainer?.recipeDetailFactory
+    val cookingFactory = userContainer?.cookingFactory
 
     val addFolderAction: (String, String?) -> Unit = { folderName, parentId ->
         userContainer?.addFolder(
@@ -100,7 +103,7 @@ fun RecipeKeeperApp(
         currentFolderName
     } else {
         val currentScreen = try {
-            RecipeKeeperScreen.valueOf(currentRoute?.substringBefore('?') ?: RecipeKeeperScreen.Home.name)
+            RecipeKeeperScreen.valueOf(currentRoute?.substringBefore('/') ?: RecipeKeeperScreen.Home.name)
         } catch (e: Exception) { RecipeKeeperScreen.Home }
         stringResource(currentScreen.title)
     }
@@ -229,7 +232,9 @@ fun RecipeKeeperApp(
                         folderId = folderId,
                         onNavigateToSubFolder = { subFolderId, subFolderName ->
                             navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId&folderName=$subFolderName")                     },
-                        onNavigateToRecipeDetails = {},
+                        onNavigateToRecipeDetails = { recipeId ->
+                            navController.navigate("${RecipeKeeperScreen.RecipeDetail.name}/$recipeId")
+                        },
                         homeFactory = homeViewModelFactory,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -242,8 +247,31 @@ fun RecipeKeeperApp(
                 }
 
             }
-            composable(RecipeKeeperScreen.Account.name) {
-                AccountScreen()
+            composable(
+                route = "${RecipeKeeperScreen.RecipeDetail.name}/{recipeId}",
+                arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
+            ) {
+                entry ->
+                val recipeId = entry.arguments?.getString("recipeId")
+                if (recipeId != null && recipeDetailFactory != null) {
+                    RecipeDetailScreen(
+                        recipeId = recipeId, 
+                        recipeDetailFactory = recipeDetailFactory,
+                        onNavigateToCooking = { cookingRecipeId ->
+                            navController.navigate("${RecipeKeeperScreen.Cooking.name}/$cookingRecipeId")
+                        }
+                    )
+                }
+            }
+            composable(
+                route = "${RecipeKeeperScreen.Cooking.name}/{recipeId}",
+                arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
+            ) {
+                entry ->
+                val recipeId = entry.arguments?.getString("recipeId")
+                if (recipeId != null && cookingFactory != null) {
+                    CookingScreen(recipeId = recipeId, cookingFactory = cookingFactory)
+                }
             }
             composable(
                 route = "${RecipeKeeperScreen.CreateRecipe.name}?folderId={folderId}",
@@ -267,7 +295,6 @@ fun RecipeKeeperApp(
             }
             composable(RecipeKeeperScreen.Settings.name) {
                 SettingsScreen(
-                    onNavigateToAccount = { navController.navigate(RecipeKeeperScreen.Account.name) },
                     onLogout = {
                         recipeKeeperViewModel.logout()
                     }
