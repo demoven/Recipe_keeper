@@ -25,7 +25,6 @@ import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.HomeViewModelFactory
 import com.example.recipekeeper.ui.components.CardField
 import com.example.recipekeeper.ui.components.SectionTitle
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
