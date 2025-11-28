@@ -47,6 +47,8 @@ import com.example.recipekeeper.ui.components.actions.FolderActions
 import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,6 +63,7 @@ fun RecipeKeeperApp(
     val recipeKeeperViewModel: RecipeKeeperViewModel = viewModel(factory = recipeKeeperFactory)
     val uiState by recipeKeeperViewModel.uiState.collectAsState()
     val isLoggedIn by recipeKeeperViewModel.isUserLoggedIn.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     val currentUserId = authRepository.getCurrentUserId()
 
