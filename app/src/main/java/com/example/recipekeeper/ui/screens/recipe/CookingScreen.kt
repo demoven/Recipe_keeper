@@ -26,7 +26,8 @@ import com.example.recipekeeper.di.factory.CookingViewModelFactory
 @Composable
 fun CookingScreen(
     recipeId: String,
-    cookingFactory: CookingViewModelFactory
+    cookingFactory: CookingViewModelFactory,
+    onFinish: () -> Unit = {}
 ) {
     val viewModel: CookingViewModel = viewModel(factory = cookingFactory)
     val uiState by viewModel.uiState.collectAsState()
@@ -88,10 +89,21 @@ fun CookingScreen(
                         Text("Précédent")
                     }
                     Button(
-                        onClick = { viewModel.nextStep() },
-                        enabled = uiState.currentStep < recipe.instructions.lastIndex
+                        onClick = {
+                            if (uiState.currentStep < recipe.instructions.lastIndex) {
+                                viewModel.nextStep()
+                            } else {
+                                onFinish()
+                            }
+                        }
                     ) {
-                        Text("Suivant")
+                        Text(
+                            if (uiState.currentStep < recipe.instructions.lastIndex) {
+                                "Suivant"
+                            } else {
+                                "Terminer"
+                            }
+                        )
                     }
                 }
             }

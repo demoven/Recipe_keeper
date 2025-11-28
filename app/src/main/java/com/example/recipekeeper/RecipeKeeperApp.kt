@@ -270,7 +270,13 @@ fun RecipeKeeperApp(
                 entry ->
                 val recipeId = entry.arguments?.getString("recipeId")
                 if (recipeId != null && cookingFactory != null) {
-                    CookingScreen(recipeId = recipeId, cookingFactory = cookingFactory)
+                    CookingScreen(
+                        recipeId = recipeId,
+                        cookingFactory = cookingFactory,
+                        onFinish = {
+                            navController.popBackStack()
+                        }
+                    )
                 }
             }
             composable(
