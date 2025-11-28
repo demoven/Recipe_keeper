@@ -250,8 +250,7 @@ fun RecipeKeeperApp(
             composable(
                 route = "${RecipeKeeperScreen.RecipeDetail.name}/{recipeId}",
                 arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
-            ) {
-                entry ->
+            ) { entry ->
                 val recipeId = entry.arguments?.getString("recipeId")
                 if (recipeId != null && recipeDetailFactory != null) {
                     RecipeDetailScreen(
