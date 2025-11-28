@@ -48,11 +48,12 @@ class UserContainer(
         )
     }
 
-    fun saveRecipe(recipe: Recipe, onSuccess: () -> Unit, onFailure: () -> Unit) {
-        recipeRepository.saveRecipe(
-            recipe = recipe,
-            onSuccess = onSuccess,
-            onFailure = onFailure
-        )
+    suspend fun deleteFolderRecursive(folderId: String) {
+        val subfolders = folderRepository.getSubFolders(folderId)
+        subfolders.forEach { folder ->
+            deleteFolderRecursive(folder.id)
+        }
+        recipeRepository.deleteRecipesInFolder(folderId)
+        folderRepository.deleteFolder(folderId)
     }
 }

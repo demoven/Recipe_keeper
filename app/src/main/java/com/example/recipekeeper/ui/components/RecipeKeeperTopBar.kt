@@ -3,7 +3,6 @@ package com.example.recipekeeper.ui.components
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -17,14 +16,14 @@ import com.example.recipekeeper.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeKeeperTopBar(
-    title: @Composable () -> Unit, // <-- changer ici
+    title: String, // <-- changer ici
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    actions : @Composable RowScope.() -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
-        title = title,
+        title = { Text(text = title) },
         modifier = modifier,
         navigationIcon = {
             if (canNavigateBack) {

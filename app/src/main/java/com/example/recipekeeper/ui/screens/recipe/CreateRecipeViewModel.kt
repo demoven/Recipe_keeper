@@ -72,6 +72,13 @@ class CreateRecipeViewModel(
             current.copy(instructions = current.instructions + "")
         }
     }
+
+    fun addStepIfEmpty() {
+        if (_uiState.value.instructions.isEmpty()) {
+            addStep()
+        }
+    }
+
     fun removeStep(index: Int) {
         _uiState.update { current ->
             if (index in current.instructions.indices) {

@@ -5,5 +5,7 @@ import com.example.recipekeeper.data.models.Recipe
 
 data class HomeUiState (
     val recipes: List<Recipe> = emptyList(),
-    val folders: List<Folder> = emptyList()
+    val folders: List<Folder> = emptyList(),
+    val selectedFolder: String? = null
+
 )

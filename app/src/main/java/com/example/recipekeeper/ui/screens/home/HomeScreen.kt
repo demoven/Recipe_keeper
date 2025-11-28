@@ -3,11 +3,10 @@ package com.example.recipekeeper.ui.screens.home
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -26,10 +25,11 @@ import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.HomeViewModelFactory
 import com.example.recipekeeper.ui.components.CardField
 import com.example.recipekeeper.ui.components.SectionTitle
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun HomeScreen(
@@ -54,51 +54,66 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-        if (uiState.folders.isNotEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                SectionTitle(title = stringResource(R.string.folders))
-            }
-            items(
-                items = uiState.folders,
-                key = { it.id }
-            ) { folder ->
-                CardField(
-                    title = folder.name,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onNavigateToSubFolder(folder.id, folder.name) }
-                )
-            }
+        // --- Chips ---
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            val categories = uiState.folders.map { it.name }
 
-            // Divider entre Folders et Recipes
-            if (uiState.recipes.isNotEmpty()) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Divider(
-                        color = Color(0xFFE0E0E0),
-                        thickness = 1.dp,
-                        modifier = Modifier
-                            .padding(vertical = 12.dp)
-                            .fillMaxWidth()
-                    )
+            FolderChips(
+                folders = categories,
+                selectedFolder = uiState.selectedFolder,
+                onFolderSelected = { selected ->
+                    homeViewModel.selectFolder(selected)
+
+                    val folder = uiState.folders.firstOrNull { it.name == selected }
+
+                    if (folder != null) {
+                        onNavigateToSubFolder(folder.id, folder.name)
+                    }
                 }
+            )
+        }
+
+        // --- Divider ---
+        if (uiState.recipes.isNotEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                HorizontalDivider(
+                    modifier = Modifier
+                        .padding(vertical = 12.dp)
+                        .fillMaxWidth(),
+                    thickness = 1.dp,
+                    color = Color(0xFFE0E0E0)
+                )
             }
         }
 
+        // --- Section Title ---
         if (uiState.recipes.isNotEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 SectionTitle(title = stringResource(R.string.recipes))
             }
-            items(
-                items = uiState.recipes,
-                key = { it.id }
-            ) { recipe ->
-                CardField(
-                    title = recipe.title,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onNavigateToRecipeDetails(recipe.id) }
-                )
-            }
+        }
+
+        // --- Recipes Cards ---
+        items(
+            items = uiState.recipes,
+            key = { it.id }
+        ) { recipe ->
+            CardField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onNavigateToRecipeDetails(recipe.id) },
+                title = {
+                    Text(
+                        text = recipe.title,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 40.dp)
+                    )
+                }
+            )
+
         }
     }
 }

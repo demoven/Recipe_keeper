@@ -35,6 +35,10 @@ class LoginViewModel(private val authRepository: IAuthRepository) : ViewModel() 
         _uiState.value = _uiState.value.copy(passwordError = hasError)
     }
 
+    fun updateEmailVerificationError(hasError: Boolean) {
+        _uiState.value = _uiState.value.copy(emailVerificationError = hasError)
+    }
+
     fun resetAllFields() {
         _uiState.value = LoginUiState()
     }
@@ -52,10 +56,54 @@ class LoginViewModel(private val authRepository: IAuthRepository) : ViewModel() 
         viewModelScope.launch {
             try {
                 authRepository.login(state.email, state.password)
-                resetAllFields()
+                if (authRepository.isEmailVerified()) {
+                    resetAllFields()
+                    updateEmailVerificationError(false)
+                } else {
+                    try {
+                        authRepository.sendEmailVerification()
+                        Log.d("LoginViewModel", "Email de vérification renvoyé automatiquement.")
+                    } catch (e: Exception) {
+                        Log.w("LoginViewModel", "Impossible de renvoyer l'email (peut-être trop tôt ?) : ${e.message}")
+                    }
+                    authRepository.logout()
+                    updateEmailVerificationError(true)
+                    Log.e("LoginViewModel", "Email non vérifié")
+                }
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Login failed: ${e.message}")
                 updateLoginError(true)
+            }
+        }
+    }
+
+    fun showResetPasswordDialog() {
+        _uiState.value = _uiState.value.copy(isResetPasswordDialogVisible = true)
+    }
+
+    fun hideResetPasswordDialog() {
+        _uiState.value = _uiState.value.copy(
+            isResetPasswordDialogVisible = false,
+            resetPasswordError = null,
+            isResetPasswordEmailSent = false
+        )
+    }
+
+    fun sendPasswordResetEmail(emailForReset: String) {
+        if (!validator.isEmailValid(emailForReset)) {
+            _uiState.value = _uiState.value.copy(resetPasswordError = "Email invalide")
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                authRepository.sendPasswordResetEmail(emailForReset)
+                _uiState.value = _uiState.value.copy(
+                    isResetPasswordEmailSent = true,
+                    resetPasswordError = null
+                )
+            } catch (e: Exception) {
+                Log.e("LoginViewModel", "Password reset email failed: ${e.message}")
             }
         }
     }

@@ -30,6 +30,14 @@ class RecipeKeeperViewModel(
         authRepository.logout()
     }
 
+    fun isEmailVerified(): Boolean {
+        return authRepository.isEmailVerified()
+    }
+
+    suspend fun reloadUser() {
+        authRepository.reloadUser()
+    }
+
     fun onNavigationChange(route: String?) {
         val routeBase = route?.substringBefore('?') ?: RecipeKeeperScreen.Home.name
         val screen = try {
@@ -53,4 +61,14 @@ class RecipeKeeperViewModel(
         _uiState.value = _uiState.value.copy(isMainSheetVisible = false, isAddFolderSheetVisible = true)
     }
     fun closeAddFolderSheet() { _uiState.value = _uiState.value.copy(isAddFolderSheetVisible = false) }
+
+    fun showFolderMenu() { _uiState.value = _uiState.value.copy(isFolderMenuVisible = true) }
+    fun hideFolderMenu() { _uiState.value = _uiState.value.copy(isFolderMenuVisible = false) }
+
+    fun showRenameDialog() { _uiState.value = _uiState.value.copy(isRenameDialogVisible = true) }
+    fun hideRenameDialog() { _uiState.value = _uiState.value.copy(isRenameDialogVisible = false) }
+
+    fun showDeleteDialog() { _uiState.value = _uiState.value.copy(isDeleteDialogVisible = true) }
+    fun hideDeleteDialog() { _uiState.value = _uiState.value.copy(isDeleteDialogVisible = false) }
+
 }
