@@ -5,35 +5,31 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import com.example.recipekeeper.ui.screens.home.HomeScreen
-import com.example.recipekeeper.ui.screens.AccountScreen
-import com.example.recipekeeper.ui.screens.CreateRecipeScreen
-import com.example.recipekeeper.ui.screens.SettingsScreen
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.recipekeeper.data.models.Folder
 import com.example.recipekeeper.di.AppContainer
@@ -44,8 +40,12 @@ import com.example.recipekeeper.ui.components.RecipeKeeperTopBar
 import com.example.recipekeeper.ui.components.RenameFolderDialog
 import com.example.recipekeeper.ui.components.actions.FolderActions
 import com.example.recipekeeper.ui.models.RecipeKeeperScreen
+import com.example.recipekeeper.ui.screens.AccountScreen
+import com.example.recipekeeper.ui.screens.CreateRecipeScreen
+import com.example.recipekeeper.ui.screens.SettingsScreen
 import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
+import com.example.recipekeeper.ui.screens.home.HomeScreen
 import kotlinx.coroutines.launch
 
 
@@ -95,8 +95,12 @@ fun RecipeKeeperApp(
         currentFolderName
     } else {
         val currentScreen = try {
-            RecipeKeeperScreen.valueOf(currentRoute?.substringBefore('?') ?: RecipeKeeperScreen.Home.name)
-        } catch (e: Exception) { RecipeKeeperScreen.Home }
+            RecipeKeeperScreen.valueOf(
+                currentRoute?.substringBefore('?') ?: RecipeKeeperScreen.Home.name
+            )
+        } catch (e: Exception) {
+            RecipeKeeperScreen.Home
+        }
         stringResource(currentScreen.title)
     }
 
@@ -114,7 +118,8 @@ fun RecipeKeeperApp(
         backStackEntry?.arguments?.getString("folderId")
     } else null
 
-    val startDestination = if (isLoggedIn) RecipeKeeperScreen.Home.name else RecipeKeeperScreen.Login.name
+    val startDestination =
+        if (isLoggedIn) RecipeKeeperScreen.Home.name else RecipeKeeperScreen.Login.name
 
     DisposableEffect(Unit) {
         onDispose { (authRepository as? AutoCloseable)?.close() }
@@ -147,13 +152,14 @@ fun RecipeKeeperApp(
         )
     }
 
-    val deleteFolderAction : (String) -> Unit = { folderId ->
+    val deleteFolderAction: (String) -> Unit = { folderId ->
         coroutineScope.launch {
             userContainer?.deleteFolderRecursive(folderId)
         }
     }
 
-    val showFolderActions = uiState.currentScreen == RecipeKeeperScreen.Home && currentFolderId != null
+    val showFolderActions =
+        uiState.currentScreen == RecipeKeeperScreen.Home && currentFolderId != null
 
     Scaffold(
         snackbarHost = {
@@ -162,7 +168,8 @@ fun RecipeKeeperApp(
                 modifier = Modifier
                     .imePadding()
                     .navigationBarsPadding()
-            ) },
+            )
+        },
         topBar = {
             if (uiState.isTopBarVisible) {
                 RecipeKeeperTopBar(
@@ -204,11 +211,9 @@ fun RecipeKeeperApp(
             RenameFolderDialog(
                 onDismiss = { recipeKeeperViewModel.hideRenameDialog() },
                 onConfirm = { newName ->
-                    if (!newName.isBlank()) {
-                        updateFolderAction(currentFolderId, newName)
-                        folderTitle = newName
-                        recipeKeeperViewModel.hideRenameDialog()
-                    }
+                    updateFolderAction(currentFolderId, newName)
+                    folderTitle = newName
+                    recipeKeeperViewModel.hideRenameDialog()
                 }
             )
         }
@@ -233,23 +238,23 @@ fun RecipeKeeperApp(
                 route = "${RecipeKeeperScreen.Home.name}?folderId={folderId}&folderName={folderName}",
                 arguments = listOf(
                     navArgument("folderId") {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = null
-                },
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
                     navArgument("folderName") {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = null
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
                     })
-            ) {
-                entry ->
+            ) { entry ->
                 if (homeViewModelFactory != null) {
                     val folderId = entry.arguments?.getString("folderId")
                     HomeScreen(
                         folderId = folderId,
                         onNavigateToSubFolder = { subFolderId, subFolderName ->
-                            navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId&folderName=$subFolderName")                     },
+                            navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId&folderName=$subFolderName")
+                        },
                         onNavigateToRecipeDetails = {},
                         homeFactory = homeViewModelFactory,
                         modifier = Modifier.fillMaxSize()
@@ -326,7 +331,9 @@ fun RecipeKeeperApp(
                     onAddFolder = { recipeKeeperViewModel.openAddFolderSheet() },
                     onAddRecipe = {
                         recipeKeeperViewModel.closeMainSheet()
-                        navController.navigate(RecipeKeeperScreen.CreateRecipe.name) { launchSingleTop = true }
+                        navController.navigate(RecipeKeeperScreen.CreateRecipe.name) {
+                            launchSingleTop = true
+                        }
                     }
                 )
             }

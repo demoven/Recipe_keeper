@@ -67,6 +67,10 @@ class FolderRepositoryImpl : IFolderRepository {
         onSuccess: () -> Unit,
         onFailure: () -> Unit
     ) {
+        if (newName.isBlank()) {
+            onFailure()
+            return
+        }
         val collection = foldersCollection
             ?: throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
         collection.document(folderId)
