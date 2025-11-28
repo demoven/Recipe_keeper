@@ -236,7 +236,7 @@ fun ListLayout(
                                 return@KeyboardActions
                             }
 
-                            //  Sinon comportement normal
+                            // Sinon comportement normal
                             if (index == elements.lastIndex) {
                                 onAdd()
                                 shouldFocusLast = true
