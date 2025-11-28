@@ -30,6 +30,14 @@ class RecipeKeeperViewModel(
         authRepository.logout()
     }
 
+    fun isEmailVerified(): Boolean {
+        return authRepository.isEmailVerified()
+    }
+
+    suspend fun reloadUser() {
+        authRepository.reloadUser()
+    }
+
     fun onNavigationChange(route: String?) {
         val routeBase = route?.substringBefore('?') ?: RecipeKeeperScreen.Home.name
         val screen = try {

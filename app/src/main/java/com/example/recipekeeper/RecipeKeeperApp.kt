@@ -1,8 +1,7 @@
 package com.example.recipekeeper
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -24,8 +23,6 @@ import com.example.recipekeeper.ui.screens.AccountScreen
 import com.example.recipekeeper.ui.screens.recipe.CreateRecipeScreen
 import com.example.recipekeeper.ui.screens.SettingsScreen
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -50,8 +47,6 @@ import com.example.recipekeeper.ui.components.actions.FolderActions
 import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
-import kotlinx.coroutines.launch
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,8 +117,13 @@ fun RecipeKeeperApp(
         backStackEntry?.arguments?.getString("folderId")
     } else null
 
-    val startDestination =
-        if (isLoggedIn) RecipeKeeperScreen.Home.name else RecipeKeeperScreen.Login.name
+    val startDestination = remember {
+        if (isLoggedIn && authRepository.isEmailVerified()) {
+            RecipeKeeperScreen.Home.name
+        } else {
+            RecipeKeeperScreen.Login.name
+        }
+    }
 
     DisposableEffect(Unit) {
         onDispose { (authRepository as? AutoCloseable)?.close() }
@@ -131,18 +131,25 @@ fun RecipeKeeperApp(
 
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
-            val isAuthScreen = currentRoute == RecipeKeeperScreen.Login.name ||
-                    currentRoute == RecipeKeeperScreen.Register.name
-            if (isAuthScreen || currentRoute == null) {
-                navController.navigate(RecipeKeeperScreen.Home.name) {
-                    popUpTo(0) { inclusive = true }
+            try {
+                recipeKeeperViewModel.reloadUser()
+            } catch (e: Exception) {
+                Log.e("RecipeKeeperApp", "Impossible de rafraîchir l'utilisateur", e)
+            }
+            val isVerified = authRepository.isEmailVerified()
+            if (isVerified) {
+                val currentRoute = navController.currentDestination?.route
+                val isAuthScreen = currentRoute == RecipeKeeperScreen.Login.name ||
+                        currentRoute == RecipeKeeperScreen.Register.name ||
+                        currentRoute == null
+                if (isAuthScreen) {
+                    navController.navigate(RecipeKeeperScreen.Home.name) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             }
         }
     }
-
-    val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
 
     val mainSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val addFolderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -175,14 +182,6 @@ fun RecipeKeeperApp(
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier
-                    .imePadding()
-                    .navigationBarsPadding()
-            )
-        },
         topBar = {
             if (uiState.isTopBarVisible) {
                 val isCreateRecipeScreen = currentRoute?.startsWith(RecipeKeeperScreen.CreateRecipe.name) == true
@@ -332,11 +331,6 @@ fun RecipeKeeperApp(
                     onNavigateToRegister = {
                         navController.navigate(RecipeKeeperScreen.Register.name)
                     },
-                    onShowErrorMessage = { message ->
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(message)
-                        }
-                    },
                     authFactory = authFactory,
                     modifier = Modifier
                         .padding(dimensionResource(R.dimen.padding_large))
@@ -349,11 +343,6 @@ fun RecipeKeeperApp(
                         navController.navigate(RecipeKeeperScreen.Login.name) {
                             launchSingleTop = true
                             popUpTo(RecipeKeeperScreen.Register.name) { inclusive = true }
-                        }
-                    },
-                    onShowErrorMessage = { message ->
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(message)
                         }
                     },
                     authFactory = authFactory,
