@@ -46,6 +46,9 @@ class RecipeRepositoryImpl : IRecipeRepository {
             .get()
             .await()
 
+        if (snapshot.isEmpty) {
+            return
+        }
         val batch = db.batch()
         snapshot.documents.forEach { document ->
             batch.delete(document.reference)
