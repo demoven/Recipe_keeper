@@ -23,8 +23,7 @@ class RecipeDetailViewModel(private val recipeRepository: IRecipeRepository) : V
     fun loadRecipe(recipeId: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            recipeRepository.getRecipeById(recipeId) {
-                recipe ->
+            recipeRepository.getRecipeById(recipeId) { recipe ->
                 if (recipe != null) {
                     _uiState.value = RecipeDetailUiState(recipe = recipe, isLoading = false)
                 } else {
