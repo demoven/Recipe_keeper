@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
+import com.example.recipekeeper.data.models.Folder
 import com.example.recipekeeper.di.factory.HomeViewModelFactory
 import com.example.recipekeeper.ui.components.CardField
 import com.example.recipekeeper.ui.components.SectionTitle
@@ -45,23 +46,10 @@ fun HomeScreen(
 
     // On utilise une Column pour placer la LazyRow au-dessus de la LazyVerticalGrid
     Column(modifier = modifier) {
-
-        // --- Liste horizontale des dossiers (Boutons) ---
-        if (uiState.folders.isNotEmpty()) {
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(items = uiState.folders, key = { it.id }) { folder ->
-                    Button(
-                        onClick = { onNavigateToSubFolder(folder.id, folder.name) }
-                    ) {
-                        Text(text = folder.name)
-                    }
-                }
-            }
-        }
+        FoldersLayout(
+            folders = uiState.folders,
+            onNavigateToSubFolder = onNavigateToSubFolder
+        )
 
         // --- Grille des recettes ---
         LazyVerticalGrid(
@@ -103,5 +91,40 @@ fun HomeScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun FoldersLayout(
+    folders: List<Folder>,
+    onNavigateToSubFolder: (String, String) -> Unit,
+) {
+    if (folders.isNotEmpty()) {
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(items = folders, key = { it.id }) { folder ->
+                FolderButton(
+                    folderName = folder.name,
+                    onNavigateToSubFolder = {
+                        onNavigateToSubFolder(folder.id, folder.name)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FolderButton(
+    folderName: String,
+    onNavigateToSubFolder: ()-> Unit
+) {
+    Button(
+        onClick = onNavigateToSubFolder
+    ) {
+        Text(text = folderName)
     }
 }
