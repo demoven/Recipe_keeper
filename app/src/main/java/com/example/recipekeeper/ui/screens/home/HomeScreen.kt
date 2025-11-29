@@ -6,14 +6,18 @@ import androidx.compose.foundation.layout.Column // Import nécessaire
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items // Import pour itérer sur la liste dans LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.Button // Import pour les boutons
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,7 +53,8 @@ fun HomeScreen(
     Column(modifier = modifier) {
         FoldersLayout(
             folders = uiState.folders,
-            onNavigateToSubFolder = onNavigateToSubFolder
+            onNavigateToSubFolder = onNavigateToSubFolder,
+            modifier = Modifier.fillMaxWidth()
         )
         HorizontalDivider(
             modifier = Modifier
@@ -57,7 +62,8 @@ fun HomeScreen(
         )
         CardsLayout(
             recipes = uiState.recipes,
-            onNavigateToRecipeDetails = onNavigateToRecipeDetails
+            onNavigateToRecipeDetails = onNavigateToRecipeDetails,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
@@ -66,12 +72,13 @@ fun HomeScreen(
 fun FoldersLayout(
     folders: List<Folder>,
     onNavigateToSubFolder: (String, String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     if (folders.isNotEmpty()) {
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = modifier
         ) {
             items(items = folders, key = { it.id }) { folder ->
                 FolderButton(
@@ -88,13 +95,13 @@ fun FoldersLayout(
 @Composable
 fun CardsLayout(
     recipes: List<Recipe>,
-    onNavigateToRecipeDetails: (String) -> Unit
+    onNavigateToRecipeDetails: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
 
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = modifier,
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -133,11 +140,18 @@ fun CardsLayout(
 @Composable
 fun FolderButton(
     folderName: String,
-    onNavigateToSubFolder: ()-> Unit
+    onNavigateToSubFolder: ()-> Unit,
+    modifier : Modifier = Modifier
 ) {
     Button(
-        onClick = onNavigateToSubFolder
+        onClick = onNavigateToSubFolder,
+        modifier = modifier
     ) {
+        Icon(
+            imageVector = Icons.Default.Folder,
+            contentDescription = null,
+            modifier = Modifier.padding(end = 8.dp)
+        )
         Text(text = folderName)
     }
 }
