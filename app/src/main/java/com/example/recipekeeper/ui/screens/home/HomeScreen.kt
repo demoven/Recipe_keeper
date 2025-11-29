@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column // Import nécessaire
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -24,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -50,7 +52,10 @@ fun HomeScreen(
         homeViewModel.loadData(folderId)
     }
 
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier.padding(dimensionResource(R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+    ) {
         FoldersLayout(
             folders = uiState.folders,
             onNavigateToSubFolder = onNavigateToSubFolder,
@@ -74,22 +79,35 @@ fun FoldersLayout(
     onNavigateToSubFolder: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (folders.isNotEmpty()) {
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = modifier
-        ) {
-            items(items = folders, key = { it.id }) { folder ->
-                FolderButton(
-                    folderName = folder.name,
-                    onNavigateToSubFolder = {
-                        onNavigateToSubFolder(folder.id, folder.name)
-                    }
-                )
+    Column (
+        modifier = modifier
+    ) {
+        // --- Section Title ---
+        if (folders.isNotEmpty()) {
+            SectionTitle(
+                title = stringResource(R.string.folders)
+            )
+        }
+        Spacer(modifier = Modifier.padding(dimensionResource(R.dimen.padding_extra_small)))
+
+        // --- Folders Row ---
+        if (folders.isNotEmpty()) {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(items = folders, key = { it.id }) { folder ->
+                    FolderButton(
+                        folderName = folder.name,
+                        onNavigateToSubFolder = {
+                            onNavigateToSubFolder(folder.id, folder.name)
+                        }
+                    )
+                }
             }
         }
     }
+
 }
 
 @Composable
@@ -102,9 +120,8 @@ fun CardsLayout(
         columns = GridCells.Fixed(2),
 
         modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
     ) {
         // --- Section Title ---
         if (recipes.isNotEmpty()) {
@@ -150,7 +167,7 @@ fun FolderButton(
         Icon(
             imageVector = Icons.Default.Folder,
             contentDescription = null,
-            modifier = Modifier.padding(end = 8.dp)
+            modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small))
         )
         Text(text = folderName)
     }
