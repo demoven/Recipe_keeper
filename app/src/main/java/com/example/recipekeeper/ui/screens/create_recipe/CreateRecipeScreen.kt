@@ -82,7 +82,8 @@ fun CreateRecipeScreen(
             .fillMaxSize()
             .verticalScroll(scrollState)
             .imePadding()
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Row(
             modifier = Modifier
@@ -111,8 +112,6 @@ fun CreateRecipeScreen(
             ),
             modifier = Modifier.fillMaxWidth()
         )
-
-        Spacer(modifier = Modifier.padding(8.dp))
         // Liste Ingrédients connectée au ViewModel
         ListLayout(
             elements = uiState.ingredients,
@@ -126,8 +125,6 @@ fun CreateRecipeScreen(
                 createRecipeViewModel.addStepIfEmpty()
             }
         )
-        Spacer(modifier = Modifier.padding(8.dp))
-
         // Liste Étapes connectée au ViewModel
         ListLayout(
             elements = uiState.instructions, // Attention au nom (steps vs instructions dans votre uiState)
