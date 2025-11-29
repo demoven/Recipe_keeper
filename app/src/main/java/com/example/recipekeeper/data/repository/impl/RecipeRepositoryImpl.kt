@@ -97,4 +97,20 @@ class RecipeRepositoryImpl : IRecipeRepository {
                 onFailure()
             }
     }
+
+    override suspend fun deleteAllRecipes() {
+        val collection = recipesCollection
+            ?: throw UninitializedPropertyAccessException("RecipeRepositoryImpl must be initialized with a valid userId before use.")
+
+        val snapshot = collection.get().await()
+
+        if (snapshot.isEmpty) {
+            return
+        }
+        val batch = db.batch()
+        snapshot.documents.forEach { document ->
+            batch.delete(document.reference)
+        }
+        batch.commit().await()
+    }
 }

@@ -5,6 +5,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +59,12 @@ fun PasswordTextField(
                 Icon(imageVector = icon, contentDescription = null)
             }
         },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Outlined.Lock,
+                contentDescription = null
+            )
+        },
         modifier = modifier
     )
 }
@@ -67,14 +75,17 @@ fun EmailTextField(
     emailError: Boolean,
     onEmailChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default.copy(
+        imeAction = ImeAction.Next
+    ),
+    keyboardActions: KeyboardActions? = null
 ) {
     OutlinedTextField(
         value = email,
         onValueChange = onEmailChanged,
         label = { Text(stringResource(R.string.email)) },
-        keyboardOptions = KeyboardOptions.Default.copy(
-            imeAction = ImeAction.Next
-        ),
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions ?: KeyboardActions.Default,
         singleLine = true,
         shape = MaterialTheme.shapes.medium,
         isError = emailError,
@@ -85,6 +96,12 @@ fun EmailTextField(
                 { Text(stringResource(R.string.invalid_email)) }
             }
         } else null,
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Outlined.Email,
+                contentDescription = null
+            )
+        },
         modifier = modifier
     )
 }

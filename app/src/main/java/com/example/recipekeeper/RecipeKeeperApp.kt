@@ -48,6 +48,7 @@ import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
 import com.example.recipekeeper.ui.screens.cooking.CookingScreen
 import com.example.recipekeeper.ui.screens.recipe_details.RecipeDetailScreen
+import com.example.recipekeeper.ui.screens.settings.SettingsViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -353,11 +354,16 @@ fun RecipeKeeperApp(
                 }
             }
             composable(RecipeKeeperScreen.Settings.name) {
-                SettingsScreen(
-                    onLogout = {
-                        recipeKeeperViewModel.logout()
-                    }
-                )
+                val settingsFactory = userContainer?.settingsFactory
+                if (settingsFactory != null) {
+                    val settingsViewModel: SettingsViewModel = viewModel(factory = settingsFactory)
+                    SettingsScreen(
+                        onLogout = {
+                            recipeKeeperViewModel.logout()
+                        },
+                        settingsViewModel = settingsViewModel
+                    )
+                }
             }
             composable(RecipeKeeperScreen.AddFolder.name) {
                 Text("Écran : Ajouter un dossier")

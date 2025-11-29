@@ -5,6 +5,8 @@ import com.example.recipekeeper.data.repository.IAuthRepository
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.tasks.await
 
@@ -15,9 +17,12 @@ class AuthRepositoryImpl : IAuthRepository {
     private val authStateListener = FirebaseAuth.AuthStateListener { auth ->
         isUserLoggedIn.value = auth.currentUser != null
     }
+    private val db = FirebaseFirestore.getInstance()
+    private var userCollection: CollectionReference? = null
 
     init {
         authInstance.addAuthStateListener(authStateListener)
+        userCollection = db.collection("users")
     }
 
     override suspend fun register(
@@ -74,7 +79,7 @@ class AuthRepositoryImpl : IAuthRepository {
         authInstance.removeAuthStateListener(authStateListener)
     }
 
-    override suspend fun updatePassword(currentPassword: String, newPassword: String) {
+    override suspend fun updatePassword(currentPassword: String, newPassword: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
         val user = authInstance.currentUser
         val email = user?.email
 
@@ -84,7 +89,9 @@ class AuthRepositoryImpl : IAuthRepository {
             try {
                 user.reauthenticate(credential).await()
                 user.updatePassword(newPassword).await()
+                onSuccess()
             } catch (e: Exception) {
+                onFailure()
                 throw Exception("Re-authentication failed: ${e.message}")
             }
         } else {
@@ -92,7 +99,7 @@ class AuthRepositoryImpl : IAuthRepository {
         }
     }
 
-    override suspend fun updateEmail(currentPassword: String, newEmail: String) {
+    override suspend fun updateEmail(currentPassword: String, newEmail: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
         val user = authInstance.currentUser
         val email = user?.email
 
@@ -101,9 +108,10 @@ class AuthRepositoryImpl : IAuthRepository {
 
             try {
                 user.reauthenticate(credential).await()
-                user.updateEmail(newEmail).await()
-                //TODO user.verifyBeforeUpdateEmail(newEmail).await()
+                user.verifyBeforeUpdateEmail(newEmail).await()
+                onSuccess()
             } catch (e: Exception) {
+                onFailure()
                 throw Exception("Re-authentication failed: ${e.message}")
             }
         } else {
@@ -120,6 +128,7 @@ class AuthRepositoryImpl : IAuthRepository {
 
             try {
                 user.reauthenticate(credential).await()
+                db.collection("users").document(user.uid).delete().await()
                 user.delete().await()
             } catch (e: Exception) {
                 throw Exception("Re-authentication failed: ${e.message}")

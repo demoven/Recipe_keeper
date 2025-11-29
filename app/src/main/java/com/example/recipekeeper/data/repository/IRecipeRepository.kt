@@ -22,4 +22,6 @@ interface IRecipeRepository {
         onSuccess: () -> Unit,
         onFailure: () -> Unit
     )
+
+    suspend fun deleteAllRecipes()
 }
