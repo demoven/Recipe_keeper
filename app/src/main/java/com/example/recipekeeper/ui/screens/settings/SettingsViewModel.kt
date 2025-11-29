@@ -122,7 +122,7 @@ class SettingsViewModel(
         }
         val userEmail = authRepository.getCurrentUser()?.email
         if (uiState.value.email == userEmail) {
-            Log.d("SettingsViewModel", "L'email ne s'est pas modifié.")
+            Log.d("SettingsViewModel", "Email has not changed.")
             updateEmailAlreadyExists(true)
             return
         } else {
