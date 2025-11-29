@@ -16,7 +16,7 @@ interface IAuthRepository : AutoCloseable {
     fun logout()
 
     suspend fun updatePassword(currentPassword: String, newPassword: String)
-    suspend fun updateEmail(currentPassword: String, newEmail: String)
+    suspend fun updateEmail(currentPassword: String, newEmail: String, onSuccess: () -> Unit, onFailure: () -> Unit)
     suspend fun deleteAccount(currentPassword: String)
     suspend fun sendPasswordResetEmail(email: String)
 

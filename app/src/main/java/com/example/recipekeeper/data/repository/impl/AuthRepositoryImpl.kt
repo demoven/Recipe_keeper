@@ -92,7 +92,7 @@ class AuthRepositoryImpl : IAuthRepository {
         }
     }
 
-    override suspend fun updateEmail(currentPassword: String, newEmail: String) {
+    override suspend fun updateEmail(currentPassword: String, newEmail: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
         val user = authInstance.currentUser
         val email = user?.email
 
@@ -101,9 +101,10 @@ class AuthRepositoryImpl : IAuthRepository {
 
             try {
                 user.reauthenticate(credential).await()
-                user.updateEmail(newEmail).await()
-                //TODO user.verifyBeforeUpdateEmail(newEmail).await()
+                user.verifyBeforeUpdateEmail(newEmail).await()
+                onSuccess()
             } catch (e: Exception) {
+                onFailure()
                 throw Exception("Re-authentication failed: ${e.message}")
             }
         } else {

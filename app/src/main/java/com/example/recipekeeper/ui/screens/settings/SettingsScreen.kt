@@ -25,7 +25,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,35 +47,33 @@ fun SettingsScreen(
     settingsViewModel: SettingsViewModel = viewModel(),
     onLogout: () -> Unit
 ) {
-    var showPasswordDialogSecurity by remember { mutableStateOf(false) }
-    var showPasswordDialogEmail by remember { mutableStateOf(false) }
-    var showPasswordDialogDeletion by remember { mutableStateOf(false) }
+    val uiState by settingsViewModel.uiState.collectAsState()
 
-    if(showPasswordDialogSecurity) {
+    if(uiState.showPasswordDialogSecurity) {
         PasswordDialog(
             onPasswordConfirmed = { password ->
-                showPasswordDialogSecurity = false
+                settingsViewModel.updateShowPasswordDialogSecurity(false)
             },
             onDismiss = {
-                showPasswordDialogSecurity = false
+                settingsViewModel.updateShowPasswordDialogSecurity(false)
             }
         )
-    } else if(showPasswordDialogEmail) {
+    } else if(uiState.showPasswordDialogEmail) {
         PasswordDialog(
             onPasswordConfirmed = { password ->
-                showPasswordDialogEmail = false
+                settingsViewModel.updateShowPasswordDialogEmail(false)
             },
             onDismiss = {
-                showPasswordDialogEmail = false
+                settingsViewModel.updateShowPasswordDialogEmail(false)
             }
         )
-    } else if(showPasswordDialogDeletion) {
+    } else if(uiState.showPasswordDialogDeletion) {
         PasswordDialog(
             onPasswordConfirmed = { password ->
-                showPasswordDialogDeletion = false
+                settingsViewModel.updateShowPasswordDialogDeletion(false)
             },
             onDismiss = {
-                showPasswordDialogDeletion = false
+                settingsViewModel.updateShowPasswordDialogDeletion(false)
             }
         )
     }
@@ -89,15 +87,29 @@ fun SettingsScreen(
     ) {
 
         EmailCard(
-            onEmailUpdate = { showPasswordDialogEmail = true }
+            email = uiState.email,
+            emailError = uiState.emailError,
+            onEmailChanged = { settingsViewModel.updateEmail(it) },
+            onEmailUpdate = {
+                if(settingsViewModel.isEmailValid()) {
+                    settingsViewModel.updateShowPasswordDialogEmail(true)
+                }
+            }
         )
 
         SecurityCard(
-            onPasswordChange = { showPasswordDialogSecurity = true }
+            newPassword = uiState.newPassword,
+            newPasswordError = uiState.newPasswordError,
+            onPasswordChanged = { settingsViewModel.updateNewPassword(it) },
+            onPasswordUpdate = {
+                if(settingsViewModel.isNewPasswordValid()) {
+                    settingsViewModel.updateShowPasswordDialogSecurity(true)
+                }
+            }
         )
 
         DeletionAccountCard(
-            onDeleteAccount = { showPasswordDialogDeletion = true }
+            onDeleteAccount = { settingsViewModel.updateShowPasswordDialogDeletion(true) }
         )
 
         SectionLogout(
@@ -108,9 +120,11 @@ fun SettingsScreen(
 
 @Composable
 fun EmailCard(
+    email: String,
+    emailError: Boolean,
+    onEmailChanged: (String) -> Unit,
     onEmailUpdate: (String) -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
     Card {
         Column (
             modifier = Modifier
@@ -124,8 +138,8 @@ fun EmailCard(
 
             EmailTextField(
                 email = email,
-                emailError = false,
-                onEmailChanged = { email = it },
+                emailError = emailError,
+                onEmailChanged = { onEmailChanged(it) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done
@@ -146,9 +160,11 @@ fun EmailCard(
 
 @Composable
 fun SecurityCard(
-    onPasswordChange: () -> Unit
+    newPassword: String,
+    newPasswordError: Boolean,
+    onPasswordChanged: (String) -> Unit,
+    onPasswordUpdate: () -> Unit
 ) {
-    var newPassword by remember { mutableStateOf("") }
     Card {
         Column(
             modifier = Modifier
@@ -165,15 +181,15 @@ fun SecurityCard(
             PasswordTextField(
                 label = stringResource(R.string.new_password),
                 password = newPassword,
-                passwordError = false,
-                passwordErrorMessage = null,
-                onPasswordChanged = { newPassword = it },
+                passwordError = newPasswordError,
+                passwordErrorMessage = stringResource(R.string.password_invalid_error),
+                onPasswordChanged = { onPasswordChanged(it) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 modifier = Modifier.fillMaxWidth()
             )
 
             Button(
-                onClick = onPasswordChange,
+                onClick = onPasswordUpdate,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.update_password))
