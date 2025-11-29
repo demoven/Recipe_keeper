@@ -1,4 +1,4 @@
-package com.example.recipekeeper.ui.screens.recipe
+package com.example.recipekeeper.ui.screens.recipe_details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

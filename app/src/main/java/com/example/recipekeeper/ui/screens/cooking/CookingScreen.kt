@@ -1,4 +1,4 @@
-package com.example.recipekeeper.ui.screens.recipe
+package com.example.recipekeeper.ui.screens.cooking
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

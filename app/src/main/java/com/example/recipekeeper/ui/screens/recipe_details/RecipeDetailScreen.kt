@@ -1,4 +1,4 @@
-package com.example.recipekeeper.ui.screens.recipe
+package com.example.recipekeeper.ui.screens.recipe_details
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.di.factory.RecipeDetailViewModelFactory
-import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 
 @Composable
 fun RecipeDetailScreen(

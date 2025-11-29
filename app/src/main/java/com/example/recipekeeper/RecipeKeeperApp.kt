@@ -19,8 +19,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.recipekeeper.ui.screens.home.HomeScreen
-import com.example.recipekeeper.ui.screens.recipe.CreateRecipeScreen
-import com.example.recipekeeper.ui.screens.SettingsScreen
+import com.example.recipekeeper.ui.screens.create_recipe.CreateRecipeScreen
+import com.example.recipekeeper.ui.screens.settings.SettingsScreen
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.DisposableEffect
@@ -46,9 +46,8 @@ import com.example.recipekeeper.ui.components.actions.FolderActions
 import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
-import com.example.recipekeeper.ui.screens.recipe.CookingScreen
-import com.example.recipekeeper.ui.screens.recipe.RecipeDetailScreen
-import kotlinx.coroutines.coroutineScope
+import com.example.recipekeeper.ui.screens.cooking.CookingScreen
+import com.example.recipekeeper.ui.screens.recipe_details.RecipeDetailScreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

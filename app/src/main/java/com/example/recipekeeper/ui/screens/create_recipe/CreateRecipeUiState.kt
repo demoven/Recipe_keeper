@@ -1,4 +1,4 @@
-package com.example.recipekeeper.ui.screens.recipe
+package com.example.recipekeeper.ui.screens.create_recipe
 
 data class CreateRecipeUiState (
     val title: String = "",

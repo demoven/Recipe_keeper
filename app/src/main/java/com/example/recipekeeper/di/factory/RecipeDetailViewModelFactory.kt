@@ -3,7 +3,7 @@ package com.example.recipekeeper.di.factory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.recipekeeper.data.repository.IRecipeRepository
-import com.example.recipekeeper.ui.screens.recipe.RecipeDetailViewModel
+import com.example.recipekeeper.ui.screens.recipe_details.RecipeDetailViewModel
 
 class RecipeDetailViewModelFactory(
     private val recipeRepository: IRecipeRepository
