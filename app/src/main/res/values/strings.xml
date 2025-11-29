@@ -45,4 +45,14 @@
     <string name="delete_folder">Supprimer le dossier</string>
     <string name="confirm">Confirmer</string>
     <string name="delete_folder_confirmation">Êtes-vous sûr de vouloir supprimer ce dossier et toutes ses recettes ? Cette action est irréversible.</string>
+    <string name="update_email">Mettre à jour l\'email</string>
+    <string name="security">Sécurité</string>
+    <string name="new_password">Nouveau mot de passe</string>
+    <string name="current_password">Mot de passe actuel</string>
+    <string name="update_password">Modifier le mot de passe</string>
+    <string name="deletion_account">Suppression de compte</string>
+    <string name="deletion_account_confirmation">Êtes-vous sûr de vouloir supprimer votre compte ? Toutes vos données seront perdues. Cette action est irréversible.</string>
+    <string name="delete_account">Supprimer le compte</string>
+    <string name="logout">Se déconnecter</string>
+    <string name="new_email">Nouvel email</string>
 </resources>
