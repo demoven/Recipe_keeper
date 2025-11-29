@@ -5,6 +5,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -85,6 +86,12 @@ fun EmailTextField(
                 { Text(stringResource(R.string.invalid_email)) }
             }
         } else null,
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Outlined.Email,
+                contentDescription = null
+            )
+        },
         modifier = modifier
     )
 }
