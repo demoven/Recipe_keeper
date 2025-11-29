@@ -59,7 +59,6 @@ fun PasswordTextField(
                 Icon(imageVector = icon, contentDescription = null)
             }
         },
-        //password icon
         leadingIcon = {
             Icon(
                 imageVector = Icons.Outlined.Lock,
