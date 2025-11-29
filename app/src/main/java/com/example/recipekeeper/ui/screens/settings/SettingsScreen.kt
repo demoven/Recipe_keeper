@@ -44,8 +44,7 @@ import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 
 @Composable
 fun SettingsScreen(
-    settingsViewModel: SettingsViewModel = viewModel(),
-    onLogout: () -> Unit
+    settingsViewModel: SettingsViewModel = viewModel()
 ) {
     val uiState by settingsViewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -161,7 +160,7 @@ fun SettingsScreen(
         )
 
         SectionLogout(
-            onLogout = onLogout
+            onLogout = { settingsViewModel.logout() }
         )
     }
 }
