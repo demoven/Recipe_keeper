@@ -52,30 +52,35 @@ fun SettingsScreen(
 
     LaunchedEffect(uiState.emailUpdateError, uiState.emailUpdateSuccess, uiState.emailAlreadyExists) {
         if (uiState.emailUpdateError) {
-            Toast.makeText(context, "erreur lors de la mise à jour de l'email", Toast.LENGTH_LONG).show()
+            Toast.makeText(context,
+                context.getString(R.string.email_update_error), Toast.LENGTH_LONG).show()
             settingsViewModel.updateEmailUpdateError(false)
         } else if (uiState.emailUpdateSuccess) {
-            Toast.makeText(context, "email de vérification envoyé", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.check_verification_email), Toast.LENGTH_LONG).show()
             settingsViewModel.updateEmailUpdateSuccess(false)
         } else if (uiState.emailAlreadyExists) {
-            Toast.makeText(context, "Email actuel", Toast.LENGTH_LONG).show()
+            Toast.makeText(context,
+                context.getString(R.string.current_email_error), Toast.LENGTH_LONG).show()
             settingsViewModel.updateEmailAlreadyExists(false)
         }
     }
 
     LaunchedEffect(uiState.passwordUpdateError, uiState.passwordUpdateSuccess) {
         if (uiState.passwordUpdateError) {
-            Toast.makeText(context, "Erreur lors de la performance de l'action", Toast.LENGTH_LONG).show()
+            Toast.makeText(context,
+                context.getString(R.string.confirmation_error), Toast.LENGTH_LONG).show()
             settingsViewModel.updatePasswordUpdateError(false)
         } else if (uiState.passwordUpdateSuccess) {
-            Toast.makeText(context, "mot de passe mis à jour avec succès", Toast.LENGTH_LONG).show()
+            Toast.makeText(context,
+                context.getString(R.string.password_update_success), Toast.LENGTH_LONG).show()
             settingsViewModel.updatePasswordUpdateSuccess(false)
         }
     }
 
     LaunchedEffect(uiState.deletionError) {
         if (uiState.deletionError) {
-            Toast.makeText(context, "Erreur lors de la suppression du compte", Toast.LENGTH_LONG).show()
+            Toast.makeText(context,
+                context.getString(R.string.account_suppression_error), Toast.LENGTH_LONG).show()
             settingsViewModel.updateDeletionError(false)
         }
     }
