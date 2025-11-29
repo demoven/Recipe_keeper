@@ -30,10 +30,12 @@ class HomeViewModel(
         recipesListener?.remove()
 
         foldersListener = folderRepository.watchFolder(folderId) { folders ->
-            _uiState.value = _uiState.value.copy(folders = folders)
+            val sortedFolders = folders.sortedBy { it.name.lowercase() }
+            _uiState.value = _uiState.value.copy(folders = sortedFolders)
         }
         recipesListener = recipeRepository.watchRecipesInFolder(folderId) { recipes ->
-            _uiState.value = _uiState.value.copy(recipes = recipes)
+            val sortedRecipes = recipes.sortedBy { it.title.lowercase() }
+            _uiState.value = _uiState.value.copy(recipes = sortedRecipes)
         }
     }
 

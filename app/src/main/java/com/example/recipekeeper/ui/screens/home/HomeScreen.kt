@@ -1,35 +1,32 @@
 package com.example.recipekeeper.ui.screens.home
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column // Import nécessaire
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items // Import pour itérer sur la liste dans LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button // Import pour les boutons
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.HomeViewModelFactory
 import com.example.recipekeeper.ui.components.CardField
 import com.example.recipekeeper.ui.components.SectionTitle
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun HomeScreen(
@@ -46,104 +43,65 @@ fun HomeScreen(
         homeViewModel.loadData(folderId)
     }
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+    // On utilise une Column pour placer la LazyRow au-dessus de la LazyVerticalGrid
+    Column(modifier = modifier) {
 
-        // --- Chips ---
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            val categories = uiState.folders.map { it.name }
-
-            FolderChips(
-                folders = categories,
-                selectedFolder = uiState.selectedFolder,
-                onFolderSelected = { selected ->
-                    homeViewModel.selectFolder(selected)
-
-                    val folder = uiState.folders.firstOrNull { it.name == selected }
-
-                    if (folder != null) {
-                        onNavigateToSubFolder(folder.id, folder.name)
+        // --- Liste horizontale des dossiers (Boutons) ---
+        if (uiState.folders.isNotEmpty()) {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(items = uiState.folders, key = { it.id }) { folder ->
+                    Button(
+                        onClick = { onNavigateToSubFolder(folder.id, folder.name) }
+                    ) {
+                        Text(text = folder.name)
                     }
                 }
-            )
-        }
-
-        // --- Divider ---
-        if (uiState.recipes.isNotEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                HorizontalDivider(
-                    modifier = Modifier
-                        .padding(vertical = 12.dp)
-                        .fillMaxWidth(),
-                    thickness = 1.dp,
-                    color = Color(0xFFE0E0E0)
-                )
             }
         }
 
-        // --- Section Title ---
-        if (uiState.recipes.isNotEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                SectionTitle(title = stringResource(R.string.recipes))
-            }
-        }
-
-        // --- Recipes Cards ---
-        items(
-            items = uiState.recipes,
-            key = { it.id }
-        ) { recipe ->
-            CardField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onNavigateToRecipeDetails(recipe.id) },
-                title = {
-                    Text(
-                        text = recipe.title,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 40.dp)
-                    )
+        // --- Grille des recettes ---
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            // On utilise weight(1f) pour que la grille prenne tout l'espace restant en hauteur
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // --- Section Title ---
+            if (uiState.recipes.isNotEmpty()) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    SectionTitle(title = stringResource(R.string.recipes))
                 }
-            )
+            }
 
-        }
-    }
-}
-
-@Composable
-fun FolderChips(
-    folders: List<String>,
-    selectedFolder: String?,
-    onFolderSelected: (String) -> Unit
-) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
-    ) {
-        folders.forEach { folder ->
-            val isSelected = folder == selectedFolder
-            Surface(
-                color = if (isSelected) Color.Black else Color.White,
-                shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(1.dp, Color.Black),
-                modifier = Modifier
-                    .clickable { onFolderSelected(folder) }
-            ) {
-                Text(
-                    text = folder,
-                    color = if (isSelected) Color.White else Color.Black,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            // --- Recipes Cards ---
+            items(
+                items = uiState.recipes,
+                key = { it.id }
+            ) { recipe ->
+                CardField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToRecipeDetails(recipe.id) },
+                    title = {
+                        Text(
+                            text = recipe.title,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 40.dp)
+                        )
+                    }
                 )
             }
         }
     }
 }
-
