@@ -100,6 +100,10 @@ class CreateRecipeViewModel(
     }
 
     fun saveRecipe(folderId: String?, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        if(_uiState.value.title.isBlank() || _uiState.value.ingredients.isEmpty()) {
+            onFailure(IllegalArgumentException("Title cannot be empty"))
+            return
+        }
         val state = _uiState.value
         val newRecipe = Recipe(
             id = "",

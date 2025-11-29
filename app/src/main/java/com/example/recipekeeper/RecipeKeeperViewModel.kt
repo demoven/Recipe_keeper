@@ -25,7 +25,7 @@ class RecipeKeeperViewModel(
         RecipeKeeperScreen.Login,
         RecipeKeeperScreen.Register
     )
-    
+
     fun isEmailVerified(): Boolean {
         return authRepository.isEmailVerified()
     }
