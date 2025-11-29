@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button // Import pour les boutons
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.data.models.Folder
+import com.example.recipekeeper.data.models.Recipe
 import com.example.recipekeeper.di.factory.HomeViewModelFactory
 import com.example.recipekeeper.ui.components.CardField
 import com.example.recipekeeper.ui.components.SectionTitle
@@ -44,53 +46,19 @@ fun HomeScreen(
         homeViewModel.loadData(folderId)
     }
 
-    // On utilise une Column pour placer la LazyRow au-dessus de la LazyVerticalGrid
     Column(modifier = modifier) {
         FoldersLayout(
             folders = uiState.folders,
             onNavigateToSubFolder = onNavigateToSubFolder
         )
-
-        // --- Grille des recettes ---
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            // On utilise weight(1f) pour que la grille prenne tout l'espace restant en hauteur
+        HorizontalDivider(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
-            contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // --- Section Title ---
-            if (uiState.recipes.isNotEmpty()) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    SectionTitle(title = stringResource(R.string.recipes))
-                }
-            }
-
-            // --- Recipes Cards ---
-            items(
-                items = uiState.recipes,
-                key = { it.id }
-            ) { recipe ->
-                CardField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onNavigateToRecipeDetails(recipe.id) },
-                    title = {
-                        Text(
-                            text = recipe.title,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = 40.dp)
-                        )
-                    }
-                )
-            }
-        }
+        )
+        CardsLayout(
+            recipes = uiState.recipes,
+            onNavigateToRecipeDetails = onNavigateToRecipeDetails
+        )
     }
 }
 
@@ -113,6 +81,51 @@ fun FoldersLayout(
                     }
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun CardsLayout(
+    recipes: List<Recipe>,
+    onNavigateToRecipeDetails: (String) -> Unit
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+
+        modifier = Modifier
+            .fillMaxWidth(),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // --- Section Title ---
+        if (recipes.isNotEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                SectionTitle(title = stringResource(R.string.recipes))
+            }
+        }
+
+        // --- Recipes Cards ---
+        items(
+            items = recipes,
+            key = { it.id }
+        ) { recipe ->
+            CardField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onNavigateToRecipeDetails(recipe.id) },
+                title = {
+                    Text(
+                        text = recipe.title,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 40.dp)
+                    )
+                }
+            )
         }
     }
 }
