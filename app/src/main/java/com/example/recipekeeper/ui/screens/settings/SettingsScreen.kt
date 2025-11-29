@@ -63,36 +63,41 @@ fun SettingsScreen(
         }
     }
 
+    LaunchedEffect(uiState.passwordUpdateError, uiState.passwordUpdateSuccess) {
+        if (uiState.passwordUpdateError) {
+            Toast.makeText(context, "erreur lors de la mise à jour du mot de passe", Toast.LENGTH_LONG).show()
+            settingsViewModel.updatePasswordUpdateError(false)
+        } else if (uiState.passwordUpdateSuccess) {
+            Toast.makeText(context, "mot de passe mis à jour avec succès", Toast.LENGTH_LONG).show()
+            settingsViewModel.updatePasswordUpdateSuccess(false)
+        }
+    }
 
     if(uiState.showPasswordDialogSecurity) {
+        // Update User Password
         PasswordDialog(
             password = uiState.currentPassword,
             passwordError = uiState.currentPasswordError,
             onPasswordChanged = { settingsViewModel.updateCurrentPassword(it) },
             onPasswordConfirmed = {
-                if (settingsViewModel.isCurrentPasswordValid()) {
-                    settingsViewModel.updateShowPasswordDialogSecurity(false)
-                    settingsViewModel.updateCurrentPassword("")
-                }
+                settingsViewModel.updateUserPassword()
             },
             onDismiss = {
-                settingsViewModel.updateShowPasswordDialogSecurity(false)
-                settingsViewModel.updateCurrentPassword("")
+                settingsViewModel.onDismissDialog()
             }
         )
     } else if(uiState.showPasswordDialogEmail) {
+
+        // Update User EMAIL
         PasswordDialog(
             password = uiState.currentPassword,
             passwordError = uiState.currentPasswordError,
             onPasswordChanged = { settingsViewModel.updateCurrentPassword(it) },
             onPasswordConfirmed = {
-                if (settingsViewModel.isCurrentPasswordValid()) {
-                    settingsViewModel.updateUserEmail()
-                }
+                settingsViewModel.updateUserEmail()
             },
             onDismiss = {
-                settingsViewModel.updateShowPasswordDialogEmail(false)
-                settingsViewModel.updateCurrentPassword("")
+                settingsViewModel.onDismissDialog()
             }
         )
     } else if(uiState.showPasswordDialogDeletion) {
@@ -107,8 +112,7 @@ fun SettingsScreen(
                 }
             },
             onDismiss = {
-                settingsViewModel.updateShowPasswordDialogDeletion(false)
-                settingsViewModel.updateCurrentPassword("")
+                settingsViewModel.onDismissDialog()
             }
         )
     }

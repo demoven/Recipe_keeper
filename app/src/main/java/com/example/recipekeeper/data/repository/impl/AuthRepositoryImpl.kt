@@ -74,7 +74,7 @@ class AuthRepositoryImpl : IAuthRepository {
         authInstance.removeAuthStateListener(authStateListener)
     }
 
-    override suspend fun updatePassword(currentPassword: String, newPassword: String) {
+    override suspend fun updatePassword(currentPassword: String, newPassword: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
         val user = authInstance.currentUser
         val email = user?.email
 
@@ -84,7 +84,9 @@ class AuthRepositoryImpl : IAuthRepository {
             try {
                 user.reauthenticate(credential).await()
                 user.updatePassword(newPassword).await()
+                onSuccess()
             } catch (e: Exception) {
+                onFailure()
                 throw Exception("Re-authentication failed: ${e.message}")
             }
         } else {

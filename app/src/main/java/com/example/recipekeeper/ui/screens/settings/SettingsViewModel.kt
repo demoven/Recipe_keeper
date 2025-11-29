@@ -56,6 +56,28 @@ class SettingsViewModel(
         _uiState.value = _uiState.value.copy(emailUpdateSuccess = isSuccess)
     }
 
+    fun updatePasswordUpdateSuccess(isSuccess: Boolean) {
+        _uiState.value = _uiState.value.copy(passwordUpdateSuccess = isSuccess)
+    }
+
+    fun updateEmailUpdateError(hasError: Boolean) {
+        _uiState.value = _uiState.value.copy(emailUpdateError = hasError)
+    }
+
+    fun updatePasswordUpdateError(hasError: Boolean) {
+        _uiState.value = _uiState.value.copy(passwordUpdateError = hasError)
+    }
+
+    fun onDismissDialog() {
+        _uiState.value = _uiState.value.copy(
+            showPasswordDialogEmail = false,
+            showPasswordDialogDeletion = false,
+            showPasswordDialogSecurity = false,
+            currentPassword = "",
+            newPassword = "",
+        )
+    }
+
     fun isEmailValid(): Boolean  {
         if(validator.isEmailValid(uiState.value.email)) {
             _uiState.value = _uiState.value.copy(emailError = false)
@@ -87,6 +109,9 @@ class SettingsViewModel(
     }
 
     fun updateUserEmail() {
+        if (!isCurrentPasswordValid()) {
+            return
+        }
         val userEmail = authRepository.getCurrentUser()?.email
         if (uiState.value.email == userEmail) {
             Log.d("SettingsViewModel", "L'email ne s'est pas modifié.")
@@ -100,6 +125,7 @@ class SettingsViewModel(
                         newEmail = uiState.value.email,
                         onSuccess = {
                             updateEmailUpdateSuccess(true)
+                            onDismissDialog()
                             logout()
                         },
                         onFailure = {
@@ -113,12 +139,27 @@ class SettingsViewModel(
         }
     }
 
-    fun updateEmailUpdateError(hasError: Boolean) {
-        _uiState.value = _uiState.value.copy(emailUpdateError = hasError)
-    }
-
-    fun updatePasswordUpdateError(hasError: Boolean) {
-        _uiState.value = _uiState.value.copy(passwordUpdateError = hasError)
+    fun updateUserPassword() {
+        if (!isCurrentPasswordValid()) {
+            return
+        }
+        viewModelScope.launch {
+            try {
+                authRepository.updatePassword(
+                    currentPassword = uiState.value.currentPassword,
+                    newPassword = uiState.value.newPassword,
+                    onSuccess = {
+                        updatePasswordUpdateSuccess(true)
+                    },
+                    onFailure = {
+                        updatePasswordUpdateError(true)
+                    }
+                )
+                // Password update successful
+            } catch (e: Exception) {
+                updatePasswordUpdateError(true)
+            }
+        }
     }
 
     fun logout() {
@@ -130,5 +171,4 @@ class SettingsViewModel(
             authRepository.deleteAccount(currentPassword)
         }
     }
-
 }
