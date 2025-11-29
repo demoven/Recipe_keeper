@@ -8,6 +8,6 @@ import androidx.compose.runtime.Composable
 fun SectionTitle(title: String) {
     Text(
         text = title,
-        style = MaterialTheme.typography.titleMedium
+        style = MaterialTheme.typography.titleLarge
     )
 }

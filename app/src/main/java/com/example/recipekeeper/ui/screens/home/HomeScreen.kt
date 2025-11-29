@@ -56,15 +56,17 @@ fun HomeScreen(
         modifier = modifier.padding(dimensionResource(R.dimen.padding_medium)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
     ) {
-        FoldersLayout(
-            folders = uiState.folders,
-            onNavigateToSubFolder = onNavigateToSubFolder,
-            modifier = Modifier.fillMaxWidth()
-        )
-        HorizontalDivider(
-            modifier = Modifier
-                .fillMaxWidth()
-        )
+        if (uiState.folders.isNotEmpty()) {
+            FoldersLayout(
+                folders = uiState.folders,
+                onNavigateToSubFolder = onNavigateToSubFolder,
+                modifier = Modifier.fillMaxWidth()
+            )
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
         CardsLayout(
             recipes = uiState.recipes,
             onNavigateToRecipeDetails = onNavigateToRecipeDetails,
@@ -141,7 +143,7 @@ fun CardsLayout(
                     .clickable { onNavigateToRecipeDetails(recipe.id) },
                 title = {
                     Text(
-                        text = recipe.title,
+                        text = recipe.title.replaceFirstChar { it.uppercase() },
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
@@ -169,6 +171,6 @@ fun FolderButton(
             contentDescription = null,
             modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small))
         )
-        Text(text = folderName)
+        Text(text = folderName.replaceFirstChar { it.uppercase() })
     }
 }
