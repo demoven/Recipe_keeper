@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +58,13 @@ fun PasswordTextField(
                     if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
                 Icon(imageVector = icon, contentDescription = null)
             }
+        },
+        //password icon
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Outlined.Lock,
+                contentDescription = null
+            )
         },
         modifier = modifier
     )
