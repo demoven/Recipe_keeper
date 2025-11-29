@@ -65,11 +65,18 @@ fun SettingsScreen(
 
     LaunchedEffect(uiState.passwordUpdateError, uiState.passwordUpdateSuccess) {
         if (uiState.passwordUpdateError) {
-            Toast.makeText(context, "erreur lors de la mise à jour du mot de passe", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Erreur lors de la performance de l'action", Toast.LENGTH_LONG).show()
             settingsViewModel.updatePasswordUpdateError(false)
         } else if (uiState.passwordUpdateSuccess) {
             Toast.makeText(context, "mot de passe mis à jour avec succès", Toast.LENGTH_LONG).show()
             settingsViewModel.updatePasswordUpdateSuccess(false)
+        }
+    }
+
+    LaunchedEffect(uiState.deletionError) {
+        if (uiState.deletionError) {
+            Toast.makeText(context, "Erreur lors de la suppression du compte", Toast.LENGTH_LONG).show()
+            settingsViewModel.updateDeletionError(false)
         }
     }
 
@@ -106,10 +113,7 @@ fun SettingsScreen(
             passwordError = uiState.currentPasswordError,
             onPasswordChanged = { settingsViewModel.updateCurrentPassword(it) },
             onPasswordConfirmed = {
-                if (settingsViewModel.isCurrentPasswordValid()) {
-                    settingsViewModel.updateShowPasswordDialogSecurity(false)
-                    settingsViewModel.updateCurrentPassword("")
-                }
+                settingsViewModel.deleteAccount()
             },
             onDismiss = {
                 settingsViewModel.onDismissDialog()

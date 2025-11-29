@@ -42,7 +42,9 @@ class UserContainer(
     )
 
     val settingsFactory: SettingsViewModelFactory = SettingsViewModelFactory(
-        authRepository = authRepository
+        authRepository = authRepository,
+        recipeRepository = recipeRepository,
+        folderRepository = folderRepository
     )
 
     fun addFolder(folder: Folder, onSuccess: () -> Unit, onFailure: () -> Unit) {

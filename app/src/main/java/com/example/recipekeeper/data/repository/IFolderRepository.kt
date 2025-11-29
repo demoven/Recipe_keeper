@@ -34,4 +34,6 @@ interface IFolderRepository {
     suspend fun getSubFolders(parentId: String): List<Folder>
 
     suspend fun deleteFolder(folderId: String)
+
+    suspend fun deleteAllFolders()
 }

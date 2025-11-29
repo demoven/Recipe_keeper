@@ -3,6 +3,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipekeeper.data.repository.IAuthRepository
+import com.example.recipekeeper.data.repository.IFolderRepository
+import com.example.recipekeeper.data.repository.IRecipeRepository
 import com.example.recipekeeper.tools.AuthValidator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,8 +12,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
-    private val authRepository: IAuthRepository
-) : ViewModel() {
+    private val authRepository: IAuthRepository,
+    private val recipeRepository: IRecipeRepository,
+    private val folderRepository: IFolderRepository
+    ) : ViewModel() {
 
     private val validator = AuthValidator()
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -66,6 +70,10 @@ class SettingsViewModel(
 
     fun updatePasswordUpdateError(hasError: Boolean) {
         _uiState.value = _uiState.value.copy(passwordUpdateError = hasError)
+    }
+
+    fun updateDeletionError(hasError: Boolean) {
+        _uiState.value = _uiState.value.copy(deletionError = hasError)
     }
 
     fun onDismissDialog() {
@@ -150,6 +158,7 @@ class SettingsViewModel(
                     newPassword = uiState.value.newPassword,
                     onSuccess = {
                         updatePasswordUpdateSuccess(true)
+                        onDismissDialog()
                     },
                     onFailure = {
                         updatePasswordUpdateError(true)
@@ -166,9 +175,19 @@ class SettingsViewModel(
         authRepository.logout()
     }
 
-    fun deleteAccount(currentPassword: String) {
+    fun deleteAccount() {
+        if (!isCurrentPasswordValid()) {
+            return
+        }
         viewModelScope.launch {
-            authRepository.deleteAccount(currentPassword)
+            try {
+                recipeRepository.deleteAllRecipes()
+                folderRepository.deleteAllFolders()
+                authRepository.deleteAccount(uiState.value.currentPassword)
+                // Account deletion successful
+            } catch (e: Exception) {
+                updateDeletionError(true)
+            }
         }
     }
 }

@@ -15,6 +15,7 @@ data class SettingsUiState(
     val emailUpdateError: Boolean = false,
     val emailAlreadyExists: Boolean = false,
     val passwordUpdateError: Boolean = false,
+    val deletionError: Boolean = false,
 
     // Success fields
     val emailUpdateSuccess: Boolean = false,

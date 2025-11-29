@@ -118,4 +118,14 @@ class FolderRepositoryImpl : IFolderRepository {
             ?: throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
         collection.document(folderId).delete().await()
     }
+    override suspend fun deleteAllFolders() {
+        val collection = foldersCollection
+            ?: throw UninitializedPropertyAccessException("FolderRepositoryImpl must be initialized with a valid userId before use.")
+        val snapshot = collection.get().await()
+        val batch = db.batch()
+        for (document in snapshot.documents) {
+            batch.delete(document.reference)
+        }
+        batch.commit().await()
+    }
 }
