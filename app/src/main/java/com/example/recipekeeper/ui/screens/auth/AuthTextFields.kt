@@ -68,14 +68,18 @@ fun EmailTextField(
     emailError: Boolean,
     onEmailChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default.copy(
+        imeAction = ImeAction.Next
+    ),
+    keyboardActions: KeyboardActions? = null
+
 ) {
     OutlinedTextField(
         value = email,
         onValueChange = onEmailChanged,
         label = { Text(stringResource(R.string.email)) },
-        keyboardOptions = KeyboardOptions.Default.copy(
-            imeAction = ImeAction.Next
-        ),
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions ?: KeyboardActions.Default,
         singleLine = true,
         shape = MaterialTheme.shapes.medium,
         isError = emailError,
