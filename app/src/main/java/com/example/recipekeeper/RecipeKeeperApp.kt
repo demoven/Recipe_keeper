@@ -355,7 +355,7 @@ fun RecipeKeeperApp(
             }
             composable(RecipeKeeperScreen.Settings.name) {
                 val settingsFactory = userContainer?.settingsFactory
-                if(settingsFactory != null) {
+                if (settingsFactory != null) {
                     val settingsViewModel: SettingsViewModel = viewModel(factory = settingsFactory)
                     SettingsScreen(
                         onLogout = {
