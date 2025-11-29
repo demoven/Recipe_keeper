@@ -140,16 +140,7 @@ fun CardsLayout(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onNavigateToRecipeDetails(recipe.id) },
-                title = {
-                    Text(
-                        text = recipe.title.replaceFirstChar { it.uppercase() },
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 40.dp)
-                    )
-                }
+                title = recipe.title
             )
         }
     }
