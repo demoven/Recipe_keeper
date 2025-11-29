@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -24,6 +25,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +36,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
@@ -44,6 +47,39 @@ fun SettingsScreen(
     settingsViewModel: SettingsViewModel = viewModel(),
     onLogout: () -> Unit
 ) {
+    var showPasswordDialogSecurity by remember { mutableStateOf(false) }
+    var showPasswordDialogEmail by remember { mutableStateOf(false) }
+    var showPasswordDialogDeletion by remember { mutableStateOf(false) }
+
+    if(showPasswordDialogSecurity) {
+        PasswordDialog(
+            onPasswordConfirmed = { password ->
+                showPasswordDialogSecurity = false
+            },
+            onDismiss = {
+                showPasswordDialogSecurity = false
+            }
+        )
+    } else if(showPasswordDialogEmail) {
+        PasswordDialog(
+            onPasswordConfirmed = { password ->
+                showPasswordDialogEmail = false
+            },
+            onDismiss = {
+                showPasswordDialogEmail = false
+            }
+        )
+    } else if(showPasswordDialogDeletion) {
+        PasswordDialog(
+            onPasswordConfirmed = { password ->
+                showPasswordDialogDeletion = false
+            },
+            onDismiss = {
+                showPasswordDialogDeletion = false
+            }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -53,15 +89,15 @@ fun SettingsScreen(
     ) {
 
         EmailCard(
-            onEmailUpdate = { /* TODO */ }
+            onEmailUpdate = { showPasswordDialogEmail = true }
         )
 
         SecurityCard(
-            onPasswordChange = { /* TODO */ }
+            onPasswordChange = { showPasswordDialogSecurity = true }
         )
 
         DeletionAccountCard(
-            onDeleteAccount = { /* TODO */ }
+            onDeleteAccount = { showPasswordDialogDeletion = true }
         )
 
         SectionLogout(
@@ -75,7 +111,6 @@ fun EmailCard(
     onEmailUpdate: (String) -> Unit
 ) {
     var email by remember { mutableStateOf("") }
-    var currentPassword by remember { mutableStateOf("") }
     Card {
         Column (
             modifier = Modifier
@@ -85,16 +120,6 @@ fun EmailCard(
             Text(
                 text = stringResource(R.string.account).uppercase(),
                 style = MaterialTheme.typography.titleMedium,
-            )
-
-            PasswordTextField(
-                label = stringResource(R.string.current_password),
-                password = currentPassword,
-                passwordError = false,
-                passwordErrorMessage = null,
-                onPasswordChanged = {},
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                modifier = Modifier.fillMaxWidth()
             )
 
             EmailTextField(
@@ -109,7 +134,7 @@ fun EmailCard(
             )
 
             Button(
-                onClick = { onEmailUpdate },
+                onClick = { onEmailUpdate(email) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.update_email))
@@ -124,7 +149,6 @@ fun SecurityCard(
     onPasswordChange: () -> Unit
 ) {
     var newPassword by remember { mutableStateOf("") }
-    var confirmNewPassword by remember { mutableStateOf("") }
     Card {
         Column(
             modifier = Modifier
@@ -137,30 +161,19 @@ fun SecurityCard(
                 style = MaterialTheme.typography.titleMedium,
             )
 
-            // Champ 1 : Nouveau mot de passe
+            // Champ 2 : Confirmer le mot de passe
             PasswordTextField(
-                label = stringResource(R.string.current_password),
+                label = stringResource(R.string.new_password),
                 password = newPassword,
                 passwordError = false,
                 passwordErrorMessage = null,
                 onPasswordChanged = { newPassword = it },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // Champ 2 : Confirmer le mot de passe
-            PasswordTextField(
-                label = stringResource(R.string.new_password),
-                password = confirmNewPassword,
-                passwordError = false,
-                passwordErrorMessage = null,
-                onPasswordChanged = { confirmNewPassword = it },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 modifier = Modifier.fillMaxWidth()
             )
 
             Button(
-                onClick = { onPasswordChange },
+                onClick = onPasswordChange,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.update_password))
@@ -227,4 +240,48 @@ fun SectionLogout(
                 )
         }
     }
+}
+
+@Composable
+fun PasswordDialog(
+    onPasswordConfirmed: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+    AlertDialog(
+        modifier = Modifier.fillMaxWidth().padding(dimensionResource(R.dimen.padding_medium)),
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        // CORRECTION : Appeler onDismiss directement
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.current_password)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+            ) {
+                Text("Entrer votre mot de passe actuel pour confirmer l'action.")
+                PasswordTextField(
+                    label = stringResource(R.string.current_password),
+                    password = password,
+                    passwordError = false,
+                    passwordErrorMessage = null,
+                    onPasswordChanged = { password = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = null
+                )
+            }
+        },
+        confirmButton = {
+            // CORRECTION : Appeler onPasswordConfirmed avec le mot de passe
+            Button(onClick = { onPasswordConfirmed(password) }) {
+                Text(stringResource(R.string.confirm))
+            }
+        },
+        dismissButton = {
+            // CORRECTION : Appeler onDismiss directement
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
