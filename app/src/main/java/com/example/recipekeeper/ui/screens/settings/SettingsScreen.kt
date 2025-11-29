@@ -325,7 +325,7 @@ fun PasswordDialog(
             Column(
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
             ) {
-                Text("Entrer votre mot de passe actuel pour confirmer l'action.")
+                Text(stringResource(R.string.enter_current_password))
                 PasswordTextField(
                     label = stringResource(R.string.current_password),
                     password = password,
@@ -344,7 +344,6 @@ fun PasswordDialog(
             }
         },
         dismissButton = {
-            // CORRECTION : Appeler onDismiss directement
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.cancel))
             }
