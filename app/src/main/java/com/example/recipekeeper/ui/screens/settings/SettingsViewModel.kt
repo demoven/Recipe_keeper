@@ -1,4 +1,5 @@
 package com.example.recipekeeper.ui.screens.settings
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipekeeper.data.repository.IAuthRepository
@@ -15,6 +16,13 @@ class SettingsViewModel(
     private val validator = AuthValidator()
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val currentUserEmail = authRepository.getCurrentUser()?.email ?: ""
+            _uiState.value = _uiState.value.copy(email = currentUserEmail)
+        }
+    }
 
     fun updateEmail(updatedEmail: String) {
         _uiState.value = _uiState.value.copy(email = updatedEmail, emailError = false)
@@ -38,6 +46,14 @@ class SettingsViewModel(
 
     fun updateShowPasswordDialogSecurity(show: Boolean) {
         _uiState.value = _uiState.value.copy(showPasswordDialogSecurity = show)
+    }
+
+    fun updateEmailAlreadyExists(exists: Boolean) {
+        _uiState.value = _uiState.value.copy(emailAlreadyExists = exists)
+    }
+
+    fun updateEmailUpdateSuccess(isSuccess: Boolean) {
+        _uiState.value = _uiState.value.copy(emailUpdateSuccess = isSuccess)
     }
 
     fun isEmailValid(): Boolean  {
@@ -69,7 +85,42 @@ class SettingsViewModel(
             return false
         }
     }
-    
+
+    fun updateUserEmail() {
+        val userEmail = authRepository.getCurrentUser()?.email
+        if (uiState.value.email == userEmail) {
+            Log.d("SettingsViewModel", "L'email ne s'est pas modifié.")
+            updateEmailAlreadyExists(true)
+            return
+        } else {
+            viewModelScope.launch {
+                try {
+                    authRepository.updateEmail(
+                        currentPassword = uiState.value.currentPassword,
+                        newEmail = uiState.value.email,
+                        onSuccess = {
+                            updateEmailUpdateSuccess(true)
+                            logout()
+                        },
+                        onFailure = {
+                            updateEmailUpdateError(true)
+                        }
+                    )
+                } catch (e: Exception) {
+                    updateEmailUpdateError(true)
+                }
+            }
+        }
+    }
+
+    fun updateEmailUpdateError(hasError: Boolean) {
+        _uiState.value = _uiState.value.copy(emailUpdateError = hasError)
+    }
+
+    fun updatePasswordUpdateError(hasError: Boolean) {
+        _uiState.value = _uiState.value.copy(passwordUpdateError = hasError)
+    }
+
     fun logout() {
         authRepository.logout()
     }

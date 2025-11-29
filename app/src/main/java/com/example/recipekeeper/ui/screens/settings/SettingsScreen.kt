@@ -1,5 +1,6 @@
 package com.example.recipekeeper.ui.screens.settings
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,10 +26,12 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -45,6 +48,21 @@ fun SettingsScreen(
     onLogout: () -> Unit
 ) {
     val uiState by settingsViewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(uiState.emailUpdateError, uiState.emailUpdateSuccess, uiState.emailAlreadyExists) {
+        if (uiState.emailUpdateError) {
+            Toast.makeText(context, "erreur lors de la mise à jour de l'email", Toast.LENGTH_LONG).show()
+            settingsViewModel.updateEmailUpdateError(false)
+        } else if (uiState.emailUpdateSuccess) {
+            Toast.makeText(context, "email de vérification envoyé", Toast.LENGTH_LONG).show()
+            settingsViewModel.updateEmailUpdateSuccess(false)
+        } else if (uiState.emailAlreadyExists) {
+            Toast.makeText(context, "Email actuel", Toast.LENGTH_LONG).show()
+            settingsViewModel.updateEmailAlreadyExists(false)
+        }
+    }
+
 
     if(uiState.showPasswordDialogSecurity) {
         PasswordDialog(
@@ -69,8 +87,7 @@ fun SettingsScreen(
             onPasswordChanged = { settingsViewModel.updateCurrentPassword(it) },
             onPasswordConfirmed = {
                 if (settingsViewModel.isCurrentPasswordValid()) {
-                    settingsViewModel.updateShowPasswordDialogSecurity(false)
-                    settingsViewModel.updateCurrentPassword("")
+                    settingsViewModel.updateUserEmail()
                 }
             },
             onDismiss = {
