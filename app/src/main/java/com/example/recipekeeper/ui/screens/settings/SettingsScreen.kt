@@ -107,7 +107,7 @@ fun SettingsScreen(
                 settingsViewModel.onDismissDialog()
             }
         )
-    } else if(uiState.showPasswordDialogDeletion) {
+    } else if (uiState.showPasswordDialogDeletion) {
         PasswordDialog(
             password = uiState.currentPassword,
             passwordError = uiState.currentPasswordError,
