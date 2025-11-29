@@ -80,7 +80,6 @@ fun EmailTextField(
         imeAction = ImeAction.Next
     ),
     keyboardActions: KeyboardActions? = null
-
 ) {
     OutlinedTextField(
         value = email,
