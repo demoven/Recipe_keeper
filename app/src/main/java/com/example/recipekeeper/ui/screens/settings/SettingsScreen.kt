@@ -27,9 +27,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -51,29 +48,50 @@ fun SettingsScreen(
 
     if(uiState.showPasswordDialogSecurity) {
         PasswordDialog(
-            onPasswordConfirmed = { password ->
-                settingsViewModel.updateShowPasswordDialogSecurity(false)
+            password = uiState.currentPassword,
+            passwordError = uiState.currentPasswordError,
+            onPasswordChanged = { settingsViewModel.updateCurrentPassword(it) },
+            onPasswordConfirmed = {
+                if (settingsViewModel.isCurrentPasswordValid()) {
+                    settingsViewModel.updateShowPasswordDialogSecurity(false)
+                    settingsViewModel.updateCurrentPassword("")
+                }
             },
             onDismiss = {
                 settingsViewModel.updateShowPasswordDialogSecurity(false)
+                settingsViewModel.updateCurrentPassword("")
             }
         )
     } else if(uiState.showPasswordDialogEmail) {
         PasswordDialog(
-            onPasswordConfirmed = { password ->
-                settingsViewModel.updateShowPasswordDialogEmail(false)
+            password = uiState.currentPassword,
+            passwordError = uiState.currentPasswordError,
+            onPasswordChanged = { settingsViewModel.updateCurrentPassword(it) },
+            onPasswordConfirmed = {
+                if (settingsViewModel.isCurrentPasswordValid()) {
+                    settingsViewModel.updateShowPasswordDialogSecurity(false)
+                    settingsViewModel.updateCurrentPassword("")
+                }
             },
             onDismiss = {
                 settingsViewModel.updateShowPasswordDialogEmail(false)
+                settingsViewModel.updateCurrentPassword("")
             }
         )
     } else if(uiState.showPasswordDialogDeletion) {
         PasswordDialog(
-            onPasswordConfirmed = { password ->
-                settingsViewModel.updateShowPasswordDialogDeletion(false)
+            password = uiState.currentPassword,
+            passwordError = uiState.currentPasswordError,
+            onPasswordChanged = { settingsViewModel.updateCurrentPassword(it) },
+            onPasswordConfirmed = {
+                if (settingsViewModel.isCurrentPasswordValid()) {
+                    settingsViewModel.updateShowPasswordDialogSecurity(false)
+                    settingsViewModel.updateCurrentPassword("")
+                }
             },
             onDismiss = {
                 settingsViewModel.updateShowPasswordDialogDeletion(false)
+                settingsViewModel.updateCurrentPassword("")
             }
         )
     }
@@ -260,14 +278,17 @@ fun SectionLogout(
 
 @Composable
 fun PasswordDialog(
-    onPasswordConfirmed: (String) -> Unit,
+    password: String,
+    passwordError: Boolean,
+    onPasswordChanged: (String) -> Unit,
+    onPasswordConfirmed: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    var password by remember { mutableStateOf("") }
     AlertDialog(
-        modifier = Modifier.fillMaxWidth().padding(dimensionResource(R.dimen.padding_medium)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(R.dimen.padding_medium)),
         properties = DialogProperties(usePlatformDefaultWidth = false),
-        // CORRECTION : Appeler onDismiss directement
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.current_password)) },
         text = {
@@ -278,9 +299,9 @@ fun PasswordDialog(
                 PasswordTextField(
                     label = stringResource(R.string.current_password),
                     password = password,
-                    passwordError = false,
+                    passwordError = passwordError,
                     passwordErrorMessage = null,
-                    onPasswordChanged = { password = it },
+                    onPasswordChanged = { onPasswordChanged(it) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = null
@@ -288,8 +309,7 @@ fun PasswordDialog(
             }
         },
         confirmButton = {
-            // CORRECTION : Appeler onPasswordConfirmed avec le mot de passe
-            Button(onClick = { onPasswordConfirmed(password) }) {
+            Button(onClick = { onPasswordConfirmed() }) {
                 Text(stringResource(R.string.confirm))
             }
         },

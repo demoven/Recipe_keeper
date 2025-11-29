@@ -11,4 +11,5 @@ data class SettingsUiState(
     // Error fields
     val emailError: Boolean = false,
     val newPasswordError: Boolean = false,
+    val currentPasswordError: Boolean = false
 )

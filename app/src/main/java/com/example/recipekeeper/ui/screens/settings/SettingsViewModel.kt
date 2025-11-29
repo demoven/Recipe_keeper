@@ -21,7 +21,7 @@ class SettingsViewModel(
     }
 
     fun updateCurrentPassword(updatedPassword: String) {
-        _uiState.value = _uiState.value.copy(currentPassword = updatedPassword)
+        _uiState.value = _uiState.value.copy(currentPassword = updatedPassword, currentPasswordError = false)
     }
 
     fun updateNewPassword(updatedPassword: String) {
@@ -60,12 +60,16 @@ class SettingsViewModel(
         }
     }
 
-    fun updateEmail(onSuccess: () -> Unit, onFailure: () -> Unit) {
-        viewModelScope.launch {
-            authRepository.updateEmail(uiState.value.email, uiState.value.currentPassword, onSuccess, onFailure)
+    fun isCurrentPasswordValid(): Boolean {
+        if(uiState.value.currentPassword.isNotBlank()) {
+            _uiState.value = _uiState.value.copy(currentPasswordError = false)
+            return true
+        } else {
+            _uiState.value = _uiState.value.copy(currentPasswordError = true)
+            return false
         }
     }
-
+    
     fun logout() {
         authRepository.logout()
     }
