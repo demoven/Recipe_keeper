@@ -93,7 +93,7 @@ fun SettingsScreen(
                 settingsViewModel.onDismissDialog()
             }
         )
-    } else if(uiState.showPasswordDialogEmail) {
+    } else if (uiState.showPasswordDialogEmail) {
 
         // Update User EMAIL
         PasswordDialog(
