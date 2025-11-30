@@ -146,9 +146,7 @@ class CreateRecipeViewModel(
                 onSuccess(recipeId, recipeTitle)
                 _uiState.value = CreateRecipeUiState() // Reset state after saving
             },
-            onFailure = {
-                onFailure
-            }
+            onFailure = { /* TODO */ }
         )
     }
 
