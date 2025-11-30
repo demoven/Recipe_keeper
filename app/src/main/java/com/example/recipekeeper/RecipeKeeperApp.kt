@@ -358,9 +358,6 @@ fun RecipeKeeperApp(
                 if (settingsFactory != null) {
                     val settingsViewModel: SettingsViewModel = viewModel(factory = settingsFactory)
                     SettingsScreen(
-                        onLogout = {
-                            recipeKeeperViewModel.logout()
-                        },
                         settingsViewModel = settingsViewModel
                     )
                 }

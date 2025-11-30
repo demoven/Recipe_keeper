@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -39,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -46,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.CreateRecipeViewModelFactory
+import com.example.recipekeeper.ui.components.SectionTitle
 
 @Composable
 fun CreateRecipeScreen(
@@ -79,7 +82,8 @@ fun CreateRecipeScreen(
             .fillMaxSize()
             .verticalScroll(scrollState)
             .imePadding()
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Row(
             modifier = Modifier
@@ -108,8 +112,6 @@ fun CreateRecipeScreen(
             ),
             modifier = Modifier.fillMaxWidth()
         )
-
-        Spacer(modifier = Modifier.padding(8.dp))
         // Liste Ingrédients connectée au ViewModel
         ListLayout(
             elements = uiState.ingredients,
@@ -123,8 +125,6 @@ fun CreateRecipeScreen(
                 createRecipeViewModel.addStepIfEmpty()
             }
         )
-        Spacer(modifier = Modifier.padding(8.dp))
-
         // Liste Étapes connectée au ViewModel
         ListLayout(
             elements = uiState.instructions, // Attention au nom (steps vs instructions dans votre uiState)
@@ -148,7 +148,9 @@ fun DescriptionLayout(
     onRecipeDescriptionChange: (String) -> Unit
 ) {
     Column {
-        Text ("Description")
+        SectionTitle(
+            title = stringResource(R.string.description)
+        )
         TextFieldTransparent(
             value = recipeName,
             onValueChange = onRecipeNameChange,
@@ -201,7 +203,7 @@ fun ListLayout(
     }
 
     Column(modifier = modifier) {
-        Text(title)
+        SectionTitle(title = title)
         elements.forEachIndexed { index, item ->
             Row(
                 modifier = Modifier
@@ -299,10 +301,10 @@ fun TextFieldTransparent(
         value = value,
         onValueChange = onValueChange,
         label = if(label != null) {
-            { Text(text =label) }
+            { Text(text = label, style = MaterialTheme.typography.labelLarge) }
         } else null,
         placeholder = if (placeholder != null) {
-            { Text(text = placeholder, maxLines = 1, softWrap = false) }
+            { Text(text = placeholder, maxLines = 1, softWrap = false, style = MaterialTheme.typography.labelLarge) }
         } else null,
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.Transparent,

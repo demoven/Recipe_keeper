@@ -6,11 +6,13 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.sp
 import com.example.recipekeeper.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -23,7 +25,13 @@ fun RecipeKeeperTopBar(
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
-        title = { Text(text = title) },
+        title = {
+            Text(
+                text = title.replaceFirstChar { it.uppercase() },
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontSize = 30.sp
+                )
+            ) },
         modifier = modifier,
         navigationIcon = {
             if (canNavigateBack) {

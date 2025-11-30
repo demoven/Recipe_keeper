@@ -7,10 +7,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.recipekeeper.R
@@ -36,12 +41,22 @@ fun BottomSheetContent(
                 onClick = onAddFolder,
                 modifier = Modifier.weight(1f)
             ) {
+                Icon(
+                    imageVector = Icons.Default.Folder,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small))
+                )
                 Text(stringResource(R.string.folder))
             }
             Button(
                 onClick = onAddRecipe,
                 modifier = Modifier.weight(1f)
             ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small))
+                )
                 Text(stringResource(R.string.recipe))
             }
         }

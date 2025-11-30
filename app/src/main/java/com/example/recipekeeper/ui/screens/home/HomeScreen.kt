@@ -1,35 +1,37 @@
 package com.example.recipekeeper.ui.screens.home
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
+import com.example.recipekeeper.data.models.Folder
+import com.example.recipekeeper.data.models.Recipe
 import com.example.recipekeeper.di.factory.HomeViewModelFactory
 import com.example.recipekeeper.ui.components.CardField
 import com.example.recipekeeper.ui.components.SectionTitle
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun HomeScreen(
@@ -46,48 +48,78 @@ fun HomeScreen(
         homeViewModel.loadData(folderId)
     }
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    Column(
+        modifier = modifier.padding(dimensionResource(R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
     ) {
-
-        // --- Chips ---
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            val categories = uiState.folders.map { it.name }
-
-            FolderChips(
-                folders = categories,
-                selectedFolder = uiState.selectedFolder,
-                onFolderSelected = { selected ->
-                    homeViewModel.selectFolder(selected)
-
-                    val folder = uiState.folders.firstOrNull { it.name == selected }
-
-                    if (folder != null) {
-                        onNavigateToSubFolder(folder.id, folder.name)
-                    }
-                }
+        if (uiState.folders.isNotEmpty()) {
+            FoldersLayout(
+                folders = uiState.folders,
+                onNavigateToSubFolder = onNavigateToSubFolder,
+                modifier = Modifier.fillMaxWidth()
+            )
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
             )
         }
+        CardsLayout(
+            recipes = uiState.recipes,
+            onNavigateToRecipeDetails = onNavigateToRecipeDetails,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
 
-        // --- Divider ---
-        if (uiState.recipes.isNotEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                HorizontalDivider(
-                    modifier = Modifier
-                        .padding(vertical = 12.dp)
-                        .fillMaxWidth(),
-                    thickness = 1.dp,
-                    color = Color(0xFFE0E0E0)
-                )
+@Composable
+fun FoldersLayout(
+    folders: List<Folder>,
+    onNavigateToSubFolder: (String, String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+    ) {
+        SectionTitle(
+            title = stringResource(R.string.folders)
+        )
+        Spacer(modifier = Modifier.padding(dimensionResource(R.dimen.padding_extra_small)))
+
+        // --- Folders Row ---
+        if (folders.isNotEmpty()) {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(items = folders, key = { it.id }) { folder ->
+                    FolderButton(
+                        folderName = folder.name,
+                        onNavigateToSubFolder = {
+                            onNavigateToSubFolder(folder.id, folder.name)
+                        }
+                    )
+                }
             }
         }
+    }
 
+}
+
+@Composable
+fun CardsLayout(
+    recipes: List<Recipe>,
+    onNavigateToRecipeDetails: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+    ) {
         // --- Section Title ---
-        if (uiState.recipes.isNotEmpty()) {
+        if (recipes.isNotEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 SectionTitle(title = stringResource(R.string.recipes))
             }
@@ -95,55 +127,34 @@ fun HomeScreen(
 
         // --- Recipes Cards ---
         items(
-            items = uiState.recipes,
+            items = recipes,
             key = { it.id }
         ) { recipe ->
             CardField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onNavigateToRecipeDetails(recipe.id) },
-                title = {
-                    Text(
-                        text = recipe.title,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 40.dp)
-                    )
-                }
+                title = recipe.title
             )
-
         }
     }
 }
 
 @Composable
-fun FolderChips(
-    folders: List<String>,
-    selectedFolder: String?,
-    onFolderSelected: (String) -> Unit
+fun FolderButton(
+    folderName: String,
+    onNavigateToSubFolder: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+    Button(
+        onClick = onNavigateToSubFolder,
+        modifier = modifier
     ) {
-        folders.forEach { folder ->
-            val isSelected = folder == selectedFolder
-            Surface(
-                color = if (isSelected) Color.Black else Color.White,
-                shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(1.dp, Color.Black),
-                modifier = Modifier
-                    .clickable { onFolderSelected(folder) }
-            ) {
-                Text(
-                    text = folder,
-                    color = if (isSelected) Color.White else Color.Black,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-            }
-        }
+        Icon(
+            imageVector = Icons.Default.Folder,
+            contentDescription = null,
+            modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small))
+        )
+        Text(text = folderName.replaceFirstChar { it.uppercase() })
     }
 }
-

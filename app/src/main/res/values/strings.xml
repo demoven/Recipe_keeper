@@ -61,4 +61,5 @@
     <string name="password_update_success">Mot de passe mis à jour avec succès</string>
     <string name="account_suppression_error">Erreur lors de la suppression du compte</string>
     <string name="enter_current_password">Entrer votre mot de passe actuel pour confirmer l\'action.</string>
+    <string name="description">Description</string>
 </resources>
