@@ -149,7 +149,7 @@ fun CardsLayout(
 @Composable
 fun FolderButton(
     folderName: String,
-    onNavigateToSubFolder: ()-> Unit,
+    onNavigateToSubFolder: () -> Unit,
     modifier : Modifier = Modifier
 ) {
     Button(
