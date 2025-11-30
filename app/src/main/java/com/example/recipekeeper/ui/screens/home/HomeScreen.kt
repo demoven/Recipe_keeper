@@ -80,7 +80,7 @@ fun FoldersLayout(
     onNavigateToSubFolder: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column (
+    Column(
         modifier = modifier
     ) {
         // --- Section Title ---
