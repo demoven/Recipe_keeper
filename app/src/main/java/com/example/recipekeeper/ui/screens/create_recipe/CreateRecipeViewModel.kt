@@ -66,6 +66,10 @@ class CreateRecipeViewModel(
         }
     }
 
+    fun resetState() {
+        _uiState.value = CreateRecipeUiState()
+    }
+
     // --- Gestion des Étapes (Instructions) ---
     fun addStep() {
         _uiState.update { current ->
@@ -99,8 +103,28 @@ class CreateRecipeViewModel(
         }
     }
 
-    fun saveRecipe(folderId: String?, onSuccess: (String, String) -> Unit, onFailure: (Exception) -> Unit) {
-        if(_uiState.value.title.isBlank() || _uiState.value.ingredients.isEmpty()) {
+    fun getRecipeById(recipeId: String) {
+        recipeRepository.getRecipeById(recipeId) { recipe ->
+            if (recipe != null) {
+                _uiState.value = CreateRecipeUiState(
+                    title = recipe.title,
+                    description = recipe.description,
+                    prepTime = recipe.prepTime,
+                    cookTime = recipe.cookTime,
+                    servings = recipe.servings,
+                    ingredients = recipe.ingredients,
+                    instructions = recipe.instructions
+                )
+            }
+        }
+    }
+
+    fun saveRecipe(
+        folderId: String?,
+        onSuccess: (String, String) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        if (_uiState.value.title.isBlank() || _uiState.value.ingredients.isEmpty()) {
             onFailure(IllegalArgumentException("Title cannot be empty"))
             return
         }
@@ -116,7 +140,8 @@ class CreateRecipeViewModel(
             instructions = state.instructions,
             folderId = folderId
         )
-        recipeRepository.saveRecipe(newRecipe,
+        recipeRepository.saveRecipe(
+            newRecipe,
             onSuccess = { recipeId, recipeTitle ->
                 onSuccess(recipeId, recipeTitle)
                 _uiState.value = CreateRecipeUiState() // Reset state after saving
@@ -125,5 +150,25 @@ class CreateRecipeViewModel(
                 onFailure
             }
         )
+    }
+
+    fun updateRecipe(recipeId: String, onSuccess: (String, String) -> Unit) {
+        recipeRepository.updateRecipe(
+            recipe = Recipe(
+                id = recipeId, // You should provide the actual recipe ID here
+                title = _uiState.value.title,
+                description = _uiState.value.description,
+                ingredients = _uiState.value.ingredients,
+                instructions = _uiState.value.instructions,
+                prepTime = _uiState.value.prepTime,
+                cookTime = _uiState.value.cookTime,
+                servings = _uiState.value.servings
+            ),
+            onSuccess = onSuccess,
+            onFailure = {
+                // Handle failure if needed
+            }
+        )
+
     }
 }

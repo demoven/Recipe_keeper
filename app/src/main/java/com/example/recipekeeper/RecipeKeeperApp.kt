@@ -40,9 +40,12 @@ import com.example.recipekeeper.di.AppContainer
 import com.example.recipekeeper.ui.components.BottomNavigationBar
 import com.example.recipekeeper.ui.components.BottomSheetAddFolder
 import com.example.recipekeeper.ui.components.BottomSheetContent
+import com.example.recipekeeper.ui.components.DeleteFolderDialog
+import com.example.recipekeeper.ui.components.DeleteRecipeDialog
 import com.example.recipekeeper.ui.components.RecipeKeeperTopBar
 import com.example.recipekeeper.ui.components.RenameFolderDialog
 import com.example.recipekeeper.ui.components.actions.FolderActions
+import com.example.recipekeeper.ui.components.actions.RecipeActions
 import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
@@ -126,6 +129,10 @@ fun RecipeKeeperApp(
         backStackEntry?.arguments?.getString("folderId")
     } else null
 
+    val currentRecipeId = if (currentRoute?.startsWith(RecipeKeeperScreen.RecipeDetail.name) == true) {
+        backStackEntry?.arguments?.getString("recipeId")
+    } else null
+
     val startDestination = remember {
         if (isLoggedIn && authRepository.isEmailVerified()) {
             RecipeKeeperScreen.Home.name
@@ -185,6 +192,9 @@ fun RecipeKeeperApp(
     val showFolderActions =
         uiState.currentScreen == RecipeKeeperScreen.Home && currentFolderId != null
 
+    val showRecipeActions =
+        currentRoute?.startsWith(RecipeKeeperScreen.RecipeDetail.name) == true && currentRecipeId != null
+
     var onSaveClick by remember { mutableStateOf<(() -> Unit)?>(null) }
 
     LaunchedEffect(currentRoute) {
@@ -210,6 +220,19 @@ fun RecipeKeeperApp(
                                 hideFolderMenu = { recipeKeeperViewModel.hideFolderMenu() },
                                 showRenameDialog = { recipeKeeperViewModel.showRenameDialog() },
                                 showDeleteDialog = { recipeKeeperViewModel.showDeleteDialog() }
+                            )
+                        }
+                        if (showRecipeActions) {
+                            RecipeActions(
+                                onShowRecipeMenu = { recipeKeeperViewModel.showRecipeMenu() },
+                                isRecipeMenuVisible = uiState.isRecipeMenuVisible,
+                                hideRecipeMenu = { recipeKeeperViewModel.hideRecipeMenu() },
+                                showModifyDialog = {
+                                    // Naviguer vers createRecipeScreen avec l'ID de la recette
+                                    val route = "${RecipeKeeperScreen.CreateRecipe.name}?recipeId=$currentRecipeId"
+                                    navController.navigate(route)
+                                },
+                                showDeleteDialog = { recipeKeeperViewModel.showRecipeDeleteDialog() },
                             )
                         }
                         if (isCreateRecipeScreen) {
@@ -255,12 +278,31 @@ fun RecipeKeeperApp(
             )
         }
         if (uiState.isDeleteDialogVisible && currentFolderId != null) {
-            com.example.recipekeeper.ui.components.DeleteFolderDialog(
+            DeleteFolderDialog(
                 onDismiss = { recipeKeeperViewModel.hideDeleteDialog() },
                 onConfirm = {
                     recipeKeeperViewModel.hideDeleteDialog()
                     deleteFolderAction(currentFolderId)
                     navController.navigateUp()
+                }
+            )
+        }
+        if (uiState.isDeleteRecipeDialogVisible && currentRecipeId != null ) {
+            DeleteRecipeDialog(
+                onDismiss = { recipeKeeperViewModel.hideRecipeDeleteDialog() },
+                onConfirm = {
+                    recipeKeeperViewModel.hideRecipeDeleteDialog()
+                    coroutineScope.launch {
+                        userContainer?.recipeRepository?.deleteRecipeById(
+                            recipeId = currentRecipeId,
+                            onSuccess = {
+                                navController.navigateUp()
+                            },
+                            onFailure = {
+                                // TODO Gérer l'erreur
+                            }
+                        )
+                    }
                 }
             )
         }
@@ -352,22 +394,32 @@ fun RecipeKeeperApp(
                 }
             }
             composable(
-                route = "${RecipeKeeperScreen.CreateRecipe.name}?folderId={folderId}",
-                arguments = listOf(navArgument("folderId") {
+                route = "${RecipeKeeperScreen.CreateRecipe.name}?folderId={folderId}&recipeId={recipeId}",
+                arguments = listOf(
+                    navArgument("folderId") {
                     type = NavType.StringType
                     nullable = true
                     defaultValue = null
-                })
+                },
+                    navArgument("recipeId") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
             ) { entry ->
                 if (userContainer != null) {
                     val folderId = entry.arguments?.getString("folderId")
+                    val recipeId = entry.arguments?.getString("recipeId")
                     CreateRecipeScreen(
                         folderId = folderId,
+                        recipeId = recipeId,
                         createRecipeFactory = userContainer.createRecipeFactory,
                         onSetSaveAction = { action -> onSaveClick = action },
                         onRecipeSuccess = { recipeId, recipeTitle ->
                             // Redirect to recipe details and remove the createRecipescreen from back stack
                             navController.navigate("${RecipeKeeperScreen.RecipeDetail.name}/$recipeId?recipeTitle=$recipeTitle") {
+                                launchSingleTop = true
                                 popUpTo(RecipeKeeperScreen.CreateRecipe.name) { inclusive = true }
                             }
                         }

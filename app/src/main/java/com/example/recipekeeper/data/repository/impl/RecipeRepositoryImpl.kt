@@ -113,4 +113,56 @@ class RecipeRepositoryImpl : IRecipeRepository {
         }
         batch.commit().await()
     }
+
+    override suspend fun deleteRecipeById(
+        recipeId: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val collection = recipesCollection
+            ?: throw UninitializedPropertyAccessException("RecipeRepositoryImpl must be initialized with a valid userId before use.")
+
+        collection.document(recipeId).delete()
+            .addOnSuccessListener {
+                Log.d(TAG, "Recipe deleted with ID: $recipeId")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error deleting recipe", e)
+                onFailure()
+            }
+    }
+
+    override fun updateRecipe(
+        recipe: Recipe,
+        onSuccess: (String, String) -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val collection = recipesCollection
+            ?: throw UninitializedPropertyAccessException("RecipeRepositoryImpl must be initialized with a valid userId before use.")
+
+        // On crée la map des champs à mettre à jour en EXCLUANT "folderId"
+        // et "id" (qui sert de clé au document)
+        val updates = mapOf(
+            "title" to recipe.title,
+            "description" to recipe.description,
+            "ingredients" to recipe.ingredients,
+            "instructions" to recipe.instructions,
+            "prepTime" to recipe.prepTime,
+            "cookTime" to recipe.cookTime,
+            "servings" to recipe.servings,
+            "imageUrl" to recipe.imageUrl
+            // "folderId" est volontairement omis ici pour ne pas le modifier
+        )
+
+        collection.document(recipe.id).update(updates)
+            .addOnSuccessListener {
+                Log.d(TAG, "Recipe updated with ID: ${recipe.id}")
+                onSuccess(recipe.id, recipe.title)
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error updating recipe", e)
+                onFailure()
+            }
+    }
 }

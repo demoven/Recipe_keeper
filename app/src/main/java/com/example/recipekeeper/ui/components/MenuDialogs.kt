@@ -65,3 +65,27 @@ fun DeleteFolderDialog(
         }
     )
 }
+
+@Composable
+fun DeleteRecipeDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.delete_recipe)) },
+        text = {
+            Text(stringResource(R.string.confirm_recipe_deletion))
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm() }) {
+                Text(stringResource(R.string.confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}

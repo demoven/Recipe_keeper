@@ -63,4 +63,8 @@ class UserContainer(
         recipeRepository.deleteRecipesInFolder(folderId)
         folderRepository.deleteFolder(folderId)
     }
+
+    suspend fun deleteRecipe(recipeId: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        recipeRepository.deleteRecipeById(recipeId, onSuccess = onSuccess, onFailure = onFailure)
+    }
 }

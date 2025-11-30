@@ -62,14 +62,30 @@ fun CreateRecipeScreen(
     val uiState by createRecipeViewModel.uiState.collectAsState()
     val scrollState =  rememberScrollState()
 
+    LaunchedEffect(recipeId) {
+        if (recipeId != null) {
+            createRecipeViewModel.getRecipeById(recipeId)
+        } else {
+            createRecipeViewModel.resetState()
+        }
+    }
+
     DisposableEffect(Unit) {
         onSetSaveAction {
-            createRecipeViewModel.saveRecipe(
-                onSuccess = onRecipeSuccess,
-                onFailure = {},
-                folderId = folderId
-            )
+            if (recipeId != null) {
+                createRecipeViewModel.updateRecipe(
+                    recipeId = recipeId,
+                    onSuccess = onRecipeSuccess,
+                )
+            } else {
+                createRecipeViewModel.saveRecipe(
+                    onSuccess = onRecipeSuccess,
+                    onFailure = {},
+                    folderId = folderId
+                )
+            }
         }
+
         onDispose {
             onSetSaveAction {}
         }
@@ -256,7 +272,7 @@ fun ListLayout(
                 }
             }
         }
-        
+
         val canAdd = elements.isEmpty() || elements.last().isNotBlank()
         Row(
             modifier = Modifier.fillMaxWidth(),
