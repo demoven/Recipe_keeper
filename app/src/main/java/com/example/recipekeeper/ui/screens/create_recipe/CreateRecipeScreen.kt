@@ -301,7 +301,7 @@ fun TextFieldTransparent(
         value = value,
         onValueChange = onValueChange,
         label = if(label != null) {
-            { Text(text =label, style = MaterialTheme.typography.labelLarge) }
+            { Text(text = label, style = MaterialTheme.typography.labelLarge) }
         } else null,
         placeholder = if (placeholder != null) {
             { Text(text = placeholder, maxLines = 1, softWrap = false, style = MaterialTheme.typography.labelLarge) }
