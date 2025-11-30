@@ -95,7 +95,7 @@ fun RecipeKeeperApp(
     val currentRoute = backStackEntry?.destination?.route
 
     val currentFolderName = backStackEntry?.arguments?.getString("folderName")
-    val currentRecipeTitle = backStackEntry?.arguments?.getString("title")
+    val currentRecipeTitle = backStackEntry?.arguments?.getString("recipeTitle")
 
     val initialTitle = if (currentFolderName != null) {
         currentFolderName
@@ -292,7 +292,7 @@ fun RecipeKeeperApp(
                         onNavigateToSubFolder = { subFolderId, subFolderName ->
                             navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId&folderName=$subFolderName")                     },
                         onNavigateToRecipeDetails = { recipeId, title ->
-                            navController.navigate("${RecipeKeeperScreen.RecipeDetail.name}/$recipeId?title=$title")
+                            navController.navigate("${RecipeKeeperScreen.RecipeDetail.name}/$recipeId?recipeTitle=$title")
                         },
                         homeFactory = homeViewModelFactory,
                         modifier = Modifier.fillMaxSize()
@@ -307,10 +307,10 @@ fun RecipeKeeperApp(
 
             }
             composable(
-                route = "${RecipeKeeperScreen.RecipeDetail.name}/{recipeId}?title={title}",
+                route = "${RecipeKeeperScreen.RecipeDetail.name}/{recipeId}?recipeTitle={recipeTitle}",
                 arguments = listOf(
                     navArgument("recipeId") { type = NavType.StringType },
-                    navArgument("title") {
+                    navArgument("recipeTitle") {
                         type = NavType.StringType
                         nullable = true
                         defaultValue = null
@@ -318,19 +318,27 @@ fun RecipeKeeperApp(
                 )
             ) { entry ->
                 val recipeId = entry.arguments?.getString("recipeId")
+                val recipeTitle = entry.arguments?.getString("recipeTitle")
                 if (recipeId != null && recipeDetailFactory != null) {
                     RecipeDetailScreen(
                         recipeId = recipeId, 
                         recipeDetailFactory = recipeDetailFactory,
                         onNavigateToCooking = { cookingRecipeId ->
-                            navController.navigate("${RecipeKeeperScreen.Cooking.name}/$cookingRecipeId")
+                            navController.navigate("${RecipeKeeperScreen.Cooking.name}/$cookingRecipeId?recipeTitle=$recipeTitle")
                         }
                     )
                 }
             }
             composable(
-                route = "${RecipeKeeperScreen.Cooking.name}/{recipeId}",
-                arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
+                route = "${RecipeKeeperScreen.Cooking.name}/{recipeId}?recipeTitle={recipeTitle}",
+                arguments = listOf(
+                    navArgument("recipeId") { type = NavType.StringType },
+                    navArgument("recipeTitle") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
             ) { entry ->
                 val recipeId = entry.arguments?.getString("recipeId")
                 if (recipeId != null && cookingFactory != null) {
@@ -359,7 +367,7 @@ fun RecipeKeeperApp(
                         onSetSaveAction = { action -> onSaveClick = action },
                         onRecipeSuccess = { recipeId, recipeTitle ->
                             // Redirect to recipe details and remove the createRecipescreen from back stack
-                            navController.navigate("${RecipeKeeperScreen.RecipeDetail.name}/$recipeId?title=$recipeTitle") {
+                            navController.navigate("${RecipeKeeperScreen.RecipeDetail.name}/$recipeId?recipeTitle=$recipeTitle") {
                                 popUpTo(RecipeKeeperScreen.CreateRecipe.name) { inclusive = true }
                             }
                         }

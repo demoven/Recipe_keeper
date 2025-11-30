@@ -19,7 +19,9 @@ class RecipeKeeperViewModel(
         RecipeKeeperScreen.Account,
         RecipeKeeperScreen.Settings,
         RecipeKeeperScreen.Login,
-        RecipeKeeperScreen.Register
+        RecipeKeeperScreen.Register,
+        RecipeKeeperScreen.RecipeDetail,
+        RecipeKeeperScreen.Cooking
     )
     private val screensWithoutTopBar = setOf(
         RecipeKeeperScreen.Login,
