@@ -227,7 +227,7 @@ fun RecipeKeeperApp(
                                 onShowRecipeMenu = { recipeKeeperViewModel.showRecipeMenu() },
                                 isRecipeMenuVisible = uiState.isRecipeMenuVisible,
                                 hideRecipeMenu = { recipeKeeperViewModel.hideRecipeMenu() },
-                                showModifyDialog = {
+                                onModifyRecipe = {
                                     // Naviguer vers createRecipeScreen avec l'ID de la recette
                                     val route = "${RecipeKeeperScreen.CreateRecipe.name}?recipeId=$currentRecipeId"
                                     navController.navigate(route)

@@ -16,7 +16,7 @@ fun RecipeActions(
     onShowRecipeMenu: () -> Unit,
     isRecipeMenuVisible: Boolean,
     hideRecipeMenu: () -> Unit,
-    showModifyDialog: () -> Unit,
+    onModifyRecipe: () -> Unit,
     showDeleteDialog: () -> Unit
 ) {
     IconButton(onClick = { onShowRecipeMenu() }) {
@@ -30,7 +30,7 @@ fun RecipeActions(
             text = { Text(stringResource(R.string.modify_recipe)) },
             onClick = {
                 hideRecipeMenu()
-                showModifyDialog()
+                onModifyRecipe()
             }
         )
         DropdownMenuItem(
