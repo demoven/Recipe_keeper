@@ -150,7 +150,7 @@ fun CardsLayout(
 fun FolderButton(
     folderName: String,
     onNavigateToSubFolder: () -> Unit,
-    modifier : Modifier = Modifier
+    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onNavigateToSubFolder,
