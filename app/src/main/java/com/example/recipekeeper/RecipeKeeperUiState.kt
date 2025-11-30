@@ -14,6 +14,5 @@ data class RecipeKeeperUiState (
     val isDeleteDialogVisible: Boolean = false,
     // Recipe Menu
     val isRecipeMenuVisible: Boolean = false,
-    val isModifyDialogVisible: Boolean = false,
     val isDeleteRecipeDialogVisible: Boolean = false
 )
