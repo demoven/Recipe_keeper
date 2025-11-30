@@ -53,27 +53,41 @@ import com.example.recipekeeper.ui.components.SectionTitle
 @Composable
 fun CreateRecipeScreen(
     createRecipeFactory: CreateRecipeViewModelFactory,
-    onRecipeSuccess: () -> Unit,
+    onRecipeSuccess: (String, String) -> Unit,
     folderId: String? = null,
+    recipeId: String? = null,
     onSetSaveAction: (() -> Unit) -> Unit
 ) {
     val createRecipeViewModel: CreateRecipeViewModel = viewModel(factory = createRecipeFactory)
     val uiState by createRecipeViewModel.uiState.collectAsState()
     val scrollState =  rememberScrollState()
 
+    LaunchedEffect(recipeId) {
+        if (recipeId != null) {
+            createRecipeViewModel.getRecipeById(recipeId)
+        } else {
+            createRecipeViewModel.resetState()
+        }
+    }
+
     DisposableEffect(Unit) {
-        // QUAND ON ARRIVE SUR L'ÉCRAN : On définit l'action de sauvegarde
         onSetSaveAction {
-            createRecipeViewModel.saveRecipe(
-                onSuccess = onRecipeSuccess,
-                onFailure = {},
-                folderId = folderId
-            )
+            if (recipeId != null) {
+                createRecipeViewModel.updateRecipe(
+                    recipeId = recipeId,
+                    onSuccess = onRecipeSuccess,
+                )
+            } else {
+                createRecipeViewModel.saveRecipe(
+                    onSuccess = onRecipeSuccess,
+                    onFailure = {},
+                    folderId = folderId
+                )
+            }
         }
 
-        // QUAND ON QUITTE L'ÉCRAN : On nettoie (on retire le bouton)
         onDispose {
-            onSetSaveAction {} // On passe une fonction vide ou null selon votre implémentation
+            onSetSaveAction {}
         }
     }
 
@@ -112,7 +126,6 @@ fun CreateRecipeScreen(
             ),
             modifier = Modifier.fillMaxWidth()
         )
-        // Liste Ingrédients connectée au ViewModel
         ListLayout(
             elements = uiState.ingredients,
             placeholder = "ex: 200g de farine",
@@ -125,9 +138,8 @@ fun CreateRecipeScreen(
                 createRecipeViewModel.addStepIfEmpty()
             }
         )
-        // Liste Étapes connectée au ViewModel
         ListLayout(
-            elements = uiState.instructions, // Attention au nom (steps vs instructions dans votre uiState)
+            elements = uiState.instructions,
             placeholder = "Décrire l'étape",
             title = "Étapes",
             numbered = true,
@@ -179,22 +191,20 @@ fun DescriptionLayout(
 
 @Composable
 fun ListLayout(
-    elements: List<String>, // On reçoit une liste simple, pas Mutable
+    elements: List<String>,
     placeholder: String,
     title: String,
-    onValueChange: (Int, String) -> Unit, // Callback modification
-    onAdd: () -> Unit,                    // Callback ajout
-    onRemove: (Int) -> Unit,              // Callback suppression
+    onValueChange: (Int, String) -> Unit,
+    onAdd: () -> Unit,
+    onRemove: (Int) -> Unit,
     modifier: Modifier = Modifier,
     numbered: Boolean = false,
     singleLineTextField: Boolean = true,
     onJumpToNextSection: (() -> Unit)? = null,
 ) {
-    // Gestion intelligente du focus : on recrée les focus si la taille de la liste change
     val focusRequesters = remember(elements.size) { List(elements.size) { FocusRequester() } }
     var shouldFocusLast by remember { mutableStateOf(false) }
 
-    // Focus automatique sur le nouvel élément ajouté
     LaunchedEffect(elements.size) {
         if (shouldFocusLast && elements.isNotEmpty()) {
             focusRequesters.last().requestFocus()
@@ -231,14 +241,11 @@ fun ListLayout(
                     ),
                     keyboardActions = KeyboardActions(
                         onNext = {
-
-                            // Si le champ est vide → passer à la section suivante
                             if (item.isBlank()) {
                                 onJumpToNextSection?.invoke()
                                 return@KeyboardActions
                             }
 
-                            // Sinon comportement normal
                             if (index == elements.lastIndex) {
                                 onAdd()
                                 shouldFocusLast = true
@@ -266,7 +273,6 @@ fun ListLayout(
             }
         }
 
-        // Bouton Ajouter
         val canAdd = elements.isEmpty() || elements.last().isNotBlank()
         Row(
             modifier = Modifier.fillMaxWidth(),

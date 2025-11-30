@@ -19,9 +19,17 @@ interface IRecipeRepository {
     suspend fun deleteRecipesInFolder(folderId: String)
     fun saveRecipe(
         recipe: Recipe,
-        onSuccess: () -> Unit,
+        onSuccess: (String, String) -> Unit,
         onFailure: () -> Unit
     )
+
+    fun updateRecipe(
+        recipe: Recipe,
+        onSuccess: (String, String) -> Unit,
+        onFailure: () -> Unit
+    )
+
+    suspend fun deleteRecipeById(recipeId: String, onSuccess: () -> Unit, onFailure: () -> Unit)
 
     suspend fun deleteAllRecipes()
 }
