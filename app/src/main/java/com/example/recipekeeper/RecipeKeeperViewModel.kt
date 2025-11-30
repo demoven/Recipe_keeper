@@ -47,7 +47,9 @@ class RecipeKeeperViewModel(
         _uiState.value = _uiState.value.copy(
             currentScreen = screen,
             isTopBarVisible = screen !in screensWithoutTopBar,
-            isBottomBarVisible = screen !in screensWithoutBottomBar
+            isBottomBarVisible = screensWithoutBottomBar.none { screenWithoutBottomBar ->
+                routeBase.startsWith(screenWithoutBottomBar.name)
+            }
         )
     }
 
