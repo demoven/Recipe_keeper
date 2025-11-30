@@ -287,7 +287,7 @@ fun RecipeKeeperApp(
                 }
             )
         }
-        if (uiState.isDeleteRecipeDialogVisible && currentRecipeId != null ) {
+        if (uiState.isDeleteRecipeDialogVisible && currentRecipeId != null) {
             DeleteRecipeDialog(
                 onDismiss = { recipeKeeperViewModel.hideRecipeDeleteDialog() },
                 onConfirm = {
