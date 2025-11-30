@@ -36,7 +36,7 @@ import com.example.recipekeeper.ui.components.SectionTitle
 @Composable
 fun HomeScreen(
     onNavigateToSubFolder: (String, String) -> Unit,
-    onNavigateToRecipeDetails: (String) -> Unit,
+    onNavigateToRecipeDetails: (String, String) -> Unit,
     homeFactory: HomeViewModelFactory,
     modifier: Modifier = Modifier,
     folderId: String? = null
@@ -108,7 +108,7 @@ fun FoldersLayout(
 @Composable
 fun CardsLayout(
     recipes: List<Recipe>,
-    onNavigateToRecipeDetails: (String) -> Unit,
+    onNavigateToRecipeDetails: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -133,7 +133,7 @@ fun CardsLayout(
             CardField(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onNavigateToRecipeDetails(recipe.id) },
+                    .clickable { onNavigateToRecipeDetails(recipe.id, recipe.title) },
                 title = recipe.title
             )
         }

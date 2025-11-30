@@ -99,7 +99,7 @@ class CreateRecipeViewModel(
         }
     }
 
-    fun saveRecipe(folderId: String?, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
+    fun saveRecipe(folderId: String?, onSuccess: (String, String) -> Unit, onFailure: (Exception) -> Unit) {
         if(_uiState.value.title.isBlank() || _uiState.value.ingredients.isEmpty()) {
             onFailure(IllegalArgumentException("Title cannot be empty"))
             return
@@ -117,8 +117,8 @@ class CreateRecipeViewModel(
             folderId = folderId
         )
         recipeRepository.saveRecipe(newRecipe,
-            onSuccess = { recipeId ->
-                onSuccess(recipeId)
+            onSuccess = { recipeId, recipeTitle ->
+                onSuccess(recipeId, recipeTitle)
                 _uiState.value = CreateRecipeUiState() // Reset state after saving
             },
             onFailure = {

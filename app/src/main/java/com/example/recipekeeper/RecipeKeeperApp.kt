@@ -95,9 +95,12 @@ fun RecipeKeeperApp(
     val currentRoute = backStackEntry?.destination?.route
 
     val currentFolderName = backStackEntry?.arguments?.getString("folderName")
+    val currentRecipeTitle = backStackEntry?.arguments?.getString("title")
 
     val initialTitle = if (currentFolderName != null) {
         currentFolderName
+    } else if (currentRecipeTitle != null) {
+        currentRecipeTitle
     } else {
         val currentScreen = try {
             RecipeKeeperScreen.valueOf(
@@ -109,10 +112,10 @@ fun RecipeKeeperApp(
         stringResource(currentScreen.title)
     }
 
-    var folderTitle by remember(currentRoute, currentFolderName) { mutableStateOf(initialTitle) }
+    var dynamicTitle by remember(currentRoute, currentFolderName, currentRecipeTitle) { mutableStateOf(initialTitle) }
 
-    LaunchedEffect(currentFolderName) {
-        folderTitle = currentFolderName ?: initialTitle
+    LaunchedEffect(currentFolderName, currentRecipeTitle) {
+        dynamicTitle = currentFolderName ?: currentRecipeTitle ?: initialTitle
     }
 
     LaunchedEffect(currentRoute) {
@@ -196,7 +199,7 @@ fun RecipeKeeperApp(
             if (uiState.isTopBarVisible) {
                 val isCreateRecipeScreen = currentRoute?.startsWith(RecipeKeeperScreen.CreateRecipe.name) == true
                 RecipeKeeperTopBar(
-                    title = folderTitle,
+                    title = dynamicTitle,
                     canNavigateBack = navController.previousBackStackEntry != null,
                     navigateUp = { navController.navigateUp() },
                     actions = {
@@ -242,11 +245,11 @@ fun RecipeKeeperApp(
     ) { innerPadding ->
         if (uiState.isRenameDialogVisible && currentFolderId != null) {
             RenameFolderDialog(
-                currentFolderName = folderTitle,
+                currentFolderName = dynamicTitle,
                 onDismiss = { recipeKeeperViewModel.hideRenameDialog() },
                 onConfirm = { newName ->
                     updateFolderAction(currentFolderId, newName)
-                    folderTitle = newName
+                    dynamicTitle = newName
                     recipeKeeperViewModel.hideRenameDialog()
                 }
             )
@@ -288,8 +291,8 @@ fun RecipeKeeperApp(
                         folderId = folderId,
                         onNavigateToSubFolder = { subFolderId, subFolderName ->
                             navController.navigate("${RecipeKeeperScreen.Home.name}?folderId=$subFolderId&folderName=$subFolderName")                     },
-                        onNavigateToRecipeDetails = { recipeId ->
-                            navController.navigate("${RecipeKeeperScreen.RecipeDetail.name}/$recipeId")
+                        onNavigateToRecipeDetails = { recipeId, title ->
+                            navController.navigate("${RecipeKeeperScreen.RecipeDetail.name}/$recipeId?title=$title")
                         },
                         homeFactory = homeViewModelFactory,
                         modifier = Modifier.fillMaxSize()
@@ -304,8 +307,15 @@ fun RecipeKeeperApp(
 
             }
             composable(
-                route = "${RecipeKeeperScreen.RecipeDetail.name}/{recipeId}",
-                arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
+                route = "${RecipeKeeperScreen.RecipeDetail.name}/{recipeId}?title={title}",
+                arguments = listOf(
+                    navArgument("recipeId") { type = NavType.StringType },
+                    navArgument("title") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
             ) { entry ->
                 val recipeId = entry.arguments?.getString("recipeId")
                 if (recipeId != null && recipeDetailFactory != null) {
@@ -347,9 +357,9 @@ fun RecipeKeeperApp(
                         folderId = folderId,
                         createRecipeFactory = userContainer.createRecipeFactory,
                         onSetSaveAction = { action -> onSaveClick = action },
-                        onRecipeSuccess = { recipeId ->
+                        onRecipeSuccess = { recipeId, recipeTitle ->
                             // Redirect to recipe details and remove the createRecipescreen from back stack
-                            navController.navigate("${RecipeKeeperScreen.RecipeDetail.name}/$recipeId") {
+                            navController.navigate("${RecipeKeeperScreen.RecipeDetail.name}/$recipeId?title=$recipeTitle") {
                                 popUpTo(RecipeKeeperScreen.CreateRecipe.name) { inclusive = true }
                             }
                         }

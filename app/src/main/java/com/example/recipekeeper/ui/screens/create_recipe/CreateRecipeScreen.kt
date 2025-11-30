@@ -53,7 +53,7 @@ import com.example.recipekeeper.ui.components.SectionTitle
 @Composable
 fun CreateRecipeScreen(
     createRecipeFactory: CreateRecipeViewModelFactory,
-    onRecipeSuccess: (String) -> Unit,
+    onRecipeSuccess: (String, String) -> Unit,
     folderId: String? = null,
     onSetSaveAction: (() -> Unit) -> Unit
 ) {
