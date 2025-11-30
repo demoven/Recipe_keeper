@@ -155,7 +155,7 @@ class CreateRecipeViewModel(
     fun updateRecipe(recipeId: String, onSuccess: (String, String) -> Unit) {
         recipeRepository.updateRecipe(
             recipe = Recipe(
-                id = recipeId, // You should provide the actual recipe ID here
+                id = recipeId,
                 title = _uiState.value.title,
                 description = _uiState.value.description,
                 ingredients = _uiState.value.ingredients,
