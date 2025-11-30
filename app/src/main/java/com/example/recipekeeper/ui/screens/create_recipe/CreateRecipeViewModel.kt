@@ -125,7 +125,7 @@ class CreateRecipeViewModel(
         onFailure: (Exception) -> Unit
     ) {
         if (_uiState.value.title.isBlank() || _uiState.value.ingredients.isEmpty()) {
-            onFailure(IllegalArgumentException("Title cannot be empty"))
+            onFailure(IllegalArgumentException("Title and ingredients cannot be empty"))
             return
         }
         val state = _uiState.value
