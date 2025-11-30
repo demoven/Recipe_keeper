@@ -347,8 +347,11 @@ fun RecipeKeeperApp(
                         folderId = folderId,
                         createRecipeFactory = userContainer.createRecipeFactory,
                         onSetSaveAction = { action -> onSaveClick = action },
-                        onRecipeSuccess = {
-                            navController.navigateUp()
+                        onRecipeSuccess = { recipeId ->
+                            // Redirect to recipe details and remove the createRecipescreen from back stack
+                            navController.navigate("${RecipeKeeperScreen.RecipeDetail.name}/$recipeId") {
+                                popUpTo(RecipeKeeperScreen.CreateRecipe.name) { inclusive = true }
+                            }
                         }
                     )
                 }
