@@ -74,4 +74,9 @@
     <string name="steps">Étapes</string>
     <string name="delete">Supprimer</string>
     <string name="error_loading_recipe">Erreur lors du chargement de la recette</string>
+    <string name="prep_label">Prépa</string>
+    <string name="cooking_label">Cuisson</string>
+    <string name="portions_label">Portions</string>
+    <string name="minutes_abbreviation">min</string>
+    <string name="persons_abbreviation">pers.</string>
 </resources>

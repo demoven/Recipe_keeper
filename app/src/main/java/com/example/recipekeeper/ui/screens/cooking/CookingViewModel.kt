@@ -14,11 +14,12 @@ data class CookingUiState(
     val recipe: Recipe? = null,
     val currentStep: Int = 0,
     val isLoading: Boolean = true,
-    val error: String? = null
+    val error: String? = null,
 )
 
-class CookingViewModel(private val recipeRepository: IRecipeRepository) : ViewModel() {
-
+class CookingViewModel(
+    private val recipeRepository: IRecipeRepository,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(CookingUiState())
     val uiState: StateFlow<CookingUiState> = _uiState.asStateFlow()
 

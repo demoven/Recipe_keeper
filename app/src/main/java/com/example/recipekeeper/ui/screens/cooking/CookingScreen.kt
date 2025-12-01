@@ -49,7 +49,7 @@ import com.example.recipekeeper.di.factory.CookingViewModelFactory
 fun CookingScreen(
     recipeId: String,
     cookingFactory: CookingViewModelFactory,
-    onFinish: () -> Unit = {}
+    onFinish: () -> Unit = {},
 ) {
     val viewModel: CookingViewModel = viewModel(factory = cookingFactory)
     val uiState by viewModel.uiState.collectAsState()
@@ -58,38 +58,40 @@ fun CookingScreen(
     var showIngredientsDialog by remember { mutableStateOf(false) }
     val isListeningRef = remember { mutableStateOf(false) }
 
-    val voiceHelper = remember(context) {
-        VoiceRecognition(context, isListeningRef).apply {
-            onSuivant = {
-                val isLastStep = uiState.currentStep >= (uiState.recipe?.instructions?.lastIndex ?: 0)
-                if (isLastStep) {
-                    onFinish()
-                } else {
-                    viewModel.nextStep()
+    val voiceHelper =
+        remember(context) {
+            VoiceRecognition(context, isListeningRef).apply {
+                onSuivant = {
+                    val isLastStep = uiState.currentStep >= (uiState.recipe?.instructions?.lastIndex ?: 0)
+                    if (isLastStep) {
+                        onFinish()
+                    } else {
+                        viewModel.nextStep()
+                    }
                 }
-            }
-            onRetour = {
-                if (uiState.currentStep > 0) {
-                    viewModel.previousStep()
+                onRetour = {
+                    if (uiState.currentStep > 0) {
+                        viewModel.previousStep()
+                    }
                 }
+                onIngredient = {
+                    showIngredientsDialog = true
+                }
+                onFermer = {
+                    showIngredientsDialog = false
+                }
+                shouldShowIngredients = { showIngredientsDialog }
             }
-            onIngredient = {
-                showIngredientsDialog = true
-            }
-            onFermer = {
-                showIngredientsDialog = false
-            }
-            shouldShowIngredients = { showIngredientsDialog }
         }
-    }
 
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            voiceHelper.startListening()
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                voiceHelper.startListening()
+            }
         }
-    }
 
     DisposableEffect(context) {
         voiceHelper.initialize()
@@ -108,6 +110,7 @@ fun CookingScreen(
                 PackageManager.PERMISSION_GRANTED -> {
                 voiceHelper.startListening()
             }
+
             else -> {
                 requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
             }
@@ -125,16 +128,17 @@ fun CookingScreen(
     } else {
         uiState.recipe?.let { recipe ->
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Spacer(modifier = Modifier.size(48.dp))
                     Text(
@@ -142,26 +146,26 @@ fun CookingScreen(
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                     )
                     IconButton(
                         onClick = {
                             showIngredientsDialog = true
-                        }
+                        },
                     ) {
                         Row(
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(
                                 imageVector = Icons.Default.VolumeUp,
                                 contentDescription = "Commande vocale",
-                                modifier = Modifier.size(12.dp)
+                                modifier = Modifier.size(12.dp),
                             )
                             Spacer(modifier = Modifier.size(4.dp))
                             Icon(
                                 imageVector = Icons.Default.Restaurant,
                                 contentDescription = "Voir les ingrédients",
-                                modifier = Modifier.size(28.dp)
+                                modifier = Modifier.size(28.dp),
                             )
                         }
                     }
@@ -171,33 +175,33 @@ fun CookingScreen(
                     Text(
                         text = "Étape ${uiState.currentStep + 1} / ${recipe.instructions.size}",
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Light
+                        fontWeight = FontWeight.Light,
                     )
                     Text(
                         text = recipe.instructions[uiState.currentStep],
                         fontSize = 18.sp,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(vertical = 24.dp)
+                        modifier = Modifier.padding(vertical = 24.dp),
                     )
                 }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Button(
                         onClick = { viewModel.previousStep() },
-                        enabled = uiState.currentStep > 0
+                        enabled = uiState.currentStep > 0,
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.Center,
                         ) {
                             Icon(
                                 imageVector = Icons.Default.VolumeUp,
                                 contentDescription = "Commande vocale",
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(16.dp),
                             )
                             Spacer(modifier = Modifier.size(8.dp))
                             Text("Retour")
@@ -210,16 +214,16 @@ fun CookingScreen(
                             } else {
                                 onFinish()
                             }
-                        }
+                        },
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.Center,
                         ) {
                             Icon(
                                 imageVector = Icons.Default.VolumeUp,
                                 contentDescription = "Commande vocale",
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(16.dp),
                             )
                             Spacer(modifier = Modifier.size(8.dp))
                             Text(
@@ -227,7 +231,7 @@ fun CookingScreen(
                                     "Suivant"
                                 } else {
                                     "Terminer"
-                                }
+                                },
                             )
                         }
                     }
@@ -243,26 +247,27 @@ fun CookingScreen(
                         Text(
                             text = "Ingrédients",
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
                         )
                     },
                     text = {
                         Column(
-                            modifier = Modifier
-                                .verticalScroll(rememberScrollState())
+                            modifier =
+                                Modifier
+                                    .verticalScroll(rememberScrollState()),
                         ) {
                             if (recipe.ingredients.isEmpty()) {
                                 Text(
                                     text = "Aucun ingrédient disponible",
                                     fontSize = 16.sp,
-                                    color = androidx.compose.ui.graphics.Color.Gray
+                                    color = androidx.compose.ui.graphics.Color.Gray,
                                 )
                             } else {
                                 recipe.ingredients.forEachIndexed { index, ingredient ->
                                     Text(
                                         text = "• $ingredient",
                                         fontSize = 16.sp,
-                                        modifier = Modifier.padding(vertical = 4.dp)
+                                        modifier = Modifier.padding(vertical = 4.dp),
                                     )
                                     if (index < recipe.ingredients.lastIndex) {
                                         Spacer(modifier = Modifier.height(4.dp))
@@ -275,21 +280,21 @@ fun CookingScreen(
                         TextButton(
                             onClick = {
                                 showIngredientsDialog = false
-                            }
+                            },
                         ) {
                             Row(
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.VolumeUp,
                                     contentDescription = "Commande vocale",
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(16.dp),
                                 )
                                 Spacer(modifier = Modifier.size(8.dp))
                                 Text("Fermer")
                             }
                         }
-                    }
+                    },
                 )
             }
         }
