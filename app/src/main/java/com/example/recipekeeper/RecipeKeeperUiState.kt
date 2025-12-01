@@ -1,5 +1,6 @@
 package com.example.recipekeeper
 
+import com.example.recipekeeper.ui.components.snackbar.SnackbarType
 import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 
 data class RecipeKeeperUiState(
@@ -15,4 +16,7 @@ data class RecipeKeeperUiState(
     // Recipe Menu
     val isRecipeMenuVisible: Boolean = false,
     val isDeleteRecipeDialogVisible: Boolean = false,
+    // Snackbar handler
+    val snackbarMessage: String? = null,
+    val snackbarType: SnackbarType = SnackbarType.Info,
 )

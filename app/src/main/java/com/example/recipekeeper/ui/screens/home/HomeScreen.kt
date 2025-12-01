@@ -55,6 +55,12 @@ fun HomeScreen(
                 .padding(dimensionResource(R.dimen.padding_medium)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
     ) {
+        if (uiState.folders.isEmpty() && uiState.recipes.isEmpty()) {
+            Text(
+                text = stringResource(R.string.no_content),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
         if (uiState.folders.isNotEmpty()) {
             FoldersLayout(
                 folders = uiState.folders,

@@ -2,6 +2,7 @@ package com.example.recipekeeper
 
 import androidx.lifecycle.ViewModel
 import com.example.recipekeeper.data.repository.IAuthRepository
+import com.example.recipekeeper.ui.components.snackbar.SnackbarType
 import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -112,5 +113,24 @@ class RecipeKeeperViewModel(
 
     fun hideRecipeDeleteDialog() {
         _uiState.value = _uiState.value.copy(isDeleteRecipeDialogVisible = false)
+    }
+
+    fun showSnackbar(
+        message: String,
+        type: SnackbarType = SnackbarType.Info,
+    ) {
+        _uiState.value =
+            _uiState.value.copy(
+                snackbarMessage = message,
+                snackbarType = type,
+            )
+    }
+
+    fun clearSnackbar() {
+        _uiState.value =
+            _uiState.value.copy(
+                snackbarMessage = null,
+                snackbarType = SnackbarType.Info,
+            )
     }
 }

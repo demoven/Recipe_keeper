@@ -39,6 +39,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.AuthViewModelFactory
+import com.example.recipekeeper.ui.components.snackbar.SnackbarType
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
 import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 
@@ -46,35 +47,21 @@ import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     authFactory: AuthViewModelFactory,
+    onError: (String, SnackbarType) -> Unit,
 ) {
     val loginViewModel: LoginViewModel = viewModel(factory = authFactory)
     val uiState by loginViewModel.uiState.collectAsState()
     val loginError = stringResource(R.string.signin_failed)
     val context = LocalContext.current
 
-    LaunchedEffect(uiState.emailVerificationError) {
+    LaunchedEffect(uiState.emailVerificationError, uiState.loginError) {
         if (uiState.emailVerificationError) {
-            Toast.makeText(context, context.getString(R.string.check_mailbox), Toast.LENGTH_SHORT).show()
+            onError(context.getString(R.string.check_mailbox), SnackbarType.Error)
             loginViewModel.updateEmailVerificationError(false)
-        }
-    }
-
-    LaunchedEffect(uiState.loginError) {
-        if (uiState.loginError) {
-            Toast.makeText(context, loginError, Toast.LENGTH_SHORT).show()
+        } else if (uiState.loginError) {
+            onError(loginError, SnackbarType.Error)
             loginViewModel.updateLoginError(false)
         }
-    }
-
-    if (uiState.isResetPasswordDialogVisible) {
-        PasswordResetDialog(
-            initialEmail = uiState.email,
-            onDismiss = { loginViewModel.hideResetPasswordDialog() },
-            onSend = { email -> loginViewModel.sendPasswordResetEmail(email) },
-            isEmailSent = uiState.isResetPasswordEmailSent,
-            errorMessage = if (uiState.resetPasswordError) stringResource(R.string.reset_password_error) else null,
-            modifier = Modifier.fillMaxWidth().padding(dimensionResource(R.dimen.padding_medium)),
-        )
     }
 
     Column(
@@ -84,6 +71,17 @@ fun LoginScreen(
                 .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        if (uiState.isResetPasswordDialogVisible) {
+            PasswordResetDialog(
+                initialEmail = uiState.email,
+                onDismiss = { loginViewModel.hideResetPasswordDialog() },
+                onSend = { email -> loginViewModel.sendPasswordResetEmail(email) },
+                isEmailSent = uiState.isResetPasswordEmailSent,
+                errorMessage = if (uiState.resetPasswordError) stringResource(R.string.reset_password_error) else null,
+                modifier = Modifier.fillMaxWidth().padding(dimensionResource(R.dimen.padding_medium)),
+            )
+        }
+
         Box(
             modifier =
                 Modifier

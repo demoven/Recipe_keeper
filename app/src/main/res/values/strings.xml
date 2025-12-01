@@ -90,4 +90,5 @@
     <string name="instructions">Instructions</string>
     <string name="cook_time_label">Temps de cuisson</string>
     <string name="servings_label">Nombre de personnes</string>
+    <string name="no_content">Aucune recette ou dossier trouvé.</string>
 </resources>

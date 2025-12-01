@@ -7,8 +7,12 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -40,6 +44,8 @@ import com.example.recipekeeper.ui.components.DeleteRecipeDialog
 import com.example.recipekeeper.ui.components.RenameFolderDialog
 import com.example.recipekeeper.ui.components.options.FolderDropDownOptions
 import com.example.recipekeeper.ui.components.options.RecipeDropDownOptions
+import com.example.recipekeeper.ui.components.snackbar.AppSnackbar
+import com.example.recipekeeper.ui.components.snackbar.RecipeKeeperSnackbarVisuals
 import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 import com.example.recipekeeper.ui.screens.auth.login.LoginScreen
 import com.example.recipekeeper.ui.screens.auth.register.RegisterScreen
@@ -213,7 +219,27 @@ fun RecipeKeeperApp(
         }
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.snackbarMessage) {
+        uiState.snackbarMessage?.let { message ->
+            val visuals =
+                RecipeKeeperSnackbarVisuals(
+                    message = message,
+                    type = uiState.snackbarType,
+                    withDismissAction = true,
+                )
+            snackbarHostState.showSnackbar(visuals)
+            recipeKeeperViewModel.clearSnackbar()
+        }
+    }
+
     Scaffold(
+        snackbarHost = {
+            AppSnackbar(
+                hostState = snackbarHostState,
+            )
+        },
         topBar = {
             if (uiState.isTopBarVisible) {
                 val isCreateRecipeScreen = currentRoute?.startsWith(RecipeKeeperScreen.CreateRecipe.name) == true
@@ -453,6 +479,9 @@ fun RecipeKeeperApp(
                         navController.navigate(RecipeKeeperScreen.Register.name)
                     },
                     authFactory = authFactory,
+                    onError = { message, snackbarType ->
+                        recipeKeeperViewModel.showSnackbar(message, snackbarType)
+                    },
                 )
             }
             composable(RecipeKeeperScreen.Register.name) {
