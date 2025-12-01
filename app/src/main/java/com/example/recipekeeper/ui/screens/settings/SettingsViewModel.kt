@@ -14,9 +14,8 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(
     private val authRepository: IAuthRepository,
     private val recipeRepository: IRecipeRepository,
-    private val folderRepository: IFolderRepository
-    ) : ViewModel() {
-
+    private val folderRepository: IFolderRepository,
+) : ViewModel() {
     private val validator = AuthValidator()
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
@@ -77,17 +76,18 @@ class SettingsViewModel(
     }
 
     fun onDismissDialog() {
-        _uiState.value = _uiState.value.copy(
-            showPasswordDialogEmail = false,
-            showPasswordDialogDeletion = false,
-            showPasswordDialogSecurity = false,
-            currentPassword = "",
-            newPassword = "",
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                showPasswordDialogEmail = false,
+                showPasswordDialogDeletion = false,
+                showPasswordDialogSecurity = false,
+                currentPassword = "",
+                newPassword = "",
+            )
     }
 
-    fun isEmailValid(): Boolean  {
-        if(validator.isEmailValid(uiState.value.email)) {
+    fun isEmailValid(): Boolean {
+        if (validator.isEmailValid(uiState.value.email)) {
             _uiState.value = _uiState.value.copy(emailError = false)
             return true
         } else {
@@ -97,7 +97,7 @@ class SettingsViewModel(
     }
 
     fun isNewPasswordValid(): Boolean {
-        if(validator.isPasswordValid(uiState.value.newPassword)) {
+        if (validator.isPasswordValid(uiState.value.newPassword)) {
             _uiState.value = _uiState.value.copy(newPasswordError = false)
             return true
         } else {
@@ -107,7 +107,7 @@ class SettingsViewModel(
     }
 
     fun isCurrentPasswordValid(): Boolean {
-        if(uiState.value.currentPassword.isNotBlank()) {
+        if (uiState.value.currentPassword.isNotBlank()) {
             _uiState.value = _uiState.value.copy(currentPasswordError = false)
             return true
         } else {
@@ -138,9 +138,10 @@ class SettingsViewModel(
                         },
                         onFailure = {
                             updateEmailUpdateError(true)
-                        }
+                        },
                     )
                 } catch (e: Exception) {
+                    // TODO handle exception properly
                     updateEmailUpdateError(true)
                 }
             }
@@ -162,10 +163,11 @@ class SettingsViewModel(
                     },
                     onFailure = {
                         updatePasswordUpdateError(true)
-                    }
+                    },
                 )
                 // Password update successful
             } catch (e: Exception) {
+                // TODO handle exception properly
                 updatePasswordUpdateError(true)
             }
         }
@@ -186,6 +188,7 @@ class SettingsViewModel(
                 authRepository.deleteAccount(uiState.value.currentPassword)
                 // Account deletion successful
             } catch (e: Exception) {
+                // TODO handle exception properly
                 updateDeletionError(true)
             }
         }
