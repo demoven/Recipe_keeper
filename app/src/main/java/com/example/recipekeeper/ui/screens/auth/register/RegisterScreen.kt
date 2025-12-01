@@ -1,6 +1,5 @@
 package com.example.recipekeeper.ui.screens.auth.register
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,7 +20,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -30,6 +28,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.AuthViewModelFactory
+import com.example.recipekeeper.ui.components.snackbar.SnackbarType
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
 import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 
@@ -37,27 +36,24 @@ import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
     authFactory: AuthViewModelFactory,
+    onDisplayMessage: (String, SnackbarType) -> Unit,
 ) {
     val registerViewModel: RegisterViewModel = viewModel(factory = authFactory)
     val uiState by registerViewModel.uiState.collectAsState()
     val registerError = stringResource(R.string.register_failed)
     val sentVerificationEmail = stringResource(R.string.check_verification_email)
-    val context = LocalContext.current
 
-    LaunchedEffect(uiState.registerError) {
+    LaunchedEffect(uiState.registerError, uiState.verificationEmailSent) {
         if (uiState.registerError) {
-            Toast.makeText(context, registerError, Toast.LENGTH_LONG).show()
+            onDisplayMessage(registerError, SnackbarType.Error)
             registerViewModel.updateRegisterError(false)
-        }
-    }
-
-    LaunchedEffect(uiState.verificationEmailSent) {
-        if (uiState.verificationEmailSent) {
-            Toast.makeText(context, sentVerificationEmail, Toast.LENGTH_LONG).show()
+        } else if (uiState.verificationEmailSent) {
+            onDisplayMessage(sentVerificationEmail, SnackbarType.Info)
             registerViewModel.updateVerificationEmailSent(false)
             onNavigateToLogin()
         }
     }
+
     Column(
         modifier =
             Modifier

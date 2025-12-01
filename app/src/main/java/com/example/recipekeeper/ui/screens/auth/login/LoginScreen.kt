@@ -1,6 +1,5 @@
 package com.example.recipekeeper.ui.screens.auth.login
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -47,7 +46,7 @@ import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     authFactory: AuthViewModelFactory,
-    onError: (String, SnackbarType) -> Unit,
+    onDisplayMessage: (String, SnackbarType) -> Unit,
 ) {
     val loginViewModel: LoginViewModel = viewModel(factory = authFactory)
     val uiState by loginViewModel.uiState.collectAsState()
@@ -56,10 +55,10 @@ fun LoginScreen(
 
     LaunchedEffect(uiState.emailVerificationError, uiState.loginError) {
         if (uiState.emailVerificationError) {
-            onError(context.getString(R.string.check_mailbox), SnackbarType.Error)
+            onDisplayMessage(context.getString(R.string.check_mailbox), SnackbarType.Error)
             loginViewModel.updateEmailVerificationError(false)
         } else if (uiState.loginError) {
-            onError(loginError, SnackbarType.Error)
+            onDisplayMessage(loginError, SnackbarType.Error)
             loginViewModel.updateLoginError(false)
         }
     }

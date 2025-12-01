@@ -7,11 +7,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -479,7 +476,7 @@ fun RecipeKeeperApp(
                         navController.navigate(RecipeKeeperScreen.Register.name)
                     },
                     authFactory = authFactory,
-                    onError = { message, snackbarType ->
+                    onDisplayMessage = { message, snackbarType ->
                         recipeKeeperViewModel.showSnackbar(message, snackbarType)
                     },
                 )
