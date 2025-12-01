@@ -34,7 +34,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -52,10 +51,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
@@ -156,6 +156,7 @@ fun CookingScreen(
 
     if (showIngredientsDialog && uiState.recipe != null) {
         IngredientsDialog(
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
             ingredients = uiState.recipe!!.ingredients,
             onDismiss = { showIngredientsDialog = false },
         )
@@ -181,17 +182,16 @@ fun CookingContent(
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(dimensionResource(id = R.dimen.padding_medium)),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // --- En-tête ---
         CookingHeader(
-            title = recipe.title,
             isListening = isListening,
             onShowIngredients = onShowIngredients,
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.space_large)))
 
         // --- Barre de progression ---
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -201,7 +201,7 @@ fun CookingContent(
             ) {
                 Text(
                     text = "${stringResource(R.string.step)} ${currentStep + 1} / $totalSteps",
-                    style = MaterialTheme.typography.labelLarge, // Style standard pour les labels
+                    style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Text(
@@ -209,25 +209,25 @@ fun CookingContent(
                     style = MaterialTheme.typography.labelLarge,
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_small)))
             LinearProgressIndicator(
                 progress = { progress },
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .height(8.dp)
+                        .height(dimensionResource(id = R.dimen.height_small))
                         .clip(CircleShape),
             )
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.space_extra_large)))
 
         InstructionCard(
             instruction = recipe.instructions.getOrNull(currentStep) ?: "",
             modifier = Modifier.weight(1f),
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.space_extra_large)))
 
         CookingControls(
             isFirstStep = currentStep == 0,
@@ -240,7 +240,6 @@ fun CookingContent(
 
 @Composable
 fun CookingHeader(
-    title: String,
     isListening: Boolean,
     onShowIngredients: () -> Unit,
 ) {
@@ -256,32 +255,32 @@ fun CookingHeader(
                 tint = MaterialTheme.colorScheme.primary,
                 modifier =
                     Modifier
-                        .size(24.dp)
+                        .size(dimensionResource(id = R.dimen.size_icon_small))
                         .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
-                        .padding(4.dp),
+                        .padding(dimensionResource(id = R.dimen.padding_extra_small)),
             )
         } else {
-            Spacer(modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.size_icon_small)))
         }
 
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineSmall, // Titre principal
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            modifier =
-                Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp),
-            maxLines = 2,
-        )
-
-        IconButton(onClick = onShowIngredients) {
+        FilledTonalButton(onClick = onShowIngredients) {
             Icon(
                 imageVector = Icons.Default.RestaurantMenu,
-                contentDescription = stringResource(R.string.ingredients),
-                modifier = Modifier.size(28.dp),
+                contentDescription = null,
+                modifier = Modifier.size(dimensionResource(id = R.dimen.size_icon_small)),
             )
+            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.space_small)))
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = stringResource(R.string.ingredients),
+                    style = MaterialTheme.typography.labelLarge,
+                )
+                Text(
+                    text = "\"${stringResource(R.string.ingredients)}\"",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f),
+                )
+            }
         }
     }
 }
@@ -293,14 +292,14 @@ fun InstructionCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(id = R.dimen.elevation_card_small)),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Box(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
+                    .padding(dimensionResource(id = R.dimen.padding_large)),
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -322,7 +321,7 @@ fun CookingControls(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.space_medium)),
     ) {
         // Bouton Précédent
         FilledTonalButton(
@@ -331,10 +330,10 @@ fun CookingControls(
             modifier =
                 Modifier
                     .weight(1f)
-                    .height(56.dp),
+                    .height(dimensionResource(id = R.dimen.height_button_large)),
         ) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.space_small)))
             Column(horizontalAlignment = Alignment.Start) {
                 Text(stringResource(R.string.back), style = MaterialTheme.typography.labelLarge)
                 Text(
@@ -350,7 +349,7 @@ fun CookingControls(
             modifier =
                 Modifier
                     .weight(1f)
-                    .height(56.dp),
+                    .height(dimensionResource(id = R.dimen.height_button_large)),
             colors =
                 if (isLastStep) {
                     ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
@@ -369,7 +368,7 @@ fun CookingControls(
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
                 )
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.space_small)))
             Icon(
                 if (isLastStep) Icons.Default.Check else Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = null,
@@ -382,8 +381,11 @@ fun CookingControls(
 fun IngredientsDialog(
     ingredients: List<String>,
     onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     AlertDialog(
+        modifier = modifier,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = onDismiss,
         title = {
             Text(
@@ -397,7 +399,7 @@ fun IngredientsDialog(
                 if (ingredients.isEmpty()) {
                     Text(
                         stringResource(R.string.no_ingredient_available),
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyLarge,
                         fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
                     )
                 } else {
@@ -406,19 +408,19 @@ fun IngredientsDialog(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
+                                    .padding(vertical = dimensionResource(id = R.dimen.space_small)),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Box(
                                 modifier =
                                     Modifier
-                                        .size(6.dp)
+                                        .size(dimensionResource(id = R.dimen.size_dot_small))
                                         .background(MaterialTheme.colorScheme.primary, CircleShape),
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.space_medium)))
                             Text(
                                 text = ingredient,
-                                style = MaterialTheme.typography.bodyLarge,
+                                style = MaterialTheme.typography.titleLarge,
                             )
                         }
                     }
