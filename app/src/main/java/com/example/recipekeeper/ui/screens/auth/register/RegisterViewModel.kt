@@ -1,6 +1,5 @@
 package com.example.recipekeeper.ui.screens.auth.register
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipekeeper.data.repository.IAuthRepository
@@ -10,7 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class RegisterViewModel(private val authRepository: IAuthRepository) : ViewModel() {
+class RegisterViewModel(
+    private val authRepository: IAuthRepository,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
     private val validator = AuthValidator()
@@ -70,7 +71,7 @@ class RegisterViewModel(private val authRepository: IAuthRepository) : ViewModel
                 authRepository.logout()
                 updateVerificationEmailSent(true)
             } catch (e: Exception) {
-                Log.e("RegisterViewModel", "Registration failed", e)
+                // TODO handle error properly
                 updateRegisterError(true)
             }
         }

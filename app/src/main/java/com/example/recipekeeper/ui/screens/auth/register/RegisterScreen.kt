@@ -6,7 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -32,8 +34,7 @@ import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 @Composable
 fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
-    modifier: Modifier = Modifier,
-    authFactory: AuthViewModelFactory
+    authFactory: AuthViewModelFactory,
 ) {
     val registerViewModel: RegisterViewModel = viewModel(factory = authFactory)
     val uiState by registerViewModel.uiState.collectAsState()
@@ -43,32 +44,36 @@ fun RegisterScreen(
 
     LaunchedEffect(uiState.registerError) {
         if (uiState.registerError) {
-            Toast.makeText(context, registerError, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, registerError, Toast.LENGTH_LONG).show()
             registerViewModel.updateRegisterError(false)
         }
     }
 
     LaunchedEffect(uiState.verificationEmailSent) {
         if (uiState.verificationEmailSent) {
-            Toast.makeText(context,sentVerificationEmail,Toast.LENGTH_LONG).show()
+            Toast.makeText(context, sentVerificationEmail, Toast.LENGTH_LONG).show()
             registerViewModel.updateVerificationEmailSent(false)
             onNavigateToLogin()
         }
     }
     Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            Modifier
+                .padding(dimensionResource(R.dimen.padding_large))
+                .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.6f, fill = true),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(0.6f, fill = true),
+            contentAlignment = Alignment.Center,
         ) {
             Image(
                 painter = painterResource(R.drawable.logo_open_no_bg),
                 contentDescription = null,
-                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large))
+                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large)),
             )
         }
         RegisterLayout(
@@ -94,8 +99,9 @@ fun RegisterScreen(
                 onNavigateToLogin()
                 registerViewModel.resetAllFields()
             },
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier =
+                Modifier
+                    .fillMaxWidth(),
         )
         Spacer(modifier = Modifier.weight(0.4f, fill = true))
     }
@@ -114,56 +120,59 @@ fun RegisterLayout(
     onConfirmedPasswordChanged: (String) -> Unit,
     onRegister: () -> Unit,
     onNavigateToLogin: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         EmailTextField(
             email = email,
             onEmailChanged = onEmailChanged,
             emailError = emailError,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_extra_small)))
         PasswordTextField(
             label = stringResource(R.string.password),
             password = password,
             onPasswordChanged = onPasswordChanged,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Next
-            ),
+            keyboardOptions =
+                KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next,
+                ),
             keyboardActions = null,
             passwordError = passwordError,
             passwordErrorMessage = stringResource(R.string.password_invalid_error),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_extra_small)))
         PasswordTextField(
             label = stringResource(R.string.confirm_password),
             password = confirmedPassword,
             onPasswordChanged = onConfirmedPasswordChanged,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = { onRegister() }
-            ),
+            keyboardOptions =
+                KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done,
+                ),
+            keyboardActions =
+                KeyboardActions(
+                    onDone = { onRegister() },
+                ),
             passwordError = confirmedPasswordError,
             passwordErrorMessage = stringResource(R.string.passwords_do_not_match),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_small)))
         Button(
             onClick = { onRegister() },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(stringResource(R.string.register))
         }
         Text(
             text = stringResource(R.string.already_have_account),
-            modifier = Modifier.clickable(onClick = onNavigateToLogin)
+            modifier = Modifier.clickable(onClick = onNavigateToLogin),
         )
     }
 }
