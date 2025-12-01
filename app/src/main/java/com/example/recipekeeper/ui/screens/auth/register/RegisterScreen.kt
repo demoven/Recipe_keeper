@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +26,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.AuthViewModelFactory
@@ -172,7 +174,12 @@ fun RegisterLayout(
         }
         Text(
             text = stringResource(R.string.already_have_account),
-            modifier = Modifier.clickable(onClick = onNavigateToLogin),
+            textDecoration = TextDecoration.Underline,
+            color = MaterialTheme.colorScheme.primary,
+            modifier =
+                Modifier
+                    .clickable(onClick = onNavigateToLogin)
+                    .padding(top = dimensionResource(R.dimen.padding_small)),
         )
     }
 }

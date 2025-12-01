@@ -34,6 +34,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
@@ -243,6 +244,7 @@ fun LoginLayout(
                     .clickable { onForgotPasswordClick() }
                     .padding(top = dimensionResource(R.dimen.padding_small)),
             color = MaterialTheme.colorScheme.primary,
+            textDecoration = TextDecoration.Underline,
         )
     }
 }
