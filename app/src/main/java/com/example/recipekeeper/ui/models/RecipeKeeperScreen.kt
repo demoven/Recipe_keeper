@@ -3,7 +3,9 @@ package com.example.recipekeeper.ui.models
 import androidx.annotation.StringRes
 import com.example.recipekeeper.R
 
-enum class RecipeKeeperScreen(@StringRes val title: Int) {
+enum class RecipeKeeperScreen(
+    @StringRes val title: Int,
+) {
     Home(title = R.string.app_name),
     Account(title = R.string.account),
     CreateRecipe(title = R.string.create_recipe),
