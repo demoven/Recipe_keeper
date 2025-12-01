@@ -102,7 +102,7 @@ fun RecipeDetailContent(
                     end = dimensionResource(R.dimen.padding_medium),
                     bottom = dimensionResource(R.dimen.padding_extra_large),
                 ),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.space_large)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.space_medium)),
         ) {
             item {
                 RecipeStatsRow(recipe)
@@ -111,7 +111,7 @@ fun RecipeDetailContent(
             if (recipe.description.isNotEmpty()) {
                 item {
                     SectionContent(
-                        title = "Description",
+                        title = stringResource(R.string.description),
                     ) {
                         Text(
                             text = recipe.description,
@@ -125,7 +125,7 @@ fun RecipeDetailContent(
             if (recipe.ingredients.isNotEmpty()) {
                 item {
                     Text(
-                        text = "Ingrédients",
+                        text = stringResource(R.string.ingredients),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -141,7 +141,7 @@ fun RecipeDetailContent(
             if (recipe.instructions.isNotEmpty()) {
                 item {
                     Text(
-                        text = "Instructions",
+                        text = stringResource(R.string.instructions),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
