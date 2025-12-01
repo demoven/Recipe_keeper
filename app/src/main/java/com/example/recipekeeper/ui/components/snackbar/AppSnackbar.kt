@@ -53,7 +53,12 @@ fun AppSnackbar(hostState: SnackbarHostState) {
                     )
                 }
             },
-            content = { Text(text = data.visuals.message) },
+            content = {
+                Text(
+                    text = data.visuals.message,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            },
         )
     }
 }

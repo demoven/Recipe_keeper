@@ -490,6 +490,9 @@ fun RecipeKeeperApp(
                         }
                     },
                     authFactory = authFactory,
+                    onDisplayMessage = { message, snackbarType ->
+                        recipeKeeperViewModel.showSnackbar(message, snackbarType)
+                    },
                 )
             }
         }
