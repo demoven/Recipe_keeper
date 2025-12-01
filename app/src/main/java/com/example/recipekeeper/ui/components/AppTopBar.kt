@@ -17,32 +17,34 @@ import com.example.recipekeeper.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeKeeperTopBar(
+fun AppTopBar(
     title: String, // <-- changer ici
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    actions: @Composable RowScope.() -> Unit = {}
+    actions: @Composable RowScope.() -> Unit = {},
 ) {
     TopAppBar(
         title = {
             Text(
                 text = title.replaceFirstChar { it.uppercase() },
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontSize = 30.sp
-                )
-            ) },
+                style =
+                    MaterialTheme.typography.titleLarge.copy(
+                        fontSize = 30.sp,
+                    ),
+            )
+        },
         modifier = modifier,
         navigationIcon = {
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back_button)
+                        contentDescription = stringResource(R.string.back_button),
                     )
                 }
             }
         },
-        actions = actions
+        actions = actions,
     )
 }

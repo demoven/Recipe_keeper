@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.example.recipekeeper.R
 
 @Composable
-fun CardField(
+fun RecipeCard(
     title: String,
     modifier: Modifier = Modifier,
 ) {
@@ -30,35 +29,37 @@ fun CardField(
 
     Card(
         modifier = modifier,
-        shape = cardShape
+        shape = cardShape,
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Image(
                 painter = painterResource(R.drawable.logo_open_no_bg),
                 contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-                    .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)),
-                contentScale = ContentScale.Crop
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)),
+                contentScale = ContentScale.Crop,
             )
-            // Ici on appelle le composable title directement
             Box(
-                modifier = Modifier.padding(
-                    start = 12.dp,
-                    end = 12.dp,
-                    top = 8.dp,
-                    bottom = 12.dp
-                )
+                modifier =
+                    Modifier.padding(
+                        start = 12.dp,
+                        end = 12.dp,
+                        top = 8.dp,
+                        bottom = 12.dp,
+                    ),
             ) {
                 Text(
                     text = title.replaceFirstChar { it.uppercase() },
                     style = MaterialTheme.typography.labelLarge,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 40.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 40.dp),
                 )
             }
         }

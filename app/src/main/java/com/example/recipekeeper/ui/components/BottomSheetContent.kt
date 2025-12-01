@@ -20,42 +20,43 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.recipekeeper.R
 
-
 @Composable
 fun BottomSheetContent(
     onAddFolder: () -> Unit,
-    onAddRecipe: () -> Unit
+    onAddRecipe: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Button(
                 onClick = onAddFolder,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 Icon(
                     imageVector = Icons.Default.Folder,
                     contentDescription = null,
-                    modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small))
+                    modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small)),
                 )
                 Text(stringResource(R.string.folder))
             }
             Button(
                 onClick = onAddRecipe,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.MenuBook,
                     contentDescription = null,
-                    modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small))
+                    modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small)),
                 )
                 Text(stringResource(R.string.recipe))
             }

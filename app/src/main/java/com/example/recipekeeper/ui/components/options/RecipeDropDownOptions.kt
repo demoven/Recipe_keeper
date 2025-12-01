@@ -1,4 +1,4 @@
-package com.example.recipekeeper.ui.components.actions
+package com.example.recipekeeper.ui.components.options
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
