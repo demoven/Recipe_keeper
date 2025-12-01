@@ -12,33 +12,33 @@ import androidx.compose.ui.res.stringResource
 import com.example.recipekeeper.R
 
 @Composable
-fun RecipeActions(
-    onShowRecipeMenu: () -> Unit,
-    isRecipeMenuVisible: Boolean,
-    hideRecipeMenu: () -> Unit,
-    onModifyRecipe: () -> Unit,
-    showDeleteDialog: () -> Unit
+fun FolderDropDownOptions(
+    onShowFolderMenu: () -> Unit,
+    isFolderMenuVisible: Boolean,
+    hideFolderMenu: () -> Unit,
+    showRenameDialog: () -> Unit,
+    showDeleteDialog: () -> Unit,
 ) {
-    IconButton(onClick = { onShowRecipeMenu() }) {
-        Icon(Icons.Default.MoreVert, contentDescription = "Options de la recette")
+    IconButton(onClick = { onShowFolderMenu() }) {
+        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.folder_options))
     }
     DropdownMenu(
-        expanded = isRecipeMenuVisible,
-        onDismissRequest = { hideRecipeMenu() }
+        expanded = isFolderMenuVisible,
+        onDismissRequest = { hideFolderMenu() },
     ) {
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.modify_recipe)) },
+            text = { Text(stringResource(R.string.rename_folder)) },
             onClick = {
-                hideRecipeMenu()
-                onModifyRecipe()
-            }
+                hideFolderMenu()
+                showRenameDialog()
+            },
         )
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.delete_recipe)) },
+            text = { Text(stringResource(R.string.delete_folder)) },
             onClick = {
-                hideRecipeMenu()
+                hideFolderMenu()
                 showDeleteDialog()
-            }
+            },
         )
     }
 }
