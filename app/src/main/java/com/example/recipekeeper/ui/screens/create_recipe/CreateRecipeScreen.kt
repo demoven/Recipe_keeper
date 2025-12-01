@@ -56,11 +56,11 @@ fun CreateRecipeScreen(
     onRecipeSuccess: (String, String) -> Unit,
     folderId: String? = null,
     recipeId: String? = null,
-    onSetSaveAction: (() -> Unit) -> Unit
+    onSetSaveAction: (() -> Unit) -> Unit,
 ) {
     val createRecipeViewModel: CreateRecipeViewModel = viewModel(factory = createRecipeFactory)
     val uiState by createRecipeViewModel.uiState.collectAsState()
-    val scrollState =  rememberScrollState()
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(recipeId) {
         if (recipeId != null) {
@@ -81,7 +81,7 @@ fun CreateRecipeScreen(
                 createRecipeViewModel.saveRecipe(
                     onSuccess = onRecipeSuccess,
                     onFailure = {},
-                    folderId = folderId
+                    folderId = folderId,
                 )
             }
         }
@@ -92,22 +92,24 @@ fun CreateRecipeScreen(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .imePadding()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .imePadding()
+                .padding(dimensionResource(R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.space_large)),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            modifier =
+                Modifier
+                    .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
         ) {
             Image(
                 painter = painterResource(R.drawable.logo_open_no_bg),
                 contentDescription = null,
-                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large))
+                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large)),
             )
         }
         DescriptionLayout(
@@ -119,16 +121,17 @@ fun CreateRecipeScreen(
         TextFieldTransparent(
             value = uiState.prepTime.toString(),
             onValueChange = { createRecipeViewModel.updatePrepTime(it) },
-            label = "Temps de préparation (min)",
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Next
-            ),
-            modifier = Modifier.fillMaxWidth()
+            label = stringResource(R.string.preparation_time_label),
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next,
+                ),
+            modifier = Modifier.fillMaxWidth(),
         )
         ListLayout(
             elements = uiState.ingredients,
-            placeholder = "ex: 200g de farine",
+            placeholder = stringResource(R.string.ingredients_example),
             title = "Ingrédients",
             onValueChange = { index, ingredient -> createRecipeViewModel.updateIngredient(index, ingredient) },
             onAdd = { createRecipeViewModel.addIngredient() },
@@ -136,18 +139,18 @@ fun CreateRecipeScreen(
             modifier = Modifier.fillMaxWidth(),
             onJumpToNextSection = {
                 createRecipeViewModel.addStepIfEmpty()
-            }
+            },
         )
         ListLayout(
             elements = uiState.instructions,
-            placeholder = "Décrire l'étape",
-            title = "Étapes",
+            placeholder = stringResource(R.string.describre_step),
+            title = stringResource(R.string.steps),
             numbered = true,
             singleLineTextField = false,
             onValueChange = { index, step -> createRecipeViewModel.updateStep(index, step) },
             onAdd = { createRecipeViewModel.addStep() },
             onRemove = { index -> createRecipeViewModel.removeStep(index) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
@@ -157,34 +160,38 @@ fun DescriptionLayout(
     recipeName: String,
     recipeDescription: String,
     onRecipeNameChange: (String) -> Unit,
-    onRecipeDescriptionChange: (String) -> Unit
+    onRecipeDescriptionChange: (String) -> Unit,
 ) {
     Column {
         SectionTitle(
-            title = stringResource(R.string.description)
+            title = stringResource(R.string.description),
         )
         TextFieldTransparent(
             value = recipeName,
             onValueChange = onRecipeNameChange,
             label = "Titre",
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Next
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
+            keyboardOptions =
+                KeyboardOptions(
+                    imeAction = ImeAction.Next,
+                ),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = dimensionResource(R.dimen.padding_medium)),
         )
         TextFieldTransparent(
             value = recipeDescription,
             onValueChange = onRecipeDescriptionChange,
             label = "Description",
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Next
-            ),
+            keyboardOptions =
+                KeyboardOptions(
+                    imeAction = ImeAction.Next,
+                ),
             singleLine = false,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = dimensionResource(R.dimen.padding_medium)),
         )
     }
 }
@@ -216,58 +223,63 @@ fun ListLayout(
         SectionTitle(title = title)
         elements.forEachIndexed { index, item ->
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                verticalAlignment = if (numbered) Alignment.Top else Alignment.CenterVertically
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = dimensionResource(R.dimen.padding_small)),
+                verticalAlignment = if (numbered) Alignment.Top else Alignment.CenterVertically,
             ) {
                 if (numbered) {
                     Text(
                         text = "${index + 1}.",
-                        modifier = Modifier
-                            .width(28.dp)
-                            .alignBy(FirstBaseline),
-                        textAlign = TextAlign.End
+                        modifier =
+                            Modifier
+                                .width(dimensionResource(R.dimen.width_medium))
+                                .alignBy(FirstBaseline),
+                        textAlign = TextAlign.End,
                     )
-                    Spacer(modifier = Modifier.size(8.dp))
+                    Spacer(modifier = Modifier.size(dimensionResource(R.dimen.size_small)))
                 }
                 TextFieldTransparent(
                     value = item,
                     onValueChange = { newValue -> onValueChange(index, newValue) },
                     placeholder = placeholder,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = {
-                            if (item.isBlank()) {
-                                onJumpToNextSection?.invoke()
-                                return@KeyboardActions
-                            }
+                    keyboardOptions =
+                        KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next,
+                        ),
+                    keyboardActions =
+                        KeyboardActions(
+                            onNext = {
+                                if (item.isBlank()) {
+                                    onJumpToNextSection?.invoke()
+                                    return@KeyboardActions
+                                }
 
-                            if (index == elements.lastIndex) {
-                                onAdd()
-                                shouldFocusLast = true
-                            } else {
-                                focusRequesters[index + 1].requestFocus()
-                            }
-                        }
-                    ),
+                                if (index == elements.lastIndex) {
+                                    onAdd()
+                                    shouldFocusLast = true
+                                } else {
+                                    focusRequesters[index + 1].requestFocus()
+                                }
+                            },
+                        ),
                     singleLine = singleLineTextField,
-                    modifier = Modifier
-                        .weight(1f)
-                        .then(if (numbered) Modifier.alignBy(FirstBaseline) else Modifier)
-                        .focusRequester(focusRequesters[index])
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .then(if (numbered) Modifier.alignBy(FirstBaseline) else Modifier)
+                            .focusRequester(focusRequesters[index]),
                 )
 
                 Spacer(modifier = Modifier.size(8.dp))
                 IconButton(
-                    onClick = { onRemove(index) }
+                    onClick = { onRemove(index) },
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Delete,
-                        contentDescription = "Supprimer"
+                        contentDescription = stringResource(R.string.delete),
                     )
                 }
             }
@@ -276,7 +288,7 @@ fun ListLayout(
         val canAdd = elements.isEmpty() || elements.last().isNotBlank()
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
         ) {
             Button(
                 onClick = {
@@ -284,7 +296,7 @@ fun ListLayout(
                     shouldFocusLast = true
                 },
                 enabled = canAdd,
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_medium)),
             ) {
                 Text("+")
             }
@@ -297,30 +309,37 @@ fun TextFieldTransparent(
     value: String,
     onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions,
-    modifier : Modifier = Modifier,
-    label : String? = null,
+    modifier: Modifier = Modifier,
+    label: String? = null,
     placeholder: String? = null,
     keyboardActions: KeyboardActions? = null,
-    singleLine : Boolean = true
+    singleLine: Boolean = true,
 ) {
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = if(label != null) {
-            { Text(text = label, style = MaterialTheme.typography.labelLarge) }
-        } else null,
-        placeholder = if (placeholder != null) {
-            { Text(text = placeholder, maxLines = 1, softWrap = false, style = MaterialTheme.typography.labelLarge) }
-        } else null,
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            disabledContainerColor = Color.Transparent,
-            errorContainerColor = Color.Transparent
-        ),
+        label =
+            if (label != null) {
+                { Text(text = label, style = MaterialTheme.typography.labelLarge) }
+            } else {
+                null
+            },
+        placeholder =
+            if (placeholder != null) {
+                { Text(text = placeholder, maxLines = 1, softWrap = false, style = MaterialTheme.typography.labelLarge) }
+            } else {
+                null
+            },
+        colors =
+            TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                errorContainerColor = Color.Transparent,
+            ),
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions ?: KeyboardActions.Default,
         singleLine = singleLine,
-        modifier = modifier
+        modifier = modifier,
     )
 }
