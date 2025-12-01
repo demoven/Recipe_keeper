@@ -44,7 +44,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.CreateRecipeViewModelFactory
@@ -273,7 +272,7 @@ fun ListLayout(
                             .focusRequester(focusRequesters[index]),
                 )
 
-                Spacer(modifier = Modifier.size(8.dp))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.size_small)))
                 IconButton(
                     onClick = { onRemove(index) },
                 ) {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
@@ -30,7 +31,7 @@ import com.example.recipekeeper.R
 import com.example.recipekeeper.data.models.Folder
 import com.example.recipekeeper.data.models.Recipe
 import com.example.recipekeeper.di.factory.HomeViewModelFactory
-import com.example.recipekeeper.ui.components.CardField
+import com.example.recipekeeper.ui.components.RecipeCard
 import com.example.recipekeeper.ui.components.SectionTitle
 
 @Composable
@@ -38,8 +39,7 @@ fun HomeScreen(
     onNavigateToSubFolder: (String, String) -> Unit,
     onNavigateToRecipeDetails: (String, String) -> Unit,
     homeFactory: HomeViewModelFactory,
-    modifier: Modifier = Modifier,
-    folderId: String? = null
+    folderId: String? = null,
 ) {
     val homeViewModel: HomeViewModel = viewModel(factory = homeFactory)
     val uiState by homeViewModel.uiState.collectAsState()
@@ -49,24 +49,28 @@ fun HomeScreen(
     }
 
     Column(
-        modifier = modifier.padding(dimensionResource(R.dimen.padding_medium)),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(dimensionResource(R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
     ) {
         if (uiState.folders.isNotEmpty()) {
             FoldersLayout(
                 folders = uiState.folders,
                 onNavigateToSubFolder = onNavigateToSubFolder,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
             HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier =
+                    Modifier
+                        .fillMaxWidth(),
             )
         }
         CardsLayout(
             recipes = uiState.recipes,
             onNavigateToRecipeDetails = onNavigateToRecipeDetails,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
@@ -75,66 +79,62 @@ fun HomeScreen(
 fun FoldersLayout(
     folders: List<Folder>,
     onNavigateToSubFolder: (String, String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
+        modifier = modifier,
     ) {
         SectionTitle(
-            title = stringResource(R.string.folders)
+            title = stringResource(R.string.folders),
         )
         Spacer(modifier = Modifier.padding(dimensionResource(R.dimen.padding_extra_small)))
 
-        // --- Folders Row ---
         if (folders.isNotEmpty()) {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 items(items = folders, key = { it.id }) { folder ->
                     FolderButton(
                         folderName = folder.name,
                         onNavigateToSubFolder = {
                             onNavigateToSubFolder(folder.id, folder.name)
-                        }
+                        },
                     )
                 }
             }
         }
     }
-
 }
 
 @Composable
 fun CardsLayout(
     recipes: List<Recipe>,
     onNavigateToRecipeDetails: (String, String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
     ) {
-        // --- Section Title ---
         if (recipes.isNotEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 SectionTitle(title = stringResource(R.string.recipes))
             }
         }
 
-        // --- Recipes Cards ---
         items(
             items = recipes,
-            key = { it.id }
+            key = { it.id },
         ) { recipe ->
-            CardField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onNavigateToRecipeDetails(recipe.id, recipe.title) },
-                title = recipe.title
+            RecipeCard(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToRecipeDetails(recipe.id, recipe.title) },
+                title = recipe.title,
             )
         }
     }
@@ -144,16 +144,16 @@ fun CardsLayout(
 fun FolderButton(
     folderName: String,
     onNavigateToSubFolder: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onNavigateToSubFolder,
-        modifier = modifier
+        modifier = modifier,
     ) {
         Icon(
             imageVector = Icons.Default.Folder,
             contentDescription = null,
-            modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small))
+            modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small)),
         )
         Text(text = folderName.replaceFirstChar { it.uppercase() })
     }
