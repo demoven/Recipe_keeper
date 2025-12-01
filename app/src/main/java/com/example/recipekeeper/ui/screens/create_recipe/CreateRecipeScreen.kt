@@ -128,6 +128,28 @@ fun CreateRecipeScreen(
                 ),
             modifier = Modifier.fillMaxWidth(),
         )
+        TextFieldTransparent(
+            value = uiState.cookTime.toString(),
+            onValueChange = { createRecipeViewModel.updateCookTime(it) },
+            label = stringResource(R.string.cook_time_label),
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next,
+                ),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        TextFieldTransparent(
+            value = uiState.servings.toString(),
+            onValueChange = { createRecipeViewModel.updateServings(it) },
+            label = stringResource(R.string.servings_label),
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next,
+                ),
+            modifier = Modifier.fillMaxWidth(),
+        )
         ListLayout(
             elements = uiState.ingredients,
             placeholder = stringResource(R.string.ingredients_example),

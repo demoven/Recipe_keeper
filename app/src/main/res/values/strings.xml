@@ -88,4 +88,6 @@
     <string name="next">Suivant</string>
     <string name="no_ingredient_available">Aucun ingrédient disponible</string>
     <string name="instructions">Instructions</string>
+    <string name="cook_time_label">Temps de cuisson</string>
+    <string name="servings_label">Nombre de personnes</string>
 </resources>

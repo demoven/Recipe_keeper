@@ -45,6 +45,16 @@ class CreateRecipeViewModel(
         _uiState.update { it.copy(prepTime = numericValue) }
     }
 
+    fun updateCookTime(value: String) {
+        val numericValue = value.toIntOrNull() ?: 0
+        _uiState.update { it.copy(cookTime = numericValue) }
+    }
+
+    fun updateServings(value: String) {
+        val numericValue = value.toIntOrNull() ?: 0
+        _uiState.update { it.copy(servings = numericValue) }
+    }
+
     fun updateIngredient(
         index: Int,
         newValue: String,
