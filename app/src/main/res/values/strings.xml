@@ -79,4 +79,12 @@
     <string name="portions_label">Portions</string>
     <string name="minutes_abbreviation">min</string>
     <string name="persons_abbreviation">pers.</string>
+    <string name="progress">progrès</string>
+    <string name="step">Etape</string>
+    <string name="active_listening">Écoute active</string>
+    <string name="ingredients">Ingrédients</string>
+    <string name="back">Retour</string>
+    <string name="finish">Terminer</string>
+    <string name="next">Suivant</string>
+    <string name="no_ingredient_available">Aucun ingrédient disponible</string>
 </resources>
