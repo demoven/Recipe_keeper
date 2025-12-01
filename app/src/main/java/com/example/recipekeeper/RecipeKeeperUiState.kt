@@ -2,7 +2,7 @@ package com.example.recipekeeper
 
 import com.example.recipekeeper.ui.models.RecipeKeeperScreen
 
-data class RecipeKeeperUiState (
+data class RecipeKeeperUiState(
     val currentScreen: RecipeKeeperScreen = RecipeKeeperScreen.Home,
     val isTopBarVisible: Boolean = true,
     val isBottomBarVisible: Boolean = true,
@@ -14,5 +14,5 @@ data class RecipeKeeperUiState (
     val isDeleteDialogVisible: Boolean = false,
     // Recipe Menu
     val isRecipeMenuVisible: Boolean = false,
-    val isDeleteRecipeDialogVisible: Boolean = false
+    val isDeleteRecipeDialogVisible: Boolean = false,
 )

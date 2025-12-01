@@ -5,6 +5,7 @@ import com.example.recipekeeper.di.AppContainer
 
 class RecipeKeeperApplication : Application() {
     lateinit var container: AppContainer
+
     override fun onCreate() {
         super.onCreate()
         container = AppContainer()
