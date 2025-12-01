@@ -10,7 +10,7 @@ import com.example.recipekeeper.ui.screens.home.HomeViewModel
 class HomeViewModelFactory(
     private val folderRepository: IFolderRepository,
     private val recipeRepository: IRecipeRepository,
-    private val authRepository: IAuthRepository
+    private val authRepository: IAuthRepository,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -18,7 +18,7 @@ class HomeViewModelFactory(
             return HomeViewModel(
                 folderRepository = folderRepository,
                 recipeRepository = recipeRepository,
-                authRepository = authRepository
+                authRepository = authRepository,
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

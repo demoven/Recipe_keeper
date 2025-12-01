@@ -10,7 +10,7 @@ import com.example.recipekeeper.ui.screens.settings.SettingsViewModel
 class SettingsViewModelFactory(
     private val authRepository: IAuthRepository,
     private val recipeRepository: IRecipeRepository,
-    private val folderRepository: IFolderRepository
+    private val folderRepository: IFolderRepository,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -18,7 +18,7 @@ class SettingsViewModelFactory(
             return SettingsViewModel(
                 authRepository = authRepository,
                 recipeRepository = recipeRepository,
-                folderRepository = folderRepository
+                folderRepository = folderRepository,
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

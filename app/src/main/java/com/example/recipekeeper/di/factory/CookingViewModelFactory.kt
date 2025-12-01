@@ -6,12 +6,14 @@ import com.example.recipekeeper.data.repository.IRecipeRepository
 import com.example.recipekeeper.ui.screens.cooking.CookingViewModel
 
 class CookingViewModelFactory(
-    private val recipeRepository: IRecipeRepository
+    private val recipeRepository: IRecipeRepository,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CookingViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return CookingViewModel(recipeRepository) as T
+            return CookingViewModel(
+                recipeRepository = recipeRepository,
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
