@@ -28,7 +28,6 @@ class UserContainer(
         HomeViewModelFactory(
             folderRepository = folderRepository,
             recipeRepository = recipeRepository,
-            authRepository = authRepository,
         )
 
     val createRecipeFactory: CreateRecipeViewModelFactory =
