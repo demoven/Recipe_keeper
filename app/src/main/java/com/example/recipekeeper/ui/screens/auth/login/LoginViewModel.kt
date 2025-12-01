@@ -1,6 +1,5 @@
 package com.example.recipekeeper.ui.screens.auth.login
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipekeeper.data.repository.IAuthRepository
@@ -10,7 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val authRepository: IAuthRepository) : ViewModel() {
+class LoginViewModel(
+    private val authRepository: IAuthRepository,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
     private val validator = AuthValidator()
@@ -62,16 +63,14 @@ class LoginViewModel(private val authRepository: IAuthRepository) : ViewModel() 
                 } else {
                     try {
                         authRepository.sendEmailVerification()
-                        Log.d("LoginViewModel", "Email de vérification renvoyé automatiquement.")
                     } catch (e: Exception) {
-                        Log.w("LoginViewModel", "Impossible de renvoyer l'email (peut-être trop tôt ?) : ${e.message}")
+                        // TODO handle exception properly
                     }
                     authRepository.logout()
                     updateEmailVerificationError(true)
-                    Log.e("LoginViewModel", "Email non vérifié")
                 }
             } catch (e: Exception) {
-                Log.e("LoginViewModel", "Login failed: ${e.message}")
+                // TODO handle exception properly
                 updateLoginError(true)
             }
         }
@@ -82,28 +81,30 @@ class LoginViewModel(private val authRepository: IAuthRepository) : ViewModel() 
     }
 
     fun hideResetPasswordDialog() {
-        _uiState.value = _uiState.value.copy(
-            isResetPasswordDialogVisible = false,
-            resetPasswordError = null,
-            isResetPasswordEmailSent = false
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                isResetPasswordDialogVisible = false,
+                resetPasswordError = false,
+                isResetPasswordEmailSent = false,
+            )
     }
 
     fun sendPasswordResetEmail(emailForReset: String) {
         if (!validator.isEmailValid(emailForReset)) {
-            _uiState.value = _uiState.value.copy(resetPasswordError = "Email invalide")
+            _uiState.value = _uiState.value.copy(resetPasswordError = true)
             return
         }
 
         viewModelScope.launch {
             try {
                 authRepository.sendPasswordResetEmail(emailForReset)
-                _uiState.value = _uiState.value.copy(
-                    isResetPasswordEmailSent = true,
-                    resetPasswordError = null
-                )
+                _uiState.value =
+                    _uiState.value.copy(
+                        isResetPasswordEmailSent = true,
+                        resetPasswordError = false,
+                    )
             } catch (e: Exception) {
-                Log.e("LoginViewModel", "Password reset email failed: ${e.message}")
+                // TODO handle exception properly
             }
         }
     }
