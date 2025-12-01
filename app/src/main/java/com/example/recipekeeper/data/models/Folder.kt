@@ -8,5 +8,5 @@ data class Folder(
     val id: String = "",
     val name: String = "",
     val parentId: String? = null,
-    val imageUrl: String? = null
-): Parcelable
+    val imageUrl: String? = null,
+) : Parcelable
