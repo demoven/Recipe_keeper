@@ -65,4 +65,13 @@
     <string name="delete_recipe">Supprimer la recette</string>
     <string name="confirm_recipe_deletion">Êtes-vous sûr de vouloir supprimer cette recette ?</string>
     <string name="modify_recipe">Modifier la recette</string>
+    <string name="folder_options">Options du dossier</string>
+    <string name="recipe_options">Options de la recette</string>
+    <string name="reset_password_error">Email invalide</string>
+    <string name="preparation_time_label">Temps de préparation (min)</string>
+    <string name="ingredients_example">ex: 200g de farine</string>
+    <string name="describre_step">Décrire l\'étape</string>
+    <string name="steps">Étapes</string>
+    <string name="delete">Supprimer</string>
+    <string name="error_loading_recipe">Erreur lors du chargement de la recette</string>
 </resources>
