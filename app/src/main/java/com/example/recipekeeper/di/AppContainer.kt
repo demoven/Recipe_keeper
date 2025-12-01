@@ -8,14 +8,14 @@ import com.example.recipekeeper.di.factory.RecipeKeeperViewModelFactory
 class AppContainer {
     val authRepository: IAuthRepository = AuthRepositoryImpl()
     val authFactory = AuthViewModelFactory(authRepository = authRepository)
-    val recipeKeeperFactory = RecipeKeeperViewModelFactory(
-        authRepository = authRepository
-    )
-
-    fun createUserContainer(userId: String): UserContainer {
-        return UserContainer(
+    val recipeKeeperFactory =
+        RecipeKeeperViewModelFactory(
             authRepository = authRepository,
-            userId = userId
         )
-    }
+
+    fun createUserContainer(userId: String): UserContainer =
+        UserContainer(
+            authRepository = authRepository,
+            userId = userId,
+        )
 }
