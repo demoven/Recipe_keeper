@@ -466,6 +466,9 @@ fun RecipeKeeperApp(
                 if (settingsFactory != null) {
                     val settingsViewModel: SettingsViewModel = viewModel(factory = settingsFactory)
                     SettingsScreen(
+                        onDisplayMessage = { message, snackbarType ->
+                            recipeKeeperViewModel.showSnackbar(message, snackbarType)
+                        },
                         settingsViewModel = settingsViewModel,
                     )
                 }

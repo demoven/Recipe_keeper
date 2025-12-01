@@ -1,6 +1,5 @@
 package com.example.recipekeeper.ui.screens.settings
 
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,65 +37,61 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
+import com.example.recipekeeper.ui.components.snackbar.SnackbarType
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
 import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 
 @Composable
-fun SettingsScreen(settingsViewModel: SettingsViewModel = viewModel()) {
+fun SettingsScreen(
+    onDisplayMessage: (String, SnackbarType) -> Unit,
+    settingsViewModel: SettingsViewModel = viewModel(),
+) {
     val uiState by settingsViewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    LaunchedEffect(uiState.emailUpdateError, uiState.emailUpdateSuccess, uiState.emailAlreadyExists) {
+    LaunchedEffect(
+        uiState.emailUpdateError,
+        uiState.emailUpdateSuccess,
+        uiState.emailAlreadyExists,
+        uiState.passwordUpdateError,
+        uiState.passwordUpdateSuccess,
+        uiState.deletionError,
+    ) {
         if (uiState.emailUpdateError) {
-            Toast
-                .makeText(
-                    context,
-                    context.getString(R.string.email_update_error),
-                    Toast.LENGTH_LONG,
-                ).show()
+            onDisplayMessage(
+                context.getString(R.string.email_update_error),
+                SnackbarType.Error,
+            )
             settingsViewModel.updateEmailUpdateError(false)
         } else if (uiState.emailUpdateSuccess) {
-            Toast.makeText(context, context.getString(R.string.check_verification_email), Toast.LENGTH_LONG).show()
+            onDisplayMessage(
+                context.getString(R.string.check_verification_email),
+                SnackbarType.Info,
+            )
             settingsViewModel.updateEmailUpdateSuccess(false)
         } else if (uiState.emailAlreadyExists) {
-            Toast
-                .makeText(
-                    context,
-                    context.getString(R.string.current_email_error),
-                    Toast.LENGTH_LONG,
-                ).show()
+            onDisplayMessage(
+                context.getString(R.string.current_email_error),
+                SnackbarType.Error,
+            )
             settingsViewModel.updateEmailAlreadyExists(false)
-        }
-    }
-
-    LaunchedEffect(uiState.passwordUpdateError, uiState.passwordUpdateSuccess) {
-        if (uiState.passwordUpdateError) {
-            Toast
-                .makeText(
-                    context,
-                    context.getString(R.string.confirmation_error),
-                    Toast.LENGTH_LONG,
-                ).show()
+        } else if (uiState.passwordUpdateError) {
+            onDisplayMessage(
+                context.getString(R.string.confirmation_error),
+                SnackbarType.Error,
+            )
             settingsViewModel.updatePasswordUpdateError(false)
         } else if (uiState.passwordUpdateSuccess) {
-            Toast
-                .makeText(
-                    context,
-                    context.getString(R.string.password_update_success),
-                    Toast.LENGTH_LONG,
-                ).show()
+            onDisplayMessage(
+                context.getString(R.string.password_update_success),
+                SnackbarType.Info,
+            )
             settingsViewModel.updatePasswordUpdateSuccess(false)
-        }
-    }
-
-    LaunchedEffect(uiState.deletionError) {
-        if (uiState.deletionError) {
-            Toast
-                .makeText(
-                    context,
-                    context.getString(R.string.account_suppression_error),
-                    Toast.LENGTH_LONG,
-                ).show()
+        } else if (uiState.deletionError) {
+            onDisplayMessage(
+                context.getString(R.string.account_suppression_error),
+                SnackbarType.Error,
+            )
             settingsViewModel.updateDeletionError(false)
         }
     }
