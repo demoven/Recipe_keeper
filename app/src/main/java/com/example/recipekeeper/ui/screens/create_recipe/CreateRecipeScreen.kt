@@ -164,7 +164,7 @@ fun CreateRecipeScreen(
         )
         ListLayout(
             elements = uiState.instructions,
-            placeholder = stringResource(R.string.describre_step),
+            placeholder = stringResource(R.string.describe_step),
             title = stringResource(R.string.steps),
             numbered = true,
             singleLineTextField = false,
