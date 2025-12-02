@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -34,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
@@ -205,8 +207,12 @@ fun EmailCard(
                 keyboardOptions =
                     KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Email,
                     ),
-                keyboardActions = null,
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = { onEmailUpdate(email) },
+                    ),
             )
 
             Button(
@@ -246,6 +252,10 @@ fun SecurityCard(
                 passwordErrorMessage = stringResource(R.string.password_invalid_error),
                 onPasswordChanged = { onPasswordChanged(it) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = { onPasswordUpdate() },
+                    ),
                 modifier = Modifier.fillMaxWidth(),
             )
 
