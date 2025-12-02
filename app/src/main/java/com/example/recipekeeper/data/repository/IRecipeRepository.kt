@@ -8,28 +8,33 @@ interface IRecipeRepository {
 
     fun getRecipeById(
         recipeId: String,
-        onResult: (Recipe?) -> Unit
+        onResult: (Recipe?) -> Unit,
     )
 
     fun watchRecipesInFolder(
         folderId: String?,
-        onResult: (List<Recipe>) -> Unit
+        onResult: (List<Recipe>) -> Unit,
     ): ListenerRegistration
 
     suspend fun deleteRecipesInFolder(folderId: String)
+
     fun saveRecipe(
         recipe: Recipe,
         onSuccess: (String, String) -> Unit,
-        onFailure: () -> Unit
+        onFailure: () -> Unit,
     )
 
     fun updateRecipe(
         recipe: Recipe,
         onSuccess: (String, String) -> Unit,
-        onFailure: () -> Unit
+        onFailure: () -> Unit,
     )
 
-    suspend fun deleteRecipeById(recipeId: String, onSuccess: () -> Unit, onFailure: () -> Unit)
+    suspend fun deleteRecipeById(
+        recipeId: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit,
+    )
 
     suspend fun deleteAllRecipes()
 }

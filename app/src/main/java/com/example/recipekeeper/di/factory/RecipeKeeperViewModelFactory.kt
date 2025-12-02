@@ -12,7 +12,7 @@ class RecipeKeeperViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RecipeKeeperViewModel::class.java)) {
             return RecipeKeeperViewModel(
-                authRepository = authRepository
+                authRepository = authRepository,
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

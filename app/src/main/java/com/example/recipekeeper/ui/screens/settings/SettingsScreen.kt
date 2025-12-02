@@ -1,6 +1,5 @@
 package com.example.recipekeeper.ui.screens.settings
 
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,56 +34,69 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
+import com.example.recipekeeper.ui.components.snackbar.SnackbarType
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
 import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 
 @Composable
 fun SettingsScreen(
-    settingsViewModel: SettingsViewModel = viewModel()
+    onDisplayMessage: (String, SnackbarType) -> Unit,
+    settingsViewModel: SettingsViewModel = viewModel(),
 ) {
     val uiState by settingsViewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    LaunchedEffect(uiState.emailUpdateError, uiState.emailUpdateSuccess, uiState.emailAlreadyExists) {
+    LaunchedEffect(
+        uiState.emailUpdateError,
+        uiState.emailUpdateSuccess,
+        uiState.emailAlreadyExists,
+        uiState.passwordUpdateError,
+        uiState.passwordUpdateSuccess,
+        uiState.deletionError,
+    ) {
         if (uiState.emailUpdateError) {
-            Toast.makeText(context,
-                context.getString(R.string.email_update_error), Toast.LENGTH_LONG).show()
+            onDisplayMessage(
+                context.getString(R.string.email_update_error),
+                SnackbarType.Error,
+            )
             settingsViewModel.updateEmailUpdateError(false)
         } else if (uiState.emailUpdateSuccess) {
-            Toast.makeText(context, context.getString(R.string.check_verification_email), Toast.LENGTH_LONG).show()
+            onDisplayMessage(
+                context.getString(R.string.check_verification_email),
+                SnackbarType.Info,
+            )
             settingsViewModel.updateEmailUpdateSuccess(false)
         } else if (uiState.emailAlreadyExists) {
-            Toast.makeText(context,
-                context.getString(R.string.current_email_error), Toast.LENGTH_LONG).show()
+            onDisplayMessage(
+                context.getString(R.string.current_email_error),
+                SnackbarType.Error,
+            )
             settingsViewModel.updateEmailAlreadyExists(false)
-        }
-    }
-
-    LaunchedEffect(uiState.passwordUpdateError, uiState.passwordUpdateSuccess) {
-        if (uiState.passwordUpdateError) {
-            Toast.makeText(context,
-                context.getString(R.string.confirmation_error), Toast.LENGTH_LONG).show()
+        } else if (uiState.passwordUpdateError) {
+            onDisplayMessage(
+                context.getString(R.string.confirmation_error),
+                SnackbarType.Error,
+            )
             settingsViewModel.updatePasswordUpdateError(false)
         } else if (uiState.passwordUpdateSuccess) {
-            Toast.makeText(context,
-                context.getString(R.string.password_update_success), Toast.LENGTH_LONG).show()
+            onDisplayMessage(
+                context.getString(R.string.password_update_success),
+                SnackbarType.Info,
+            )
             settingsViewModel.updatePasswordUpdateSuccess(false)
-        }
-    }
-
-    LaunchedEffect(uiState.deletionError) {
-        if (uiState.deletionError) {
-            Toast.makeText(context,
-                context.getString(R.string.account_suppression_error), Toast.LENGTH_LONG).show()
+        } else if (uiState.deletionError) {
+            onDisplayMessage(
+                context.getString(R.string.account_suppression_error),
+                SnackbarType.Error,
+            )
             settingsViewModel.updateDeletionError(false)
         }
     }
 
-    if(uiState.showPasswordDialogSecurity) {
+    if (uiState.showPasswordDialogSecurity) {
         // Update User Password
         PasswordDialog(
             password = uiState.currentPassword,
@@ -95,10 +107,9 @@ fun SettingsScreen(
             },
             onDismiss = {
                 settingsViewModel.onDismissDialog()
-            }
+            },
         )
     } else if (uiState.showPasswordDialogEmail) {
-
         // Update User EMAIL
         PasswordDialog(
             password = uiState.currentPassword,
@@ -109,7 +120,7 @@ fun SettingsScreen(
             },
             onDismiss = {
                 settingsViewModel.onDismissDialog()
-            }
+            },
         )
     } else if (uiState.showPasswordDialogDeletion) {
         PasswordDialog(
@@ -121,27 +132,27 @@ fun SettingsScreen(
             },
             onDismiss = {
                 settingsViewModel.onDismissDialog()
-            }
+            },
         )
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(dimensionResource(R.dimen.padding_medium))
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(dimensionResource(R.dimen.padding_medium))
+                .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
     ) {
-
         EmailCard(
             email = uiState.email,
             emailError = uiState.emailError,
             onEmailChanged = { settingsViewModel.updateEmail(it) },
             onEmailUpdate = {
-                if(settingsViewModel.isEmailValid()) {
+                if (settingsViewModel.isEmailValid()) {
                     settingsViewModel.updateShowPasswordDialogEmail(true)
                 }
-            }
+            },
         )
 
         SecurityCard(
@@ -149,18 +160,19 @@ fun SettingsScreen(
             newPasswordError = uiState.newPasswordError,
             onPasswordChanged = { settingsViewModel.updateNewPassword(it) },
             onPasswordUpdate = {
-                if(settingsViewModel.isNewPasswordValid()) {
+                if (settingsViewModel.isNewPasswordValid()) {
                     settingsViewModel.updateShowPasswordDialogSecurity(true)
                 }
-            }
+            },
         )
 
         DeletionAccountCard(
-            onDeleteAccount = { settingsViewModel.updateShowPasswordDialogDeletion(true) }
+            onDeleteAccount = { settingsViewModel.updateShowPasswordDialogDeletion(true) },
         )
 
         SectionLogout(
-            onLogout = { settingsViewModel.logout() }
+            onLogout = { settingsViewModel.logout() },
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
@@ -170,13 +182,15 @@ fun EmailCard(
     email: String,
     emailError: Boolean,
     onEmailChanged: (String) -> Unit,
-    onEmailUpdate: (String) -> Unit
+    onEmailUpdate: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Card {
-        Column (
-            modifier = Modifier
-                .padding(dimensionResource(R.dimen.padding_large)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+    Card(modifier = modifier) {
+        Column(
+            modifier =
+                Modifier
+                    .padding(dimensionResource(R.dimen.padding_large)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
         ) {
             Text(
                 text = stringResource(R.string.account).uppercase(),
@@ -188,19 +202,19 @@ fun EmailCard(
                 emailError = emailError,
                 onEmailChanged = { onEmailChanged(it) },
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = null
+                keyboardOptions =
+                    KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done,
+                    ),
+                keyboardActions = null,
             )
 
             Button(
                 onClick = { onEmailUpdate(email) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(stringResource(R.string.update_email))
             }
-
         }
     }
 }
@@ -210,21 +224,21 @@ fun SecurityCard(
     newPassword: String,
     newPasswordError: Boolean,
     onPasswordChanged: (String) -> Unit,
-    onPasswordUpdate: () -> Unit
+    onPasswordUpdate: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Card {
+    Card(modifier = modifier) {
         Column(
-            modifier = Modifier
-                .padding(dimensionResource(R.dimen.padding_large)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+            modifier =
+                Modifier
+                    .padding(dimensionResource(R.dimen.padding_large)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
         ) {
-            // --- Section Mot de passe ---
             Text(
                 text = stringResource(R.string.security).uppercase(),
                 style = MaterialTheme.typography.titleMedium,
             )
 
-            // Champ 2 : Confirmer le mot de passe
             PasswordTextField(
                 label = stringResource(R.string.new_password),
                 password = newPassword,
@@ -232,12 +246,12 @@ fun SecurityCard(
                 passwordErrorMessage = stringResource(R.string.password_invalid_error),
                 onPasswordChanged = { onPasswordChanged(it) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
 
             Button(
                 onClick = onPasswordUpdate,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(stringResource(R.string.update_password))
             }
@@ -247,13 +261,15 @@ fun SecurityCard(
 
 @Composable
 fun DeletionAccountCard(
-    onDeleteAccount: () -> Unit
+    onDeleteAccount: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Card {
+    Card(modifier = modifier) {
         Column(
-            modifier = Modifier
-                .padding(dimensionResource(R.dimen.padding_large)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+            modifier =
+                Modifier
+                    .padding(dimensionResource(R.dimen.padding_large)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
         ) {
             Text(
                 text = stringResource(R.string.deletion_account).uppercase(),
@@ -262,22 +278,23 @@ fun DeletionAccountCard(
 
             Text(
                 text = stringResource(R.string.deletion_account_confirmation),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
             )
 
             OutlinedButton(
                 onClick = onDeleteAccount,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                ),
-                modifier = Modifier.fillMaxWidth()
+                border = BorderStroke(dimensionResource(R.dimen.border_thin), MaterialTheme.colorScheme.error),
+                colors =
+                    ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Delete,
-                    contentDescription = null
+                    contentDescription = null,
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.width_small)))
                 Text(stringResource(R.string.delete_account))
             }
         }
@@ -286,21 +303,25 @@ fun DeletionAccountCard(
 
 @Composable
 fun SectionLogout(
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center,
+    ) {
         TextButton(
-            onClick = onLogout
+            onClick = onLogout,
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                contentDescription = null
+                contentDescription = null,
             )
-            Spacer(modifier = Modifier.padding(start = 8.dp))
+            Spacer(modifier = Modifier.padding(start = dimensionResource(R.dimen.padding_small)))
             Text(
                 text = stringResource(R.string.logout),
-                style = MaterialTheme.typography.titleLarge
-                )
+                style = MaterialTheme.typography.titleLarge,
+            )
         }
     }
 }
@@ -311,18 +332,20 @@ fun PasswordDialog(
     passwordError: Boolean,
     onPasswordChanged: (String) -> Unit,
     onPasswordConfirmed: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     AlertDialog(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(dimensionResource(R.dimen.padding_medium)),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(dimensionResource(R.dimen.padding_medium)),
         properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.current_password)) },
         text = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
             ) {
                 Text(stringResource(R.string.enter_current_password))
                 PasswordTextField(
@@ -333,7 +356,7 @@ fun PasswordDialog(
                     onPasswordChanged = { onPasswordChanged(it) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = null
+                    keyboardActions = null,
                 )
             }
         },
@@ -346,6 +369,6 @@ fun PasswordDialog(
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.cancel))
             }
-        }
+        },
     )
 }

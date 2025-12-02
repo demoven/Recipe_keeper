@@ -6,18 +6,44 @@ import kotlinx.coroutines.flow.StateFlow
 interface IAuthRepository : AutoCloseable {
     val isUserLoggedIn: StateFlow<Boolean>
 
-    suspend fun register(email: String, password: String): AuthUser
-    suspend fun login(email: String, password: String): AuthUser
+    suspend fun register(
+        email: String,
+        password: String,
+    ): AuthUser
+
+    suspend fun login(
+        email: String,
+        password: String,
+    ): AuthUser
+
     suspend fun sendEmailVerification()
+
     fun isEmailVerified(): Boolean
+
     suspend fun reloadUser()
+
     fun getCurrentUser(): AuthUser?
+
     fun getCurrentUserId(): String?
+
     fun logout()
 
-    suspend fun updatePassword(currentPassword: String, newPassword: String, onSuccess: () -> Unit, onFailure: () -> Unit)
-    suspend fun updateEmail(currentPassword: String, newEmail: String, onSuccess: () -> Unit, onFailure: () -> Unit)
+    suspend fun updatePassword(
+        currentPassword: String,
+        newPassword: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit,
+    )
+
+    suspend fun updateEmail(
+        currentPassword: String,
+        newEmail: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit,
+    )
+
     suspend fun deleteAccount(currentPassword: String)
+
     suspend fun sendPasswordResetEmail(email: String)
 
     override fun close()

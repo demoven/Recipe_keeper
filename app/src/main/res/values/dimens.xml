@@ -4,6 +4,23 @@
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_medium">16dp</dimen>
     <dimen name="padding_large">24dp</dimen>
+    <dimen name="padding_extra_large">100dp</dimen>
     <dimen name="corner_radius">12dp</dimen>
     <dimen name="image_size_extra_large">200dp</dimen>
+    <dimen name="space_small">8dp</dimen>
+    <dimen name="space_medium">16dp</dimen>
+    <dimen name="space_large">24dp</dimen>
+    <dimen name="space_extra_large">32dp</dimen>
+    <dimen name="width_small">8dp</dimen>
+    <dimen name="width_medium">28dp</dimen>
+    <dimen name="size_small">8dp</dimen>
+    <dimen name="border_thin">1dp</dimen>
+    <dimen name="height_extra_small">4dp</dimen>
+    <dimen name="height_small">8dp</dimen>
+    <dimen name="height_large">24dp</dimen>
+    <dimen name="height_button_large">56dp</dimen>
+    <dimen name="corner_radius_medium">12dp</dimen>
+    <dimen name="size_dot_small">6dp</dimen>
+    <dimen name="size_icon_small">24dp</dimen>
+    <dimen name="elevation_card_small">4dp</dimen>
 </resources>

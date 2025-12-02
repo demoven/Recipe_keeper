@@ -14,9 +14,10 @@ class AuthRepositoryImpl : IAuthRepository {
     private val authInstance: FirebaseAuth = FirebaseAuth.getInstance()
 
     override val isUserLoggedIn = MutableStateFlow(authInstance.currentUser != null)
-    private val authStateListener = FirebaseAuth.AuthStateListener { auth ->
-        isUserLoggedIn.value = auth.currentUser != null
-    }
+    private val authStateListener =
+        FirebaseAuth.AuthStateListener { auth ->
+            isUserLoggedIn.value = auth.currentUser != null
+        }
     private val db = FirebaseFirestore.getInstance()
     private var userCollection: CollectionReference? = null
 
@@ -27,7 +28,7 @@ class AuthRepositoryImpl : IAuthRepository {
 
     override suspend fun register(
         email: String,
-        password: String
+        password: String,
     ): AuthUser {
         val result = authInstance.createUserWithEmailAndPassword(email, password).await()
         val firebaseUser = result.user ?: throw Exception("Registration failed: User is null")
@@ -36,7 +37,7 @@ class AuthRepositoryImpl : IAuthRepository {
 
     override suspend fun login(
         email: String,
-        password: String
+        password: String,
     ): AuthUser {
         val result = authInstance.signInWithEmailAndPassword(email, password).await()
         val firebaseUser = result.user ?: throw Exception("Login failed: User is null")
@@ -50,26 +51,20 @@ class AuthRepositoryImpl : IAuthRepository {
         }
     }
 
-    override fun isEmailVerified(): Boolean {
-        return authInstance.currentUser?.isEmailVerified == true
-    }
+    override fun isEmailVerified(): Boolean = authInstance.currentUser?.isEmailVerified == true
 
     override suspend fun reloadUser() {
         authInstance.currentUser?.reload()?.await()
     }
 
-    override fun getCurrentUserId(): String? {
-        return authInstance.currentUser?.uid
-    }
+    override fun getCurrentUserId(): String? = authInstance.currentUser?.uid
 
     override fun getCurrentUser(): AuthUser? {
         val firebaseUser = authInstance.currentUser
         return firebaseUser?.let { mapFirebaseUser(it) }
     }
 
-    private fun mapFirebaseUser(user: FirebaseUser): AuthUser {
-        return AuthUser(uid = user.uid, email = user.email)
-    }
+    private fun mapFirebaseUser(user: FirebaseUser): AuthUser = AuthUser(uid = user.uid, email = user.email)
 
     override fun logout() {
         authInstance.signOut()
@@ -79,7 +74,12 @@ class AuthRepositoryImpl : IAuthRepository {
         authInstance.removeAuthStateListener(authStateListener)
     }
 
-    override suspend fun updatePassword(currentPassword: String, newPassword: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
+    override suspend fun updatePassword(
+        currentPassword: String,
+        newPassword: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit,
+    ) {
         val user = authInstance.currentUser
         val email = user?.email
 
@@ -99,7 +99,12 @@ class AuthRepositoryImpl : IAuthRepository {
         }
     }
 
-    override suspend fun updateEmail(currentPassword: String, newEmail: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
+    override suspend fun updateEmail(
+        currentPassword: String,
+        newEmail: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit,
+    ) {
         val user = authInstance.currentUser
         val email = user?.email
 
@@ -128,7 +133,11 @@ class AuthRepositoryImpl : IAuthRepository {
 
             try {
                 user.reauthenticate(credential).await()
-                db.collection("users").document(user.uid).delete().await()
+                db
+                    .collection("users")
+                    .document(user.uid)
+                    .delete()
+                    .await()
                 user.delete().await()
             } catch (e: Exception) {
                 throw Exception("Re-authentication failed: ${e.message}")

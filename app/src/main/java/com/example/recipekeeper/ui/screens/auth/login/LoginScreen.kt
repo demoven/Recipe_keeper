@@ -1,11 +1,11 @@
 package com.example.recipekeeper.ui.screens.auth.login
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,65 +30,68 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import com.example.recipekeeper.R
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.AuthViewModelFactory
+import com.example.recipekeeper.ui.components.snackbar.SnackbarType
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
 import com.example.recipekeeper.ui.screens.auth.PasswordTextField
 
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
-    modifier: Modifier = Modifier,
-    authFactory: AuthViewModelFactory
+    authFactory: AuthViewModelFactory,
+    onDisplayMessage: (String, SnackbarType) -> Unit,
 ) {
     val loginViewModel: LoginViewModel = viewModel(factory = authFactory)
     val uiState by loginViewModel.uiState.collectAsState()
     val loginError = stringResource(R.string.signin_failed)
     val context = LocalContext.current
 
-    LaunchedEffect(uiState.emailVerificationError) {
+    LaunchedEffect(uiState.emailVerificationError, uiState.loginError) {
         if (uiState.emailVerificationError) {
-            Toast.makeText(context, context.getString(R.string.check_mailbox), Toast.LENGTH_SHORT).show()
+            onDisplayMessage(context.getString(R.string.check_mailbox), SnackbarType.Error)
             loginViewModel.updateEmailVerificationError(false)
-        }
-    }
-
-    LaunchedEffect(uiState.loginError) {
-        if (uiState.loginError) {
-            Toast.makeText(context, loginError, Toast.LENGTH_SHORT).show()
+        } else if (uiState.loginError) {
+            onDisplayMessage(loginError, SnackbarType.Error)
             loginViewModel.updateLoginError(false)
         }
     }
 
-    if (uiState.isResetPasswordDialogVisible) {
-        ResetPasswordDialog(
-            initialEmail = uiState.email,
-            onDismiss = { loginViewModel.hideResetPasswordDialog() },
-            onSend = { email -> loginViewModel.sendPasswordResetEmail(email) },
-            isEmailSent = uiState.isResetPasswordEmailSent,
-            errorMessage = uiState.resetPasswordError
-        )
-    }
-
     Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            Modifier
+                .padding(dimensionResource(R.dimen.padding_large))
+                .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        if (uiState.isResetPasswordDialogVisible) {
+            PasswordResetDialog(
+                initialEmail = uiState.email,
+                onDismiss = { loginViewModel.hideResetPasswordDialog() },
+                onSend = { email -> loginViewModel.sendPasswordResetEmail(email) },
+                isEmailSent = uiState.isResetPasswordEmailSent,
+                errorMessage = if (uiState.resetPasswordError) stringResource(R.string.reset_password_error) else null,
+                modifier = Modifier.fillMaxWidth().padding(dimensionResource(R.dimen.padding_medium)),
+            )
+        }
+
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.6f, fill = true),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(0.6f, fill = true),
+            contentAlignment = Alignment.Center,
         ) {
             Image(
                 painter = painterResource(R.drawable.logo_open_no_bg),
                 contentDescription = null,
-                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large))
+                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large)),
             )
         }
 
@@ -109,7 +112,7 @@ fun LoginScreen(
             onForgotPasswordClick = {
                 loginViewModel.showResetPasswordDialog()
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
 
         Spacer(modifier = Modifier.weight(0.4f, fill = true))
@@ -119,7 +122,7 @@ fun LoginScreen(
                 onNavigateToRegister()
                 loginViewModel.resetAllFields()
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(stringResource(R.string.create_account))
         }
@@ -127,29 +130,36 @@ fun LoginScreen(
 }
 
 @Composable
-fun ResetPasswordDialog(
+fun PasswordResetDialog(
     initialEmail: String,
     onDismiss: () -> Unit,
     onSend: (String) -> Unit,
     isEmailSent: Boolean,
-    errorMessage: String?
+    errorMessage: String?,
+    modifier: Modifier = Modifier,
 ) {
     var email by remember { mutableStateOf(initialEmail) }
     AlertDialog(
+        modifier = modifier,
         onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
         title = { Text(stringResource(R.string.reset_password)) },
         text = {
-            Column {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 if (isEmailSent) {
                     Text(stringResource(R.string.email_sent), color = MaterialTheme.colorScheme.primary)
                 } else {
                     Text(stringResource(R.string.enter_reset_email))
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
                         label = { Text(stringResource(R.string.email)) },
-                        singleLine = true
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     if (errorMessage != null) {
                         Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
@@ -174,7 +184,7 @@ fun ResetPasswordDialog(
                     Text(stringResource(R.string.cancel))
                 }
             }
-        }
+        },
     )
 }
 
@@ -188,46 +198,50 @@ fun LoginLayout(
     onPasswordChanged: (String) -> Unit,
     onLogin: () -> Unit,
     onForgotPasswordClick: () -> Unit,
-    modifier: Modifier = Modifier
-){
-    Column (
+    modifier: Modifier = Modifier,
+) {
+    Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         EmailTextField(
             email = email,
             onEmailChanged = onEmailChanged,
             modifier = Modifier.fillMaxWidth(),
-            emailError = emailError
+            emailError = emailError,
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_extra_small)))
         PasswordTextField(
             label = stringResource(R.string.password),
             password = password,
             onPasswordChanged = onPasswordChanged,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = { onLogin() }
-            ),
+            keyboardOptions =
+                KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done,
+                ),
+            keyboardActions =
+                KeyboardActions(
+                    onDone = { onLogin() },
+                ),
             passwordError = passwordError,
             passwordErrorMessage = null,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_small)))
         Button(
             onClick = { onLogin() },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(stringResource(R.string.login))
         }
         Text(
             text = stringResource(R.string.forgot_password),
-            modifier = Modifier
-                .clickable { onForgotPasswordClick() }
-                .padding(top = 8.dp),
-            color = MaterialTheme.colorScheme.primary
+            modifier =
+                Modifier
+                    .clickable { onForgotPasswordClick() }
+                    .padding(top = dimensionResource(R.dimen.padding_small)),
+            color = MaterialTheme.colorScheme.primary,
+            textDecoration = TextDecoration.Underline,
         )
     }
 }

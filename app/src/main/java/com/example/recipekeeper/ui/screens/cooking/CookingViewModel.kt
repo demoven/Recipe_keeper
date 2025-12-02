@@ -10,15 +10,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-data class CookingUiState(
-    val recipe: Recipe? = null,
-    val currentStep: Int = 0,
-    val isLoading: Boolean = true,
-    val error: String? = null
-)
-
-class CookingViewModel(private val recipeRepository: IRecipeRepository) : ViewModel() {
-
+class CookingViewModel(
+    private val recipeRepository: IRecipeRepository,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(CookingUiState())
     val uiState: StateFlow<CookingUiState> = _uiState.asStateFlow()
 
@@ -28,11 +22,11 @@ class CookingViewModel(private val recipeRepository: IRecipeRepository) : ViewMo
             recipeRepository.getRecipeById(recipeId) { recipe ->
                 if (recipe != null && recipe.instructions.isNotEmpty()) {
                     _uiState.update {
-                        it.copy(recipe = recipe, isLoading = false)
+                        it.copy(recipe = recipe, isLoading = false, error = false)
                     }
                 } else {
                     _uiState.update {
-                        it.copy(error = "Recette non trouvée ou sans instructions.", isLoading = false)
+                        it.copy(error = true, isLoading = false)
                     }
                 }
             }

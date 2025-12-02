@@ -16,7 +16,7 @@ import com.example.recipekeeper.R
 fun RenameFolderDialog(
     currentFolderName: String,
     onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit
+    onConfirm: (String) -> Unit,
 ) {
     var text by remember { mutableStateOf(currentFolderName) }
     AlertDialog(
@@ -26,7 +26,7 @@ fun RenameFolderDialog(
             OutlinedTextField(
                 value = text,
                 onValueChange = { text = it },
-                label = { Text(stringResource(R.string.new_name)) }
+                label = { Text(stringResource(R.string.new_name)) },
             )
         },
         confirmButton = {
@@ -38,14 +38,14 @@ fun RenameFolderDialog(
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.cancel))
             }
-        }
+        },
     )
 }
 
 @Composable
 fun DeleteFolderDialog(
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -62,14 +62,14 @@ fun DeleteFolderDialog(
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.cancel))
             }
-        }
+        },
     )
 }
 
 @Composable
 fun DeleteRecipeDialog(
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -86,6 +86,6 @@ fun DeleteRecipeDialog(
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.cancel))
             }
-        }
+        },
     )
 }

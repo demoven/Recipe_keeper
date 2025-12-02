@@ -1,4 +1,4 @@
-package com.example.recipekeeper.ui.components.actions
+package com.example.recipekeeper.ui.components.options
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -12,33 +12,33 @@ import androidx.compose.ui.res.stringResource
 import com.example.recipekeeper.R
 
 @Composable
-fun RecipeActions(
+fun RecipeDropDownOptions(
     onShowRecipeMenu: () -> Unit,
     isRecipeMenuVisible: Boolean,
     hideRecipeMenu: () -> Unit,
     onModifyRecipe: () -> Unit,
-    showDeleteDialog: () -> Unit
+    showDeleteDialog: () -> Unit,
 ) {
     IconButton(onClick = { onShowRecipeMenu() }) {
-        Icon(Icons.Default.MoreVert, contentDescription = "Options de la recette")
+        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.recipe_options))
     }
     DropdownMenu(
         expanded = isRecipeMenuVisible,
-        onDismissRequest = { hideRecipeMenu() }
+        onDismissRequest = { hideRecipeMenu() },
     ) {
         DropdownMenuItem(
             text = { Text(stringResource(R.string.modify_recipe)) },
             onClick = {
                 hideRecipeMenu()
                 onModifyRecipe()
-            }
+            },
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.delete_recipe)) },
             onClick = {
                 hideRecipeMenu()
                 showDeleteDialog()
-            }
+            },
         )
     }
 }

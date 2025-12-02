@@ -8,27 +8,27 @@ interface IFolderRepository {
 
     fun watchFolder(
         parentId: String?,
-        onResult: (List<Folder>) -> Unit
+        onResult: (List<Folder>) -> Unit,
     ): ListenerRegistration
 
     fun addFolder(
         folder: Folder,
         onSuccess: () -> Unit,
-        onFailure: () -> Unit
+        onFailure: () -> Unit,
     )
 
     fun updateFolder(
         folderId: String,
         newName: String,
         onSuccess: () -> Unit,
-        onFailure: () -> Unit
+        onFailure: () -> Unit,
     )
 
     fun moveFolder(
         folderId: String,
         newParentId: String?,
         onSuccess: () -> Unit,
-        onFailure: () -> Unit
+        onFailure: () -> Unit,
     )
 
     suspend fun getSubFolders(parentId: String): List<Folder>

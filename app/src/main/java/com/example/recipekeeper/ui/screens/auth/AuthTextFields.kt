@@ -33,7 +33,7 @@ fun PasswordTextField(
     onPasswordChanged: (String) -> Unit,
     keyboardOptions: KeyboardOptions,
     modifier: Modifier = Modifier,
-    keyboardActions: KeyboardActions? = null
+    keyboardActions: KeyboardActions? = null,
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
     OutlinedTextField(
@@ -45,12 +45,24 @@ fun PasswordTextField(
         singleLine = true,
         shape = MaterialTheme.shapes.medium,
         isError = passwordError,
-        supportingText = when {
-            !passwordError -> null
-            password.isBlank() -> { { Text(stringResource(R.string.required_field)) } }
-            passwordErrorMessage != null -> { { Text(passwordErrorMessage) } }
-            else -> null
-        },
+        supportingText =
+            when {
+                !passwordError -> {
+                    null
+                }
+
+                password.isBlank() -> {
+                    { Text(stringResource(R.string.required_field)) }
+                }
+
+                passwordErrorMessage != null -> {
+                    { Text(passwordErrorMessage) }
+                }
+
+                else -> {
+                    null
+                }
+            },
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
             IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -62,10 +74,10 @@ fun PasswordTextField(
         leadingIcon = {
             Icon(
                 imageVector = Icons.Outlined.Lock,
-                contentDescription = null
+                contentDescription = null,
             )
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -75,10 +87,11 @@ fun EmailTextField(
     emailError: Boolean,
     onEmailChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default.copy(
-        imeAction = ImeAction.Next
-    ),
-    keyboardActions: KeyboardActions? = null
+    keyboardOptions: KeyboardOptions =
+        KeyboardOptions.Default.copy(
+            imeAction = ImeAction.Next,
+        ),
+    keyboardActions: KeyboardActions? = null,
 ) {
     OutlinedTextField(
         value = email,
@@ -89,19 +102,22 @@ fun EmailTextField(
         singleLine = true,
         shape = MaterialTheme.shapes.medium,
         isError = emailError,
-        supportingText = if (emailError) {
-            if (email.isBlank()) {
-                { Text(stringResource(R.string.required_field)) }
+        supportingText =
+            if (emailError) {
+                if (email.isBlank()) {
+                    { Text(stringResource(R.string.required_field)) }
+                } else {
+                    { Text(stringResource(R.string.invalid_email)) }
+                }
             } else {
-                { Text(stringResource(R.string.invalid_email)) }
-            }
-        } else null,
+                null
+            },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Outlined.Email,
-                contentDescription = null
+                contentDescription = null,
             )
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
