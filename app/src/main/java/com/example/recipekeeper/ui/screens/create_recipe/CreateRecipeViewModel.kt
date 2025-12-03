@@ -41,18 +41,21 @@ class CreateRecipeViewModel(
     }
 
     fun updatePrepTime(value: String) {
-        val numericValue = value.toIntOrNull() ?: 0
-        _uiState.update { it.copy(prepTime = numericValue) }
+        if (value.all { it.isDigit() } || value.isEmpty()) {
+            _uiState.update { it.copy(prepTime = value) }
+        }
     }
 
     fun updateCookTime(value: String) {
-        val numericValue = value.toIntOrNull() ?: 0
-        _uiState.update { it.copy(cookTime = numericValue) }
+        if (value.all { it.isDigit() } || value.isEmpty()) {
+            _uiState.update { it.copy(cookTime = value) }
+        }
     }
 
     fun updateServings(value: String) {
-        val numericValue = value.toIntOrNull() ?: 0
-        _uiState.update { it.copy(servings = numericValue) }
+        if (value.all { it.isDigit() } || value.isEmpty()) {
+            _uiState.update { it.copy(servings = value) }
+        }
     }
 
     fun updateIngredient(
@@ -120,9 +123,9 @@ class CreateRecipeViewModel(
                     CreateRecipeUiState(
                         title = recipe.title,
                         description = recipe.description,
-                        prepTime = recipe.prepTime,
-                        cookTime = recipe.cookTime,
-                        servings = recipe.servings,
+                        prepTime = recipe.prepTime.toString(),
+                        cookTime = recipe.cookTime.toString(),
+                        servings = recipe.servings.toString(),
                         ingredients = recipe.ingredients,
                         instructions = recipe.instructions,
                     )
@@ -145,9 +148,9 @@ class CreateRecipeViewModel(
                 id = "",
                 title = state.title,
                 description = state.description,
-                prepTime = state.prepTime,
-                cookTime = state.cookTime,
-                servings = state.servings,
+                prepTime = state.prepTime.toIntOrNull() ?: 0,
+                cookTime = state.cookTime.toIntOrNull() ?: 0,
+                servings = state.servings.toIntOrNull() ?: 0,
                 ingredients = state.ingredients,
                 instructions = state.instructions,
                 folderId = folderId,
@@ -174,9 +177,9 @@ class CreateRecipeViewModel(
                     description = _uiState.value.description,
                     ingredients = _uiState.value.ingredients,
                     instructions = _uiState.value.instructions,
-                    prepTime = _uiState.value.prepTime,
-                    cookTime = _uiState.value.cookTime,
-                    servings = _uiState.value.servings,
+                    prepTime = _uiState.value.prepTime.toIntOrNull() ?: 0,
+                    cookTime = _uiState.value.cookTime.toIntOrNull() ?: 0,
+                    servings = _uiState.value.servings.toIntOrNull() ?: 0,
                 ),
             onSuccess = onSuccess,
             onFailure = {
