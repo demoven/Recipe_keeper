@@ -91,4 +91,10 @@
     <string name="cook_time_label">Temps de cuisson</string>
     <string name="servings_label">Nombre de personnes</string>
     <string name="no_content">Aucune recette ou dossier trouvé.</string>
+    <string name="voice_control">Commandes Vocales</string>
+    <string name="voice_controle_next">• Pour passer à l\'étape suivante dites \"Suivant\"</string>
+    <string name="voice_controle_back">• Pour revenir en arrière dites \"Retour\"</string>
+    <string name="voice_control_ingredients">• Pour voir la page des ingrédients dites \"Ingrédients\"</string>
+    <string name="voice_control_close_ingredients">• Pour fermer la page des ingrédients vocales dites \"Fermer\"</string>
+    <string name="understood">Compris</string>
 </resources>

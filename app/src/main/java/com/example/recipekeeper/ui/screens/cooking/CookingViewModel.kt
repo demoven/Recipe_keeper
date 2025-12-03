@@ -46,4 +46,20 @@ class CookingViewModel(
             _uiState.update { it.copy(currentStep = it.currentStep - 1) }
         }
     }
+
+    fun openIngredientsDialog() {
+        _uiState.update { it.copy(showIngredientsDialog = true) }
+    }
+
+    fun closeIngredientsDialog() {
+        _uiState.update { it.copy(showIngredientsDialog = false) }
+    }
+
+    fun openVoiceInstructions() {
+        _uiState.update { it.copy(showVoiceInstructions = true) }
+    }
+
+    fun closeVoiceInstructions() {
+        _uiState.update { it.copy(showVoiceInstructions = false) }
+    }
 }
