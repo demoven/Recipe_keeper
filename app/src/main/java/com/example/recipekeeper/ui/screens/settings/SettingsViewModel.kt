@@ -75,6 +75,10 @@ class SettingsViewModel(
         _uiState.value = _uiState.value.copy(deletionError = hasError)
     }
 
+    fun updateIsLoading(isLoading: Boolean) {
+        _uiState.value = _uiState.value.copy(isLoading = isLoading)
+    }
+
     fun onDismissDialog() {
         _uiState.value =
             _uiState.value.copy(
@@ -126,6 +130,7 @@ class SettingsViewModel(
             updateEmailAlreadyExists(true)
             return
         } else {
+            updateIsLoading(true)
             viewModelScope.launch {
                 try {
                     authRepository.updateEmail(
@@ -133,15 +138,18 @@ class SettingsViewModel(
                         newEmail = uiState.value.email,
                         onSuccess = {
                             updateEmailUpdateSuccess(true)
+                            updateIsLoading(false)
                             onDismissDialog()
                             logout()
                         },
                         onFailure = {
+                            updateIsLoading(false)
                             updateEmailUpdateError(true)
                         },
                     )
                 } catch (e: Exception) {
                     // TODO handle exception properly
+                    updateIsLoading(false)
                     updateEmailUpdateError(true)
                 }
             }
@@ -152,21 +160,25 @@ class SettingsViewModel(
         if (!isCurrentPasswordValid()) {
             return
         }
+        updateIsLoading(true)
         viewModelScope.launch {
             try {
                 authRepository.updatePassword(
                     currentPassword = uiState.value.currentPassword,
                     newPassword = uiState.value.newPassword,
                     onSuccess = {
+                        updateIsLoading(false)
                         updatePasswordUpdateSuccess(true)
                         onDismissDialog()
                     },
                     onFailure = {
+                        updateIsLoading(false)
                         updatePasswordUpdateError(true)
                     },
                 )
                 // Password update successful
             } catch (e: Exception) {
+                updateIsLoading(false)
                 // TODO handle exception properly
                 updatePasswordUpdateError(true)
             }
@@ -181,14 +193,17 @@ class SettingsViewModel(
         if (!isCurrentPasswordValid()) {
             return
         }
+        updateIsLoading(true)
         viewModelScope.launch {
             try {
                 recipeRepository.deleteAllRecipes()
                 folderRepository.deleteAllFolders()
                 authRepository.deleteAccount(uiState.value.currentPassword)
+                updateIsLoading(false)
                 // Account deletion successful
             } catch (e: Exception) {
                 // TODO handle exception properly
+                updateIsLoading(false)
                 updateDeletionError(true)
             }
         }

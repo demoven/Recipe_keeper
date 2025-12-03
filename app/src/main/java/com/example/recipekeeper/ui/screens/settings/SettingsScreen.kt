@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
+import com.example.recipekeeper.ui.components.FullScreenLoadingIndicator
 import com.example.recipekeeper.ui.components.snackbar.SnackbarType
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
 import com.example.recipekeeper.ui.screens.auth.PasswordTextField
@@ -96,6 +97,10 @@ fun SettingsScreen(
             )
             settingsViewModel.updateDeletionError(false)
         }
+    }
+
+    if (uiState.isLoading) {
+        FullScreenLoadingIndicator()
     }
 
     if (uiState.showPasswordDialogSecurity) {
@@ -340,6 +345,7 @@ fun SectionLogout(
 fun PasswordDialog(
     password: String,
     passwordError: Boolean,
+    isLoading: Boolean = false,
     onPasswordChanged: (String) -> Unit,
     onPasswordConfirmed: () -> Unit,
     onDismiss: () -> Unit,
@@ -371,7 +377,10 @@ fun PasswordDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onPasswordConfirmed() }) {
+            Button(
+                enabled = !isLoading,
+                onClick = { onPasswordConfirmed() },
+            ) {
                 Text(stringResource(R.string.confirm))
             }
         },

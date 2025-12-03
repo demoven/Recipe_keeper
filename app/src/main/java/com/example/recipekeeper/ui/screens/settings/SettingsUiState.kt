@@ -7,7 +7,7 @@ data class SettingsUiState(
     val showPasswordDialogEmail: Boolean = false,
     val showPasswordDialogSecurity: Boolean = false,
     val showPasswordDialogDeletion: Boolean = false,
-
+    val isLoading: Boolean = false,
     // Error fields
     val emailError: Boolean = false,
     val newPasswordError: Boolean = false,
@@ -16,8 +16,7 @@ data class SettingsUiState(
     val emailAlreadyExists: Boolean = false,
     val passwordUpdateError: Boolean = false,
     val deletionError: Boolean = false,
-
     // Success fields
     val emailUpdateSuccess: Boolean = false,
-    val passwordUpdateSuccess: Boolean = false
+    val passwordUpdateSuccess: Boolean = false,
 )
