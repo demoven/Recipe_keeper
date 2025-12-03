@@ -116,7 +116,14 @@ class CreateRecipeViewModel(
         }
     }
 
+    fun updateIsLoading(isLoading: Boolean) {
+        _uiState.update { current ->
+            current.copy(isLoading = isLoading)
+        }
+    }
+
     fun getRecipeById(recipeId: String) {
+        updateIsLoading(true)
         recipeRepository.getRecipeById(recipeId) { recipe ->
             if (recipe != null) {
                 _uiState.value =
@@ -130,6 +137,7 @@ class CreateRecipeViewModel(
                         instructions = recipe.instructions,
                     )
             }
+            updateIsLoading(false)
         }
     }
 
@@ -148,6 +156,7 @@ class CreateRecipeViewModel(
                 instructions = current.instructions.filter { it.isNotBlank() },
             )
         }
+        updateIsLoading(true)
         val state = _uiState.value
         val newRecipe =
             Recipe(
@@ -166,8 +175,12 @@ class CreateRecipeViewModel(
             onSuccess = { recipeId, recipeTitle ->
                 onSuccess(recipeId, recipeTitle)
                 _uiState.value = CreateRecipeUiState() // Reset state after saving
+                updateIsLoading(false)
             },
-            onFailure = { /* TODO */ },
+            onFailure = {
+                onFailure()
+                updateIsLoading(false)
+            },
         )
     }
 
@@ -175,6 +188,7 @@ class CreateRecipeViewModel(
         recipeId: String,
         onSuccess: (String, String) -> Unit,
     ) {
+        updateIsLoading(true)
         recipeRepository.updateRecipe(
             recipe =
                 Recipe(
@@ -187,9 +201,12 @@ class CreateRecipeViewModel(
                     cookTime = _uiState.value.cookTime.toIntOrNull() ?: 0,
                     servings = _uiState.value.servings.toIntOrNull() ?: 0,
                 ),
-            onSuccess = onSuccess,
+            onSuccess = { recipeId, recipeTitle ->
+                onSuccess(recipeId, recipeTitle)
+                updateIsLoading(false)
+            },
             onFailure = {
-                // TODO handle failure
+                updateIsLoading(false)
             },
         )
     }

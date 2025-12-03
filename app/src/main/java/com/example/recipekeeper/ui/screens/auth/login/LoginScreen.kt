@@ -14,11 +14,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -41,6 +38,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.AuthViewModelFactory
+import com.example.recipekeeper.ui.components.LoadingIndicator
 import com.example.recipekeeper.ui.components.snackbar.SnackbarType
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
 import com.example.recipekeeper.ui.screens.auth.PasswordTextField
@@ -66,80 +64,76 @@ fun LoginScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier =
-                Modifier
-                    .padding(dimensionResource(R.dimen.padding_large))
-                    .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            if (uiState.isResetPasswordDialogVisible) {
-                PasswordResetDialog(
-                    initialEmail = uiState.email,
-                    onDismiss = { loginViewModel.hideResetPasswordDialog() },
-                    onSend = { email -> loginViewModel.sendPasswordResetEmail(email) },
-                    isEmailSent = uiState.isResetPasswordEmailSent,
-                    errorMessage = if (uiState.resetPasswordError) stringResource(R.string.reset_password_error) else null,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(dimensionResource(R.dimen.padding_medium)),
-                )
-            }
+    if (uiState.isLoading) {
+        LoadingIndicator()
+    }
 
-            Box(
+    Column(
+        modifier =
+            Modifier
+                .padding(dimensionResource(R.dimen.padding_large))
+                .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (uiState.isResetPasswordDialogVisible) {
+            PasswordResetDialog(
+                initialEmail = uiState.email,
+                onDismiss = { loginViewModel.hideResetPasswordDialog() },
+                onSend = { email -> loginViewModel.sendPasswordResetEmail(email) },
+                isEmailSent = uiState.isResetPasswordEmailSent,
+                errorMessage = if (uiState.resetPasswordError) stringResource(R.string.reset_password_error) else null,
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .weight(0.6f, fill = true),
-                contentAlignment = Alignment.Center,
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.logo_open_no_bg),
-                    contentDescription = null,
-                    modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large)),
-                )
-            }
-
-            LoginLayout(
-                email = uiState.email,
-                password = uiState.password,
-                passwordError = uiState.passwordError,
-                emailError = uiState.emailError,
-                isLoading = uiState.isLoading,
-                onEmailChanged = {
-                    loginViewModel.updateEmail(it)
-                },
-                onPasswordChanged = {
-                    loginViewModel.updatePassword(it)
-                },
-                onLogin = {
-                    loginViewModel.login()
-                },
-                onForgotPasswordClick = {
-                    loginViewModel.showResetPasswordDialog()
-                },
-                modifier = Modifier.fillMaxWidth(),
+                        .padding(dimensionResource(R.dimen.padding_medium)),
             )
-
-            Spacer(modifier = Modifier.weight(0.4f, fill = true))
-
-            OutlinedButton(
-                onClick = {
-                    onNavigateToRegister()
-                    loginViewModel.resetAllFields()
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(stringResource(R.string.create_account))
-            }
         }
-        if (uiState.isLoading) {
-            Surface(modifier = Modifier.fillMaxSize(), color = Color.Black.copy(alpha = 0.3f)) {}
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
+
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(0.6f, fill = true),
+            contentAlignment = Alignment.Center,
+        ) {
+            Image(
+                painter = painterResource(R.drawable.logo_open_no_bg),
+                contentDescription = null,
+                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large)),
             )
+        }
+
+        LoginLayout(
+            email = uiState.email,
+            password = uiState.password,
+            passwordError = uiState.passwordError,
+            emailError = uiState.emailError,
+            isLoading = uiState.isLoading,
+            onEmailChanged = {
+                loginViewModel.updateEmail(it)
+            },
+            onPasswordChanged = {
+                loginViewModel.updatePassword(it)
+            },
+            onLogin = {
+                loginViewModel.login()
+            },
+            onForgotPasswordClick = {
+                loginViewModel.showResetPasswordDialog()
+            },
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        Spacer(modifier = Modifier.weight(0.4f, fill = true))
+
+        OutlinedButton(
+            onClick = {
+                onNavigateToRegister()
+                loginViewModel.resetAllFields()
+            },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(stringResource(R.string.create_account))
         }
     }
 }
@@ -164,7 +158,10 @@ fun PasswordResetDialog(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 if (isEmailSent) {
-                    Text(stringResource(R.string.email_sent), color = MaterialTheme.colorScheme.primary)
+                    Text(
+                        stringResource(R.string.email_sent),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
                 } else {
                     Text(stringResource(R.string.enter_reset_email))
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))

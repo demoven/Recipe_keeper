@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -158,12 +159,21 @@ fun RecipeKeeperApp(
 
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
-            try {
-                recipeKeeperViewModel.reloadUser()
-            } catch (e: Exception) {
-                // TODO Handle error properly
+            val reloadJob =
+                launch {
+                    try {
+                        recipeKeeperViewModel.reloadUser()
+                    } catch (e: Exception) {
+                        // TODO Handle error properly
+                    }
+                }
+
+            var isVerified = authRepository.isEmailVerified()
+
+            if (!isVerified) {
+                reloadJob.join()
+                isVerified = authRepository.isEmailVerified()
             }
-            val isVerified = authRepository.isEmailVerified()
             if (isVerified) {
                 val currentRoute = navController.currentDestination?.route
                 val isAuthScreen =
@@ -268,7 +278,7 @@ fun RecipeKeeperApp(
                         }
                         if (isCreateRecipeScreen) {
                             onSaveClick?.let {
-                                IconButton(onClick = it) {
+                                Button(onClick = it) {
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = stringResource(R.string.save),

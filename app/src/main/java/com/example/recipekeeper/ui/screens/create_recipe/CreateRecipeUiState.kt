@@ -1,6 +1,7 @@
 package com.example.recipekeeper.ui.screens.create_recipe
 
 data class CreateRecipeUiState(
+    val isLoading: Boolean = false,
     val title: String = "",
     val description: String = "",
     val ingredients: List<String> = listOf(""),
