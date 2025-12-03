@@ -142,6 +142,12 @@ class CreateRecipeViewModel(
             onFailure()
             return
         }
+        _uiState.update { current ->
+            current.copy(
+                ingredients = current.ingredients.filter { it.isNotBlank() },
+                instructions = current.instructions.filter { it.isNotBlank() },
+            )
+        }
         val state = _uiState.value
         val newRecipe =
             Recipe(
