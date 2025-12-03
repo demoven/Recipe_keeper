@@ -48,6 +48,10 @@ class RegisterViewModel(
         _uiState.value = _uiState.value.copy(verificationEmailSent = isSent)
     }
 
+    fun updateIsLoading(isLoading: Boolean) {
+        _uiState.value = _uiState.value.copy(isLoading = isLoading)
+    }
+
     fun resetAllFields() {
         _uiState.value = RegisterUiState()
     }
@@ -63,6 +67,7 @@ class RegisterViewModel(
         if (emailError || passwordError || confirmPasswordError) {
             return
         }
+        updateIsLoading(true)
 
         viewModelScope.launch {
             try {
@@ -70,9 +75,11 @@ class RegisterViewModel(
                 authRepository.sendEmailVerification()
                 authRepository.logout()
                 updateVerificationEmailSent(true)
+                updateIsLoading(false)
             } catch (e: Exception) {
                 // TODO handle error properly
                 updateRegisterError(true)
+                updateIsLoading(false)
             }
         }
     }

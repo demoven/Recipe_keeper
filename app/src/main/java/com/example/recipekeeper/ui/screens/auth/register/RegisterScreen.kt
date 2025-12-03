@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,55 +56,63 @@ fun RegisterScreen(
             onNavigateToLogin()
         }
     }
-
-    Column(
-        modifier =
-            Modifier
-                .padding(dimensionResource(R.dimen.padding_large))
-                .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .weight(0.6f, fill = true),
-            contentAlignment = Alignment.Center,
+                    .padding(dimensionResource(R.dimen.padding_large))
+                    .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Image(
-                painter = painterResource(R.drawable.logo_open_no_bg),
-                contentDescription = null,
-                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large)),
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(0.6f, fill = true),
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.logo_open_no_bg),
+                    contentDescription = null,
+                    modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large)),
+                )
+            }
+            RegisterLayout(
+                email = uiState.email,
+                password = uiState.password,
+                confirmedPassword = uiState.confirmPassword,
+                emailError = uiState.emailError,
+                passwordError = uiState.passwordError,
+                confirmedPasswordError = uiState.confirmPasswordError,
+                isLoading = uiState.isLoading,
+                onEmailChanged = {
+                    registerViewModel.updateEmail(it)
+                },
+                onPasswordChanged = {
+                    registerViewModel.updatePassword(it)
+                },
+                onConfirmedPasswordChanged = {
+                    registerViewModel.updateConfirmPassword(it)
+                },
+                onRegister = {
+                    registerViewModel.register()
+                },
+                onNavigateToLogin = {
+                    onNavigateToLogin()
+                    registerViewModel.resetAllFields()
+                },
+                modifier =
+                    Modifier
+                        .fillMaxWidth(),
+            )
+            Spacer(modifier = Modifier.weight(0.4f, fill = true))
+        }
+        if (uiState.isLoading) {
+            Surface(modifier = Modifier.fillMaxSize(), color = Color.Black.copy(alpha = 0.3f)) {}
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
             )
         }
-        RegisterLayout(
-            email = uiState.email,
-            password = uiState.password,
-            confirmedPassword = uiState.confirmPassword,
-            emailError = uiState.emailError,
-            passwordError = uiState.passwordError,
-            confirmedPasswordError = uiState.confirmPasswordError,
-            onEmailChanged = {
-                registerViewModel.updateEmail(it)
-            },
-            onPasswordChanged = {
-                registerViewModel.updatePassword(it)
-            },
-            onConfirmedPasswordChanged = {
-                registerViewModel.updateConfirmPassword(it)
-            },
-            onRegister = {
-                registerViewModel.register()
-            },
-            onNavigateToLogin = {
-                onNavigateToLogin()
-                registerViewModel.resetAllFields()
-            },
-            modifier =
-                Modifier
-                    .fillMaxWidth(),
-        )
-        Spacer(modifier = Modifier.weight(0.4f, fill = true))
     }
 }
 
@@ -112,6 +123,7 @@ fun RegisterLayout(
     confirmedPassword: String,
     emailError: Boolean,
     passwordError: Boolean,
+    isLoading: Boolean,
     confirmedPasswordError: Boolean,
     onEmailChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
@@ -165,6 +177,7 @@ fun RegisterLayout(
         Button(
             onClick = { onRegister() },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading,
         ) {
             Text(stringResource(R.string.register))
         }

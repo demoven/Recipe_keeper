@@ -107,6 +107,7 @@ fun LoginScreen(
                 password = uiState.password,
                 passwordError = uiState.passwordError,
                 emailError = uiState.emailError,
+                isLoading = uiState.isLoading,
                 onEmailChanged = {
                     loginViewModel.updateEmail(it)
                 },
@@ -135,9 +136,7 @@ fun LoginScreen(
             }
         }
         if (uiState.isLoading) {
-            // On ajoute un fond semi-transparent optionnel pour "griser" l'écran
             Surface(modifier = Modifier.fillMaxSize(), color = Color.Black.copy(alpha = 0.3f)) {}
-
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center),
             )
@@ -210,6 +209,7 @@ fun LoginLayout(
     password: String,
     passwordError: Boolean,
     emailError: Boolean,
+    isLoading: Boolean,
     onEmailChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
     onLogin: () -> Unit,
@@ -247,6 +247,7 @@ fun LoginLayout(
         Button(
             onClick = { onLogin() },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading,
         ) {
             Text(stringResource(R.string.login))
         }
