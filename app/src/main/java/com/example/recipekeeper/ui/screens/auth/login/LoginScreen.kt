@@ -14,9 +14,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -63,68 +66,81 @@ fun LoginScreen(
         }
     }
 
-    Column(
-        modifier =
-            Modifier
-                .padding(dimensionResource(R.dimen.padding_large))
-                .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        if (uiState.isResetPasswordDialogVisible) {
-            PasswordResetDialog(
-                initialEmail = uiState.email,
-                onDismiss = { loginViewModel.hideResetPasswordDialog() },
-                onSend = { email -> loginViewModel.sendPasswordResetEmail(email) },
-                isEmailSent = uiState.isResetPasswordEmailSent,
-                errorMessage = if (uiState.resetPasswordError) stringResource(R.string.reset_password_error) else null,
-                modifier = Modifier.fillMaxWidth().padding(dimensionResource(R.dimen.padding_medium)),
-            )
-        }
-
-        Box(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .weight(0.6f, fill = true),
-            contentAlignment = Alignment.Center,
+                    .padding(dimensionResource(R.dimen.padding_large))
+                    .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Image(
-                painter = painterResource(R.drawable.logo_open_no_bg),
-                contentDescription = null,
-                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large)),
+            if (uiState.isResetPasswordDialogVisible) {
+                PasswordResetDialog(
+                    initialEmail = uiState.email,
+                    onDismiss = { loginViewModel.hideResetPasswordDialog() },
+                    onSend = { email -> loginViewModel.sendPasswordResetEmail(email) },
+                    isEmailSent = uiState.isResetPasswordEmailSent,
+                    errorMessage = if (uiState.resetPasswordError) stringResource(R.string.reset_password_error) else null,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(dimensionResource(R.dimen.padding_medium)),
+                )
+            }
+
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(0.6f, fill = true),
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.logo_open_no_bg),
+                    contentDescription = null,
+                    modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large)),
+                )
+            }
+
+            LoginLayout(
+                email = uiState.email,
+                password = uiState.password,
+                passwordError = uiState.passwordError,
+                emailError = uiState.emailError,
+                onEmailChanged = {
+                    loginViewModel.updateEmail(it)
+                },
+                onPasswordChanged = {
+                    loginViewModel.updatePassword(it)
+                },
+                onLogin = {
+                    loginViewModel.login()
+                },
+                onForgotPasswordClick = {
+                    loginViewModel.showResetPasswordDialog()
+                },
+                modifier = Modifier.fillMaxWidth(),
             )
+
+            Spacer(modifier = Modifier.weight(0.4f, fill = true))
+
+            OutlinedButton(
+                onClick = {
+                    onNavigateToRegister()
+                    loginViewModel.resetAllFields()
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.create_account))
+            }
         }
+        if (uiState.isLoading) {
+            // On ajoute un fond semi-transparent optionnel pour "griser" l'écran
+            Surface(modifier = Modifier.fillMaxSize(), color = Color.Black.copy(alpha = 0.3f)) {}
 
-        LoginLayout(
-            email = uiState.email,
-            password = uiState.password,
-            passwordError = uiState.passwordError,
-            emailError = uiState.emailError,
-            onEmailChanged = {
-                loginViewModel.updateEmail(it)
-            },
-            onPasswordChanged = {
-                loginViewModel.updatePassword(it)
-            },
-            onLogin = {
-                loginViewModel.login()
-            },
-            onForgotPasswordClick = {
-                loginViewModel.showResetPasswordDialog()
-            },
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        Spacer(modifier = Modifier.weight(0.4f, fill = true))
-
-        OutlinedButton(
-            onClick = {
-                onNavigateToRegister()
-                loginViewModel.resetAllFields()
-            },
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(stringResource(R.string.create_account))
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+            )
         }
     }
 }
