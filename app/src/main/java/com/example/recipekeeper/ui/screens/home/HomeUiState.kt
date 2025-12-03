@@ -7,4 +7,5 @@ data class HomeUiState(
     val recipes: List<Recipe> = emptyList(),
     val folders: List<Folder> = emptyList(),
     val selectedFolder: String? = null,
+    val isLoading: Boolean = true,
 )

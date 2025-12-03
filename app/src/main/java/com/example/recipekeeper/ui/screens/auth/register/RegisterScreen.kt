@@ -28,7 +28,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.AuthViewModelFactory
-import com.example.recipekeeper.ui.components.LoadingIndicator
+import com.example.recipekeeper.ui.components.FullScreenLoadingIndicator
 import com.example.recipekeeper.ui.components.snackbar.SnackbarType
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
 import com.example.recipekeeper.ui.screens.auth.PasswordTextField
@@ -55,7 +55,7 @@ fun RegisterScreen(
         }
     }
     if (uiState.isLoading) {
-        LoadingIndicator()
+        FullScreenLoadingIndicator()
     }
 
     Column(

@@ -60,6 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.data.models.Recipe
 import com.example.recipekeeper.di.factory.CookingViewModelFactory
+import com.example.recipekeeper.ui.components.LoadingIndicator
 
 @Composable
 fun CookingScreen(
@@ -121,9 +122,7 @@ fun CookingScreen(
     ) {
         when {
             uiState.isLoading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
+                LoadingIndicator()
             }
 
             uiState.error -> {

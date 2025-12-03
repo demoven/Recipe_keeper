@@ -31,6 +31,7 @@ import com.example.recipekeeper.R
 import com.example.recipekeeper.data.models.Folder
 import com.example.recipekeeper.data.models.Recipe
 import com.example.recipekeeper.di.factory.HomeViewModelFactory
+import com.example.recipekeeper.ui.components.LoadingIndicator
 import com.example.recipekeeper.ui.components.RecipeCard
 import com.example.recipekeeper.ui.components.SectionTitle
 
@@ -47,7 +48,27 @@ fun HomeScreen(
     LaunchedEffect(folderId) {
         homeViewModel.loadData(folderId)
     }
+    when {
+        uiState.isLoading -> {
+            LoadingIndicator()
+        }
 
+        else -> {
+            HomeScreenLayout(
+                uiState = uiState,
+                onNavigateToSubFolder = onNavigateToSubFolder,
+                onNavigateToRecipeDetails = onNavigateToRecipeDetails,
+            )
+        }
+    }
+}
+
+@Composable
+fun HomeScreenLayout(
+    uiState: HomeUiState,
+    onNavigateToSubFolder: (String, String) -> Unit,
+    onNavigateToRecipeDetails: (String, String) -> Unit,
+) {
     Column(
         modifier =
             Modifier

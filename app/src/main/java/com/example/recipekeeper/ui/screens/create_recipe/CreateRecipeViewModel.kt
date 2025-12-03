@@ -123,6 +123,7 @@ class CreateRecipeViewModel(
     }
 
     fun getRecipeById(recipeId: String) {
+        if (_uiState.value.isLoading) return
         updateIsLoading(true)
         recipeRepository.getRecipeById(recipeId) { recipe ->
             if (recipe != null) {
@@ -146,6 +147,7 @@ class CreateRecipeViewModel(
         onSuccess: (String, String) -> Unit,
         onFailure: () -> Unit,
     ) {
+        if (_uiState.value.isLoading) return
         if (_uiState.value.title.isBlank() || _uiState.value.ingredients.isEmpty()) {
             onFailure()
             return

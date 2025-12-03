@@ -47,7 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.CreateRecipeViewModelFactory
-import com.example.recipekeeper.ui.components.LoadingIndicator
+import com.example.recipekeeper.ui.components.FullScreenLoadingIndicator
 import com.example.recipekeeper.ui.components.SectionTitle
 
 @Composable
@@ -92,7 +92,7 @@ fun CreateRecipeScreen(
     }
 
     if (uiState.isLoading) {
-        LoadingIndicator()
+        FullScreenLoadingIndicator()
     }
 
     Column(

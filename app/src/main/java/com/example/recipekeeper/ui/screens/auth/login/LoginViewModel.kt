@@ -69,8 +69,10 @@ class LoginViewModel(
                 } else {
                     try {
                         authRepository.sendEmailVerification()
+                        updateIsLoading(false)
                     } catch (e: Exception) {
                         // TODO handle exception properly
+                        updateIsLoading(false)
                     }
                     updateIsLoading(false)
                     authRepository.logout()
@@ -79,6 +81,7 @@ class LoginViewModel(
             } catch (e: Exception) {
                 // TODO handle exception properly
                 updateLoginError(true)
+                updateIsLoading(false)
             }
         }
     }

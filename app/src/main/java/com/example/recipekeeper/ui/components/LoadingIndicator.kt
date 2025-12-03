@@ -3,29 +3,51 @@ package com.example.recipekeeper.ui.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+
+@Composable
+fun FullScreenLoadingIndicator() {
+    Dialog(
+        onDismissRequest = { },
+        properties =
+            DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false,
+                usePlatformDefaultWidth = false,
+            ),
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f),
+            ) {}
+
+            CircularProgressIndicator()
+        }
+    }
+}
 
 @Composable
 fun LoadingIndicator() {
-    // La Box agit comme le conteneur parent (BoxScope)
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center, // Optionnel: centre tout par défaut
+        contentAlignment = Alignment.Center,
     ) {
-        // 1. Le fond (Surface)
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = Color.Black.copy(alpha = 0.3f),
+            color = MaterialTheme.colorScheme.background.copy(alpha = 1f),
         ) {}
 
-        // 2. Le loader
-        // Maintenant, Modifier.align est disponible car nous sommes dans une Box
-        CircularProgressIndicator(
-            modifier = Modifier.align(Alignment.Center),
-        )
+        CircularProgressIndicator()
     }
 }

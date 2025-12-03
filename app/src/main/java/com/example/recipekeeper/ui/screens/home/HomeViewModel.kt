@@ -22,7 +22,12 @@ class HomeViewModel(
         loadData(null)
     }
 
+    fun updateIsLoading(isLoading: Boolean) {
+        _uiState.value = _uiState.value.copy(isLoading = isLoading)
+    }
+
     fun loadData(folderId: String?) {
+        updateIsLoading(true)
         foldersListener?.remove()
         recipesListener?.remove()
 
@@ -30,11 +35,13 @@ class HomeViewModel(
             folderRepository.watchFolder(folderId) { folders ->
                 val sortedFolders = folders.sortedBy { it.name.lowercase() }
                 _uiState.value = _uiState.value.copy(folders = sortedFolders)
+                updateIsLoading(false)
             }
         recipesListener =
             recipeRepository.watchRecipesInFolder(folderId) { recipes ->
                 val sortedRecipes = recipes.sortedBy { it.title.lowercase() }
                 _uiState.value = _uiState.value.copy(recipes = sortedRecipes)
+                updateIsLoading(false)
             }
     }
 
