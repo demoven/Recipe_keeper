@@ -1,7 +1,8 @@
 package com.example.recipekeeper.ui.screens.settings
-import android.util.Log
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.recipekeeper.R
 import com.example.recipekeeper.data.repository.IAuthRepository
 import com.example.recipekeeper.data.repository.IFolderRepository
 import com.example.recipekeeper.data.repository.IRecipeRepository
@@ -32,7 +33,12 @@ class SettingsViewModel(
     }
 
     fun updateCurrentPassword(updatedPassword: String) {
-        _uiState.value = _uiState.value.copy(currentPassword = updatedPassword, currentPasswordError = false)
+        _uiState.value =
+            _uiState.value.copy(
+                currentPassword = updatedPassword,
+                currentPasswordError = false,
+                passwordDialogMessageResId = null,
+            )
     }
 
     fun updateNewPassword(updatedPassword: String) {
@@ -40,39 +46,29 @@ class SettingsViewModel(
     }
 
     fun updateShowPasswordDialogEmail(show: Boolean) {
-        _uiState.value = _uiState.value.copy(showPasswordDialogEmail = show)
+        _uiState.value = _uiState.value.copy(showPasswordDialogEmail = show, passwordDialogMessageResId = null)
     }
 
     fun updateShowPasswordDialogDeletion(show: Boolean) {
-        _uiState.value = _uiState.value.copy(showPasswordDialogDeletion = show)
+        _uiState.value = _uiState.value.copy(showPasswordDialogDeletion = show, passwordDialogMessageResId = null)
     }
 
     fun updateShowPasswordDialogSecurity(show: Boolean) {
-        _uiState.value = _uiState.value.copy(showPasswordDialogSecurity = show)
+        _uiState.value = _uiState.value.copy(showPasswordDialogSecurity = show, passwordDialogMessageResId = null)
     }
 
-    fun updateEmailAlreadyExists(exists: Boolean) {
-        _uiState.value = _uiState.value.copy(emailAlreadyExists = exists)
+    fun updatePasswordDialogMessage(
+        @StringRes messageResId: Int?,
+    ) {
+        _uiState.value = _uiState.value.copy(passwordDialogMessageResId = messageResId)
     }
 
-    fun updateEmailUpdateSuccess(isSuccess: Boolean) {
-        _uiState.value = _uiState.value.copy(emailUpdateSuccess = isSuccess)
-    }
-
-    fun updatePasswordUpdateSuccess(isSuccess: Boolean) {
-        _uiState.value = _uiState.value.copy(passwordUpdateSuccess = isSuccess)
-    }
-
-    fun updateEmailUpdateError(hasError: Boolean) {
-        _uiState.value = _uiState.value.copy(emailUpdateError = hasError)
-    }
-
-    fun updatePasswordUpdateError(hasError: Boolean) {
-        _uiState.value = _uiState.value.copy(passwordUpdateError = hasError)
-    }
-
-    fun updateDeletionError(hasError: Boolean) {
-        _uiState.value = _uiState.value.copy(deletionError = hasError)
+    fun clearSuccessFlags() {
+        _uiState.value =
+            _uiState.value.copy(
+                emailUpdateSuccess = false,
+                passwordUpdateSuccess = false,
+            )
     }
 
     fun updateIsLoading(isLoading: Boolean) {
@@ -87,6 +83,7 @@ class SettingsViewModel(
                 showPasswordDialogSecurity = false,
                 currentPassword = "",
                 newPassword = "",
+                passwordDialogMessageResId = null,
             )
     }
 
@@ -122,12 +119,12 @@ class SettingsViewModel(
 
     fun updateUserEmail() {
         if (!isCurrentPasswordValid()) {
+            updatePasswordDialogMessage(R.string.required_field)
             return
         }
         val userEmail = authRepository.getCurrentUser()?.email
         if (uiState.value.email == userEmail) {
-            Log.d("SettingsViewModel", "Email has not changed.")
-            updateEmailAlreadyExists(true)
+            updatePasswordDialogMessage(R.string.current_email_error)
             return
         } else {
             updateIsLoading(true)
@@ -137,20 +134,18 @@ class SettingsViewModel(
                         currentPassword = uiState.value.currentPassword,
                         newEmail = uiState.value.email,
                         onSuccess = {
-                            updateEmailUpdateSuccess(true)
                             updateIsLoading(false)
+                            _uiState.value = _uiState.value.copy(emailUpdateSuccess = true)
                             onDismissDialog()
-                            logout()
                         },
                         onFailure = {
                             updateIsLoading(false)
-                            updateEmailUpdateError(true)
+                            updatePasswordDialogMessage(R.string.email_update_error)
                         },
                     )
-                } catch (e: Exception) {
-                    // TODO handle exception properly
+                } catch (_: Exception) {
                     updateIsLoading(false)
-                    updateEmailUpdateError(true)
+                    updatePasswordDialogMessage(R.string.confirmation_error)
                 }
             }
         }
@@ -158,6 +153,7 @@ class SettingsViewModel(
 
     fun updateUserPassword() {
         if (!isCurrentPasswordValid()) {
+            updatePasswordDialogMessage(R.string.required_field)
             return
         }
         updateIsLoading(true)
@@ -168,19 +164,17 @@ class SettingsViewModel(
                     newPassword = uiState.value.newPassword,
                     onSuccess = {
                         updateIsLoading(false)
-                        updatePasswordUpdateSuccess(true)
+                        _uiState.value = _uiState.value.copy(passwordUpdateSuccess = true)
                         onDismissDialog()
                     },
                     onFailure = {
                         updateIsLoading(false)
-                        updatePasswordUpdateError(true)
+                        updatePasswordDialogMessage(R.string.invalid_password)
                     },
                 )
-                // Password update successful
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 updateIsLoading(false)
-                // TODO handle exception properly
-                updatePasswordUpdateError(true)
+                updatePasswordDialogMessage(R.string.invalid_password)
             }
         }
     }
@@ -191,6 +185,7 @@ class SettingsViewModel(
 
     fun deleteAccount() {
         if (!isCurrentPasswordValid()) {
+            updatePasswordDialogMessage(R.string.required_field)
             return
         }
         updateIsLoading(true)
@@ -200,11 +195,9 @@ class SettingsViewModel(
                 folderRepository.deleteAllFolders()
                 authRepository.deleteAccount(uiState.value.currentPassword)
                 updateIsLoading(false)
-                // Account deletion successful
-            } catch (e: Exception) {
-                // TODO handle exception properly
+            } catch (_: Exception) {
                 updateIsLoading(false)
-                updateDeletionError(true)
+                updatePasswordDialogMessage(R.string.account_suppression_error)
             }
         }
     }

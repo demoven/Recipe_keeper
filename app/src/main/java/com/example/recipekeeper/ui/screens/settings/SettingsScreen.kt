@@ -31,7 +31,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -50,52 +49,21 @@ fun SettingsScreen(
     settingsViewModel: SettingsViewModel = viewModel(),
 ) {
     val uiState by settingsViewModel.uiState.collectAsState()
-    val context = LocalContext.current
+    val emailSuccessMessage = stringResource(R.string.check_mailbox)
+    val passwordSuccessMessage = stringResource(R.string.password_update_success)
 
-    LaunchedEffect(
-        uiState.emailUpdateError,
-        uiState.emailUpdateSuccess,
-        uiState.emailAlreadyExists,
-        uiState.passwordUpdateError,
-        uiState.passwordUpdateSuccess,
-        uiState.deletionError,
-    ) {
-        if (uiState.emailUpdateError) {
-            onDisplayMessage(
-                context.getString(R.string.email_update_error),
-                SnackbarType.Error,
-            )
-            settingsViewModel.updateEmailUpdateError(false)
-        } else if (uiState.emailUpdateSuccess) {
-            onDisplayMessage(
-                context.getString(R.string.check_verification_email),
-                SnackbarType.Info,
-            )
-            settingsViewModel.updateEmailUpdateSuccess(false)
-        } else if (uiState.emailAlreadyExists) {
-            onDisplayMessage(
-                context.getString(R.string.current_email_error),
-                SnackbarType.Error,
-            )
-            settingsViewModel.updateEmailAlreadyExists(false)
-        } else if (uiState.passwordUpdateError) {
-            onDisplayMessage(
-                context.getString(R.string.confirmation_error),
-                SnackbarType.Error,
-            )
-            settingsViewModel.updatePasswordUpdateError(false)
-        } else if (uiState.passwordUpdateSuccess) {
-            onDisplayMessage(
-                context.getString(R.string.password_update_success),
-                SnackbarType.Info,
-            )
-            settingsViewModel.updatePasswordUpdateSuccess(false)
-        } else if (uiState.deletionError) {
-            onDisplayMessage(
-                context.getString(R.string.account_suppression_error),
-                SnackbarType.Error,
-            )
-            settingsViewModel.updateDeletionError(false)
+    // Affichage des messages de succès via la snackbar globale
+    LaunchedEffect(uiState.emailUpdateSuccess, uiState.passwordUpdateSuccess) {
+        when {
+            uiState.emailUpdateSuccess -> {
+                onDisplayMessage(emailSuccessMessage, SnackbarType.Info)
+                settingsViewModel.clearSuccessFlags()
+            }
+
+            uiState.passwordUpdateSuccess -> {
+                onDisplayMessage(passwordSuccessMessage, SnackbarType.Info)
+                settingsViewModel.clearSuccessFlags()
+            }
         }
     }
 
@@ -104,10 +72,11 @@ fun SettingsScreen(
     }
 
     if (uiState.showPasswordDialogSecurity) {
-        // Update User Password
         PasswordDialog(
             password = uiState.currentPassword,
             passwordError = uiState.currentPasswordError,
+            messageResId = uiState.passwordDialogMessageResId,
+            isLoading = uiState.isLoading,
             onPasswordChanged = { settingsViewModel.updateCurrentPassword(it) },
             onPasswordConfirmed = {
                 settingsViewModel.updateUserPassword()
@@ -117,10 +86,11 @@ fun SettingsScreen(
             },
         )
     } else if (uiState.showPasswordDialogEmail) {
-        // Update User EMAIL
         PasswordDialog(
             password = uiState.currentPassword,
             passwordError = uiState.currentPasswordError,
+            messageResId = uiState.passwordDialogMessageResId,
+            isLoading = uiState.isLoading,
             onPasswordChanged = { settingsViewModel.updateCurrentPassword(it) },
             onPasswordConfirmed = {
                 settingsViewModel.updateUserEmail()
@@ -133,6 +103,8 @@ fun SettingsScreen(
         PasswordDialog(
             password = uiState.currentPassword,
             passwordError = uiState.currentPasswordError,
+            messageResId = uiState.passwordDialogMessageResId,
+            isLoading = uiState.isLoading,
             onPasswordChanged = { settingsViewModel.updateCurrentPassword(it) },
             onPasswordConfirmed = {
                 settingsViewModel.deleteAccount()
@@ -345,6 +317,7 @@ fun SectionLogout(
 fun PasswordDialog(
     password: String,
     passwordError: Boolean,
+    messageResId: Int?,
     isLoading: Boolean = false,
     onPasswordChanged: (String) -> Unit,
     onPasswordConfirmed: () -> Unit,
@@ -374,6 +347,13 @@ fun PasswordDialog(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = null,
                 )
+                if (messageResId != null) {
+                    Text(
+                        text = stringResource(id = messageResId),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
             }
         },
         confirmButton = {
