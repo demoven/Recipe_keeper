@@ -115,6 +115,10 @@ class RecipeKeeperViewModel(
         _uiState.value = _uiState.value.copy(isDeleteRecipeDialogVisible = false)
     }
 
+    fun updateIsLoading(isLoading: Boolean) {
+        _uiState.value = _uiState.value.copy(isLoading = isLoading)
+    }
+
     fun showSnackbar(
         message: String,
         type: SnackbarType = SnackbarType.Info,
