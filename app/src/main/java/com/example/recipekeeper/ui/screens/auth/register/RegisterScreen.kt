@@ -151,6 +151,14 @@ fun RegisterLayout(
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_extra_small)))
+        PasswordRequirements(
+            password = password,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = dimensionResource(R.dimen.padding_small)),
+        )
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_extra_small)))
         PasswordTextField(
             label = stringResource(R.string.confirm_password),
             password = confirmedPassword,

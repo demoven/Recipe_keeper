@@ -52,7 +52,6 @@ fun SettingsScreen(
     val emailSuccessMessage = stringResource(R.string.check_mailbox)
     val passwordSuccessMessage = stringResource(R.string.password_update_success)
 
-    // Affichage des messages de succès via la snackbar globale
     LaunchedEffect(uiState.emailUpdateSuccess, uiState.passwordUpdateSuccess) {
         when {
             uiState.emailUpdateSuccess -> {
