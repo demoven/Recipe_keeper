@@ -184,7 +184,7 @@ class CreateRecipeViewModel(
             newRecipe,
             onSuccess = { recipeId, recipeTitle ->
                 onSuccess(recipeId, recipeTitle)
-                _uiState.value = CreateRecipeUiState() // Reset state after saving
+                _uiState.value = CreateRecipeUiState(imageKey = "dessert") // Reset state after saving
                 updateIsLoading(false)
             },
             onFailure = {
