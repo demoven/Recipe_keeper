@@ -40,6 +40,10 @@ class LoginViewModel(
         _uiState.value = _uiState.value.copy(emailVerificationError = hasError)
     }
 
+    fun updateIsLoading(isLoading: Boolean) {
+        _uiState.value = _uiState.value.copy(isLoading = isLoading)
+    }
+
     fun resetAllFields() {
         _uiState.value = LoginUiState()
     }
@@ -53,6 +57,7 @@ class LoginViewModel(
         if (emailError || passwordError) {
             return
         }
+        updateIsLoading(true)
 
         viewModelScope.launch {
             try {
@@ -60,18 +65,23 @@ class LoginViewModel(
                 if (authRepository.isEmailVerified()) {
                     resetAllFields()
                     updateEmailVerificationError(false)
+                    updateIsLoading(false)
                 } else {
                     try {
                         authRepository.sendEmailVerification()
+                        updateIsLoading(false)
                     } catch (e: Exception) {
                         // TODO handle exception properly
+                        updateIsLoading(false)
                     }
+                    updateIsLoading(false)
                     authRepository.logout()
                     updateEmailVerificationError(true)
                 }
             } catch (e: Exception) {
                 // TODO handle exception properly
                 updateLoginError(true)
+                updateIsLoading(false)
             }
         }
     }

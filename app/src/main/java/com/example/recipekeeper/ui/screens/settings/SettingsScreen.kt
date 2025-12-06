@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -30,13 +31,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
+import com.example.recipekeeper.ui.components.FullScreenLoadingIndicator
 import com.example.recipekeeper.ui.components.snackbar.SnackbarType
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
 import com.example.recipekeeper.ui.screens.auth.PasswordTextField
@@ -47,60 +49,33 @@ fun SettingsScreen(
     settingsViewModel: SettingsViewModel = viewModel(),
 ) {
     val uiState by settingsViewModel.uiState.collectAsState()
-    val context = LocalContext.current
+    val emailSuccessMessage = stringResource(R.string.check_mailbox)
+    val passwordSuccessMessage = stringResource(R.string.password_update_success)
 
-    LaunchedEffect(
-        uiState.emailUpdateError,
-        uiState.emailUpdateSuccess,
-        uiState.emailAlreadyExists,
-        uiState.passwordUpdateError,
-        uiState.passwordUpdateSuccess,
-        uiState.deletionError,
-    ) {
-        if (uiState.emailUpdateError) {
-            onDisplayMessage(
-                context.getString(R.string.email_update_error),
-                SnackbarType.Error,
-            )
-            settingsViewModel.updateEmailUpdateError(false)
-        } else if (uiState.emailUpdateSuccess) {
-            onDisplayMessage(
-                context.getString(R.string.check_verification_email),
-                SnackbarType.Info,
-            )
-            settingsViewModel.updateEmailUpdateSuccess(false)
-        } else if (uiState.emailAlreadyExists) {
-            onDisplayMessage(
-                context.getString(R.string.current_email_error),
-                SnackbarType.Error,
-            )
-            settingsViewModel.updateEmailAlreadyExists(false)
-        } else if (uiState.passwordUpdateError) {
-            onDisplayMessage(
-                context.getString(R.string.confirmation_error),
-                SnackbarType.Error,
-            )
-            settingsViewModel.updatePasswordUpdateError(false)
-        } else if (uiState.passwordUpdateSuccess) {
-            onDisplayMessage(
-                context.getString(R.string.password_update_success),
-                SnackbarType.Info,
-            )
-            settingsViewModel.updatePasswordUpdateSuccess(false)
-        } else if (uiState.deletionError) {
-            onDisplayMessage(
-                context.getString(R.string.account_suppression_error),
-                SnackbarType.Error,
-            )
-            settingsViewModel.updateDeletionError(false)
+    LaunchedEffect(uiState.emailUpdateSuccess, uiState.passwordUpdateSuccess) {
+        when {
+            uiState.emailUpdateSuccess -> {
+                onDisplayMessage(emailSuccessMessage, SnackbarType.Info)
+                settingsViewModel.clearSuccessFlags()
+            }
+
+            uiState.passwordUpdateSuccess -> {
+                onDisplayMessage(passwordSuccessMessage, SnackbarType.Info)
+                settingsViewModel.clearSuccessFlags()
+            }
         }
     }
 
+    if (uiState.isLoading) {
+        FullScreenLoadingIndicator()
+    }
+
     if (uiState.showPasswordDialogSecurity) {
-        // Update User Password
         PasswordDialog(
             password = uiState.currentPassword,
             passwordError = uiState.currentPasswordError,
+            messageResId = uiState.passwordDialogMessageResId,
+            isLoading = uiState.isLoading,
             onPasswordChanged = { settingsViewModel.updateCurrentPassword(it) },
             onPasswordConfirmed = {
                 settingsViewModel.updateUserPassword()
@@ -110,10 +85,11 @@ fun SettingsScreen(
             },
         )
     } else if (uiState.showPasswordDialogEmail) {
-        // Update User EMAIL
         PasswordDialog(
             password = uiState.currentPassword,
             passwordError = uiState.currentPasswordError,
+            messageResId = uiState.passwordDialogMessageResId,
+            isLoading = uiState.isLoading,
             onPasswordChanged = { settingsViewModel.updateCurrentPassword(it) },
             onPasswordConfirmed = {
                 settingsViewModel.updateUserEmail()
@@ -126,6 +102,8 @@ fun SettingsScreen(
         PasswordDialog(
             password = uiState.currentPassword,
             passwordError = uiState.currentPasswordError,
+            messageResId = uiState.passwordDialogMessageResId,
+            isLoading = uiState.isLoading,
             onPasswordChanged = { settingsViewModel.updateCurrentPassword(it) },
             onPasswordConfirmed = {
                 settingsViewModel.deleteAccount()
@@ -205,8 +183,12 @@ fun EmailCard(
                 keyboardOptions =
                     KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Email,
                     ),
-                keyboardActions = null,
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = { onEmailUpdate(email) },
+                    ),
             )
 
             Button(
@@ -246,6 +228,10 @@ fun SecurityCard(
                 passwordErrorMessage = stringResource(R.string.password_invalid_error),
                 onPasswordChanged = { onPasswordChanged(it) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = { onPasswordUpdate() },
+                    ),
                 modifier = Modifier.fillMaxWidth(),
             )
 
@@ -330,6 +316,8 @@ fun SectionLogout(
 fun PasswordDialog(
     password: String,
     passwordError: Boolean,
+    messageResId: Int?,
+    isLoading: Boolean = false,
     onPasswordChanged: (String) -> Unit,
     onPasswordConfirmed: () -> Unit,
     onDismiss: () -> Unit,
@@ -358,10 +346,20 @@ fun PasswordDialog(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = null,
                 )
+                if (messageResId != null) {
+                    Text(
+                        text = stringResource(id = messageResId),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
             }
         },
         confirmButton = {
-            Button(onClick = { onPasswordConfirmed() }) {
+            Button(
+                enabled = !isLoading,
+                onClick = { onPasswordConfirmed() },
+            ) {
                 Text(stringResource(R.string.confirm))
             }
         },

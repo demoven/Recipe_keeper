@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.update
 class CreateRecipeViewModel(
     private val recipeRepository: IRecipeRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(CreateRecipeUiState())
+    private val _uiState = MutableStateFlow(CreateRecipeUiState(imageKey = "dessert"))
     val uiState: StateFlow<CreateRecipeUiState> = _uiState.asStateFlow()
 
     fun updateTitle(updatedTitle: String) {
@@ -28,6 +28,12 @@ class CreateRecipeViewModel(
         }
     }
 
+    fun updateImageKey(imageKey: String) {
+        _uiState.update { current ->
+            current.copy(imageKey = imageKey)
+        }
+    }
+
     fun removeIngredient(index: Int) {
         _uiState.update { current ->
             if (index in current.ingredients.indices) {
@@ -41,18 +47,21 @@ class CreateRecipeViewModel(
     }
 
     fun updatePrepTime(value: String) {
-        val numericValue = value.toIntOrNull() ?: 0
-        _uiState.update { it.copy(prepTime = numericValue) }
+        if (value.all { it.isDigit() } || value.isEmpty()) {
+            _uiState.update { it.copy(prepTime = value) }
+        }
     }
 
     fun updateCookTime(value: String) {
-        val numericValue = value.toIntOrNull() ?: 0
-        _uiState.update { it.copy(cookTime = numericValue) }
+        if (value.all { it.isDigit() } || value.isEmpty()) {
+            _uiState.update { it.copy(cookTime = value) }
+        }
     }
 
     fun updateServings(value: String) {
-        val numericValue = value.toIntOrNull() ?: 0
-        _uiState.update { it.copy(servings = numericValue) }
+        if (value.all { it.isDigit() } || value.isEmpty()) {
+            _uiState.update { it.copy(servings = value) }
+        }
     }
 
     fun updateIngredient(
@@ -71,7 +80,7 @@ class CreateRecipeViewModel(
     }
 
     fun resetState() {
-        _uiState.value = CreateRecipeUiState()
+        _uiState.value = CreateRecipeUiState(imageKey = "dessert")
     }
 
     fun addStep() {
@@ -113,20 +122,30 @@ class CreateRecipeViewModel(
         }
     }
 
+    fun updateIsLoading(isLoading: Boolean) {
+        _uiState.update { current ->
+            current.copy(isLoading = isLoading)
+        }
+    }
+
     fun getRecipeById(recipeId: String) {
+        if (_uiState.value.isLoading) return
+        updateIsLoading(true)
         recipeRepository.getRecipeById(recipeId) { recipe ->
             if (recipe != null) {
                 _uiState.value =
                     CreateRecipeUiState(
                         title = recipe.title,
                         description = recipe.description,
-                        prepTime = recipe.prepTime,
-                        cookTime = recipe.cookTime,
-                        servings = recipe.servings,
+                        prepTime = recipe.prepTime.toString(),
+                        cookTime = recipe.cookTime.toString(),
+                        servings = recipe.servings.toString(),
                         ingredients = recipe.ingredients,
                         instructions = recipe.instructions,
+                        imageKey = recipe.imageUrl ?: "",
                     )
             }
+            updateIsLoading(false)
         }
     }
 
@@ -135,30 +154,43 @@ class CreateRecipeViewModel(
         onSuccess: (String, String) -> Unit,
         onFailure: () -> Unit,
     ) {
+        if (_uiState.value.isLoading) return
         if (_uiState.value.title.isBlank() || _uiState.value.ingredients.isEmpty()) {
             onFailure()
             return
         }
+        _uiState.update { current ->
+            current.copy(
+                ingredients = current.ingredients.filter { it.isNotBlank() },
+                instructions = current.instructions.filter { it.isNotBlank() },
+            )
+        }
+        updateIsLoading(true)
         val state = _uiState.value
         val newRecipe =
             Recipe(
                 id = "",
                 title = state.title,
                 description = state.description,
-                prepTime = state.prepTime,
-                cookTime = state.cookTime,
-                servings = state.servings,
+                prepTime = state.prepTime.toIntOrNull() ?: 0,
+                cookTime = state.cookTime.toIntOrNull() ?: 0,
+                servings = state.servings.toIntOrNull() ?: 0,
                 ingredients = state.ingredients,
                 instructions = state.instructions,
                 folderId = folderId,
+                imageUrl = if (state.imageKey?.isNotBlank() == true) state.imageKey else null,
             )
         recipeRepository.saveRecipe(
             newRecipe,
             onSuccess = { recipeId, recipeTitle ->
                 onSuccess(recipeId, recipeTitle)
-                _uiState.value = CreateRecipeUiState() // Reset state after saving
+                _uiState.value = CreateRecipeUiState(imageKey = "dessert") // Reset state after saving
+                updateIsLoading(false)
             },
-            onFailure = { /* TODO */ },
+            onFailure = {
+                onFailure()
+                updateIsLoading(false)
+            },
         )
     }
 
@@ -166,6 +198,7 @@ class CreateRecipeViewModel(
         recipeId: String,
         onSuccess: (String, String) -> Unit,
     ) {
+        updateIsLoading(true)
         recipeRepository.updateRecipe(
             recipe =
                 Recipe(
@@ -174,13 +207,22 @@ class CreateRecipeViewModel(
                     description = _uiState.value.description,
                     ingredients = _uiState.value.ingredients,
                     instructions = _uiState.value.instructions,
-                    prepTime = _uiState.value.prepTime,
-                    cookTime = _uiState.value.cookTime,
-                    servings = _uiState.value.servings,
+                    prepTime = _uiState.value.prepTime.toIntOrNull() ?: 0,
+                    cookTime = _uiState.value.cookTime.toIntOrNull() ?: 0,
+                    servings = _uiState.value.servings.toIntOrNull() ?: 0,
+                    imageUrl =
+                        if (_uiState.value.imageKey?.isNotBlank() == true) {
+                            _uiState.value.imageKey
+                        } else {
+                            null
+                        },
                 ),
-            onSuccess = onSuccess,
+            onSuccess = { recipeId, recipeTitle ->
+                onSuccess(recipeId, recipeTitle)
+                updateIsLoading(false)
+            },
             onFailure = {
-                // TODO handle failure
+                updateIsLoading(false)
             },
         )
     }

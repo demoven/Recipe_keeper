@@ -38,6 +38,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.AuthViewModelFactory
+import com.example.recipekeeper.ui.components.FullScreenLoadingIndicator
 import com.example.recipekeeper.ui.components.snackbar.SnackbarType
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
 import com.example.recipekeeper.ui.screens.auth.PasswordTextField
@@ -63,6 +64,10 @@ fun LoginScreen(
         }
     }
 
+    if (uiState.isLoading) {
+        FullScreenLoadingIndicator()
+    }
+
     Column(
         modifier =
             Modifier
@@ -77,7 +82,10 @@ fun LoginScreen(
                 onSend = { email -> loginViewModel.sendPasswordResetEmail(email) },
                 isEmailSent = uiState.isResetPasswordEmailSent,
                 errorMessage = if (uiState.resetPasswordError) stringResource(R.string.reset_password_error) else null,
-                modifier = Modifier.fillMaxWidth().padding(dimensionResource(R.dimen.padding_medium)),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(R.dimen.padding_medium)),
             )
         }
 
@@ -100,6 +108,7 @@ fun LoginScreen(
             password = uiState.password,
             passwordError = uiState.passwordError,
             emailError = uiState.emailError,
+            isLoading = uiState.isLoading,
             onEmailChanged = {
                 loginViewModel.updateEmail(it)
             },
@@ -149,7 +158,10 @@ fun PasswordResetDialog(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 if (isEmailSent) {
-                    Text(stringResource(R.string.email_sent), color = MaterialTheme.colorScheme.primary)
+                    Text(
+                        stringResource(R.string.email_sent),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
                 } else {
                     Text(stringResource(R.string.enter_reset_email))
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
@@ -194,6 +206,7 @@ fun LoginLayout(
     password: String,
     passwordError: Boolean,
     emailError: Boolean,
+    isLoading: Boolean,
     onEmailChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
     onLogin: () -> Unit,
@@ -231,6 +244,7 @@ fun LoginLayout(
         Button(
             onClick = { onLogin() },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading,
         ) {
             Text(stringResource(R.string.login))
         }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +39,7 @@ import com.example.recipekeeper.ui.components.BottomSheetAddFolder
 import com.example.recipekeeper.ui.components.BottomSheetContent
 import com.example.recipekeeper.ui.components.DeleteFolderDialog
 import com.example.recipekeeper.ui.components.DeleteRecipeDialog
+import com.example.recipekeeper.ui.components.FullScreenLoadingIndicator
 import com.example.recipekeeper.ui.components.RenameFolderDialog
 import com.example.recipekeeper.ui.components.options.FolderDropDownOptions
 import com.example.recipekeeper.ui.components.options.RecipeDropDownOptions
@@ -158,12 +160,21 @@ fun RecipeKeeperApp(
 
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
-            try {
-                recipeKeeperViewModel.reloadUser()
-            } catch (e: Exception) {
-                // TODO Handle error properly
+            val reloadJob =
+                launch {
+                    try {
+                        recipeKeeperViewModel.reloadUser()
+                    } catch (e: Exception) {
+                        // TODO Handle error properly
+                    }
+                }
+
+            var isVerified = authRepository.isEmailVerified()
+
+            if (!isVerified) {
+                reloadJob.join()
+                isVerified = authRepository.isEmailVerified()
             }
-            val isVerified = authRepository.isEmailVerified()
             if (isVerified) {
                 val currentRoute = navController.currentDestination?.route
                 val isAuthScreen =
@@ -190,8 +201,8 @@ fun RecipeKeeperApp(
         userContainer?.folderRepository?.updateFolder(
             folderId = folderId,
             newName = newName,
-            onSuccess = { /* TODO Handle success*/ },
-            onFailure = { /* TODO Handle error */ },
+            onSuccess = { recipeKeeperViewModel.updateIsLoading(false) },
+            onFailure = { recipeKeeperViewModel.updateIsLoading(false) },
         )
     }
 
@@ -268,7 +279,7 @@ fun RecipeKeeperApp(
                         }
                         if (isCreateRecipeScreen) {
                             onSaveClick?.let {
-                                IconButton(onClick = it) {
+                                Button(onClick = it) {
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = stringResource(R.string.save),
@@ -297,11 +308,15 @@ fun RecipeKeeperApp(
             }
         },
     ) { innerPadding ->
+        if (uiState.isLoading) {
+            FullScreenLoadingIndicator()
+        }
         if (uiState.isRenameDialogVisible && currentFolderId != null) {
             RenameFolderDialog(
                 currentFolderName = dynamicTitle,
                 onDismiss = { recipeKeeperViewModel.hideRenameDialog() },
                 onConfirm = { newName ->
+                    recipeKeeperViewModel.updateIsLoading(true)
                     updateFolderAction(currentFolderId, newName)
                     dynamicTitle = newName
                     recipeKeeperViewModel.hideRenameDialog()
@@ -312,8 +327,9 @@ fun RecipeKeeperApp(
             DeleteFolderDialog(
                 onDismiss = { recipeKeeperViewModel.hideDeleteDialog() },
                 onConfirm = {
-                    recipeKeeperViewModel.hideDeleteDialog()
                     deleteFolderAction(currentFolderId)
+                    recipeKeeperViewModel.updateIsLoading(false)
+                    recipeKeeperViewModel.hideDeleteDialog()
                     navController.navigateUp()
                 },
             )
@@ -322,14 +338,17 @@ fun RecipeKeeperApp(
             DeleteRecipeDialog(
                 onDismiss = { recipeKeeperViewModel.hideRecipeDeleteDialog() },
                 onConfirm = {
-                    recipeKeeperViewModel.hideRecipeDeleteDialog()
+                    recipeKeeperViewModel.updateIsLoading(true)
                     coroutineScope.launch {
                         userContainer?.recipeRepository?.deleteRecipeById(
                             recipeId = currentRecipeId,
                             onSuccess = {
+                                recipeKeeperViewModel.hideRecipeDeleteDialog()
+                                recipeKeeperViewModel.updateIsLoading(false)
                                 navController.navigateUp()
                             },
                             onFailure = {
+                                recipeKeeperViewModel.updateIsLoading(false)
                                 // TODO handle error
                             },
                         )

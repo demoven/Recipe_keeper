@@ -4,6 +4,7 @@ data class RegisterUiState(
     val email: String = "",
     val password: String = "",
     val confirmPassword: String = "",
+    val isLoading: Boolean = false,
     // Error fields
     val registerError: Boolean = false,
     val emailError: Boolean = false,

@@ -46,7 +46,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,6 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.data.models.Recipe
 import com.example.recipekeeper.di.factory.CookingViewModelFactory
+import com.example.recipekeeper.ui.components.LoadingIndicator
 
 @Composable
 fun CookingScreen(
@@ -72,7 +72,6 @@ fun CookingScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    var showIngredientsDialog by remember { mutableStateOf(false) }
     val isListening = remember { mutableStateOf(false) }
 
     val voiceHelper =
@@ -85,9 +84,9 @@ fun CookingScreen(
                 onRetour = {
                     if (uiState.currentStep > 0) viewModel.previousStep()
                 }
-                onIngredient = { showIngredientsDialog = true }
-                onFermer = { showIngredientsDialog = false }
-                shouldShowIngredients = { showIngredientsDialog }
+                onIngredient = { viewModel.openIngredientsDialog() }
+                onFermer = { viewModel.closeIngredientsDialog() }
+                shouldShowIngredients = { uiState.showIngredientsDialog }
             }
         }
 
@@ -95,7 +94,10 @@ fun CookingScreen(
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission(),
         ) { isGranted: Boolean ->
-            if (isGranted) voiceHelper.startListening()
+            if (isGranted) {
+                voiceHelper.startListening()
+                viewModel.openVoiceInstructions()
+            }
         }
 
     DisposableEffect(context) {
@@ -108,6 +110,7 @@ fun CookingScreen(
     LaunchedEffect(Unit) {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             voiceHelper.startListening()
+            viewModel.openVoiceInstructions()
         } else {
             requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
         }
@@ -119,9 +122,7 @@ fun CookingScreen(
     ) {
         when {
             uiState.isLoading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
+                LoadingIndicator()
             }
 
             uiState.error -> {
@@ -148,17 +149,24 @@ fun CookingScreen(
                         }
                     },
                     onPrevious = { viewModel.previousStep() },
-                    onShowIngredients = { showIngredientsDialog = true },
+                    onShowIngredients = { viewModel.openIngredientsDialog() },
                 )
             }
         }
     }
 
-    if (showIngredientsDialog && uiState.recipe != null) {
+    if (uiState.showIngredientsDialog && uiState.recipe != null) {
         IngredientsDialog(
             modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
             ingredients = uiState.recipe!!.ingredients,
-            onDismiss = { showIngredientsDialog = false },
+            onDismiss = { viewModel.closeIngredientsDialog() },
+        )
+    }
+
+    if (uiState.showVoiceInstructions) {
+        VoiceInstructionsDialog(
+            onDismiss = { viewModel.closeVoiceInstructions() },
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
         )
     }
 }
@@ -433,6 +441,49 @@ fun IngredientsDialog(
                     "${stringResource(R.string.close)} (\"${stringResource(R.string.close)}\")",
                     style = MaterialTheme.typography.labelLarge,
                 )
+            }
+        },
+    )
+}
+
+@Composable
+fun VoiceInstructionsDialog(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AlertDialog(
+        modifier = modifier,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        onDismissRequest = { onDismiss() },
+        title = {
+            Text(
+                text = stringResource(R.string.voice_control),
+                style = MaterialTheme.typography.titleLarge,
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))) {
+                Text(
+                    text = stringResource(R.string.voice_controle_next),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                Text(
+                    text = stringResource(R.string.voice_controle_back),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                Text(
+                    text = stringResource(R.string.voice_control_ingredients),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                Text(
+                    text = stringResource(R.string.voice_control_close_ingredients),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onDismiss() }) {
+                Text(stringResource(R.string.understood))
             }
         },
     )

@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.AuthViewModelFactory
+import com.example.recipekeeper.ui.components.FullScreenLoadingIndicator
 import com.example.recipekeeper.ui.components.snackbar.SnackbarType
 import com.example.recipekeeper.ui.screens.auth.EmailTextField
 import com.example.recipekeeper.ui.screens.auth.PasswordTextField
@@ -52,6 +53,9 @@ fun RegisterScreen(
             registerViewModel.updateVerificationEmailSent(false)
             onNavigateToLogin()
         }
+    }
+    if (uiState.isLoading) {
+        FullScreenLoadingIndicator()
     }
 
     Column(
@@ -81,6 +85,7 @@ fun RegisterScreen(
             emailError = uiState.emailError,
             passwordError = uiState.passwordError,
             confirmedPasswordError = uiState.confirmPasswordError,
+            isLoading = uiState.isLoading,
             onEmailChanged = {
                 registerViewModel.updateEmail(it)
             },
@@ -112,6 +117,7 @@ fun RegisterLayout(
     confirmedPassword: String,
     emailError: Boolean,
     passwordError: Boolean,
+    isLoading: Boolean,
     confirmedPasswordError: Boolean,
     onEmailChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
@@ -145,6 +151,14 @@ fun RegisterLayout(
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_extra_small)))
+        PasswordRequirements(
+            password = password,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = dimensionResource(R.dimen.padding_small)),
+        )
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.padding_extra_small)))
         PasswordTextField(
             label = stringResource(R.string.confirm_password),
             password = confirmedPassword,
@@ -165,6 +179,7 @@ fun RegisterLayout(
         Button(
             onClick = { onRegister() },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading,
         ) {
             Text(stringResource(R.string.register))
         }
