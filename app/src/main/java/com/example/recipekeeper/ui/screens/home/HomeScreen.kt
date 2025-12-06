@@ -157,6 +157,7 @@ fun CardsLayout(
             key = { it.id },
         ) { recipe ->
             RecipeCard(
+                imageKey = recipe.imageUrl,
                 modifier =
                     Modifier
                         .fillMaxWidth()

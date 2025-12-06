@@ -7,17 +7,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -44,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipekeeper.R
 import com.example.recipekeeper.di.factory.CreateRecipeViewModelFactory
@@ -104,18 +110,14 @@ fun CreateRecipeScreen(
                 .padding(dimensionResource(R.dimen.padding_medium)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.space_large)),
     ) {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Image(
-                painter = painterResource(R.drawable.logo_open_no_bg),
-                contentDescription = null,
-                modifier = Modifier.size(dimensionResource(R.dimen.image_size_extra_large)),
-            )
-        }
+        SectionTitle(
+            title = stringResource(R.string.description),
+        )
+        ImageSelector(
+            selectedKey = uiState.imageKey,
+            onImageSelected = { key -> createRecipeViewModel.updateImageKey(key) },
+            modifier = Modifier.fillMaxWidth(),
+        )
         DescriptionLayout(
             recipeName = uiState.title,
             recipeDescription = uiState.description,
@@ -123,7 +125,7 @@ fun CreateRecipeScreen(
             onRecipeDescriptionChange = { createRecipeViewModel.updateDescription(it) },
         )
         TextFieldTransparent(
-            value = uiState.prepTime.toString(),
+            value = uiState.prepTime,
             onValueChange = { createRecipeViewModel.updatePrepTime(it) },
             label = stringResource(R.string.preparation_time_label),
             keyboardOptions =
@@ -134,7 +136,7 @@ fun CreateRecipeScreen(
             modifier = Modifier.fillMaxWidth(),
         )
         TextFieldTransparent(
-            value = uiState.cookTime.toString(),
+            value = uiState.cookTime,
             onValueChange = { createRecipeViewModel.updateCookTime(it) },
             label = stringResource(R.string.cook_time_label),
             keyboardOptions =
@@ -145,7 +147,7 @@ fun CreateRecipeScreen(
             modifier = Modifier.fillMaxWidth(),
         )
         TextFieldTransparent(
-            value = uiState.servings.toString(),
+            value = uiState.servings,
             onValueChange = { createRecipeViewModel.updateServings(it) },
             label = stringResource(R.string.servings_label),
             keyboardOptions =
@@ -158,7 +160,7 @@ fun CreateRecipeScreen(
         ListLayout(
             elements = uiState.ingredients,
             placeholder = stringResource(R.string.ingredients_example),
-            title = "Ingrédients",
+            title = stringResource(R.string.ingredients_title),
             onValueChange = { index, ingredient -> createRecipeViewModel.updateIngredient(index, ingredient) },
             onAdd = { createRecipeViewModel.addIngredient() },
             onRemove = { index -> createRecipeViewModel.removeIngredient(index) },
@@ -368,4 +370,50 @@ fun TextFieldTransparent(
         singleLine = singleLine,
         modifier = modifier,
     )
+}
+
+@Composable
+fun ImageSelector(
+    selectedKey: String?,
+    onImageSelected: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val options =
+        listOf(
+            stringResource(R.string.image_dessert_key) to R.drawable.dessert,
+            stringResource(R.string.image_soupe_key) to R.drawable.soupe,
+            stringResource(R.string.image_cookies_key) to R.drawable.cookies,
+            stringResource(R.string.image_plat_key) to R.drawable.plat,
+        )
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+    ) {
+        options.forEach { (key, resId) ->
+            val isSelected = key == selectedKey
+            val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+
+            Card(
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .selectable(
+                            selected = isSelected,
+                            onClick = { onImageSelected(key) },
+                        ),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = CardDefaults.outlinedCardBorder().copy(brush = SolidColor(borderColor)),
+            ) {
+                Image(
+                    painter = painterResource(resId),
+                    contentDescription = null,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(80.dp),
+                )
+            }
+        }
+    }
 }

@@ -24,8 +24,23 @@ import com.example.recipekeeper.R
 fun RecipeCard(
     title: String,
     modifier: Modifier = Modifier,
+    imageKey: String? = null,
 ) {
     val cardShape = RoundedCornerShape(8.dp)
+
+    val imageRes =
+        when (imageKey) {
+            // les clés viennent de stringResource(R.string.image_XXX_key) côté création
+            "dessert" -> R.drawable.dessert
+
+            "soupe" -> R.drawable.soupe
+
+            "cookies" -> R.drawable.cookies
+
+            "plat" -> R.drawable.plat
+
+            else -> R.drawable.logo_open_no_bg
+        }
 
     Card(
         modifier = modifier,
@@ -33,7 +48,7 @@ fun RecipeCard(
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Image(
-                painter = painterResource(R.drawable.logo_open_no_bg),
+                painter = painterResource(imageRes),
                 contentDescription = null,
                 modifier =
                     Modifier

@@ -101,4 +101,10 @@
     <string name="password_requirement_uppercase">Au moins une majuscule</string>
     <string name="password_requirement_lowercase">Au moins une minuscule</string>
     <string name="password_requirement_special">Au moins un caractère spécial</string>
+    <string name="image_dessert_key">dessert</string>
+    <string name="image_soupe_key">soupe</string>
+    <string name="image_cookies_key">cookies</string>
+    <string name="image_plat_key">plat</string>
+    <string name="image_selector_title">%1$s</string>
+    <string name="ingredients_title">Ingrédients</string>
 </resources>

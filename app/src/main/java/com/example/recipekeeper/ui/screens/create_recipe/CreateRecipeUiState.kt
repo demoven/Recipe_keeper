@@ -9,4 +9,5 @@ data class CreateRecipeUiState(
     val prepTime: String = "", // in minutes
     val cookTime: String = "", // in minutes
     val servings: String = "",
+    val imageKey: String? = null,
 )

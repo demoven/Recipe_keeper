@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.update
 class CreateRecipeViewModel(
     private val recipeRepository: IRecipeRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(CreateRecipeUiState())
+    private val _uiState = MutableStateFlow(CreateRecipeUiState(imageKey = "dessert"))
     val uiState: StateFlow<CreateRecipeUiState> = _uiState.asStateFlow()
 
     fun updateTitle(updatedTitle: String) {
@@ -25,6 +25,12 @@ class CreateRecipeViewModel(
     fun addIngredient() {
         _uiState.update { current ->
             current.copy(ingredients = current.ingredients + "")
+        }
+    }
+
+    fun updateImageKey(imageKey: String) {
+        _uiState.update { current ->
+            current.copy(imageKey = imageKey)
         }
     }
 
@@ -74,7 +80,7 @@ class CreateRecipeViewModel(
     }
 
     fun resetState() {
-        _uiState.value = CreateRecipeUiState()
+        _uiState.value = CreateRecipeUiState(imageKey = "dessert")
     }
 
     fun addStep() {
@@ -136,6 +142,7 @@ class CreateRecipeViewModel(
                         servings = recipe.servings.toString(),
                         ingredients = recipe.ingredients,
                         instructions = recipe.instructions,
+                        imageKey = recipe.imageUrl ?: "",
                     )
             }
             updateIsLoading(false)
@@ -171,6 +178,7 @@ class CreateRecipeViewModel(
                 ingredients = state.ingredients,
                 instructions = state.instructions,
                 folderId = folderId,
+                imageUrl = if (state.imageKey?.isNotBlank() == true) state.imageKey else null,
             )
         recipeRepository.saveRecipe(
             newRecipe,
@@ -202,6 +210,12 @@ class CreateRecipeViewModel(
                     prepTime = _uiState.value.prepTime.toIntOrNull() ?: 0,
                     cookTime = _uiState.value.cookTime.toIntOrNull() ?: 0,
                     servings = _uiState.value.servings.toIntOrNull() ?: 0,
+                    imageUrl =
+                        if (_uiState.value.imageKey?.isNotBlank() == true) {
+                            _uiState.value.imageKey
+                        } else {
+                            null
+                        },
                 ),
             onSuccess = { recipeId, recipeTitle ->
                 onSuccess(recipeId, recipeTitle)
