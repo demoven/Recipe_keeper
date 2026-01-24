@@ -2,6 +2,12 @@
 
 **Recipe Keeper** is a modern Android application built with **Kotlin** and **Jetpack Compose** that allows users to create, organize, and manage their favorite culinary recipes. The app features a robust **voice-controlled cooking mode**, enabling a hands-free experience while in the kitchen.
 
+## 📺 Demo
+
+Watch a quick demonstration of Recipe Keeper in action, including the voice commands:
+
+**[🎥 Watch the Presentation Video](https://youtu.be/PbkhyFYV0IQ)**
+
 ## ✨ Features
 
 * **Recipe Management**: Create, read, update, and delete recipes with detailed information including preparation time, cooking time, servings, ingredients, and step-by-step instructions.
